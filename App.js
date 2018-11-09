@@ -32,6 +32,9 @@ export default class App extends React.Component {
       Asset.loadAsync([
         require('./assets/images/robot-dev.png'),
         require('./assets/images/robot-prod.png'),
+        require('./assets/images/load.gif'),
+        require('./assets/images/humanPin.png'),
+        require('./assets/images/giphy.gif')
       ]),
       Font.loadAsync({
         // This is the font that we are using for our tab bar
@@ -39,6 +42,9 @@ export default class App extends React.Component {
         // We include SpaceMono because we use it in HomeScreen.js. Feel free
         // to remove this if you are not using it in your app
         'space-mono': require('./assets/fonts/SpaceMono-Regular.ttf'),
+        'ailerons': require('./assets/fonts/Ailerons.otf'),
+        'kontakt': require('./assets/fonts/Kontakt.ttf'),
+        'mylodon-light': require('./assets/fonts/Mylodon-Light.otf'),
       }),
     ]);
   };
