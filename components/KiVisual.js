@@ -27,7 +27,7 @@ class KiVisual extends React.Component {
          counter < protection) {
 
       var randomX = Math.round(50+Math.random() * (width-130));
-      var randomY = Math.round(50+Math.random() * (width-130));
+      var randomY = Math.round(50+Math.random() * (height*13/24-130));
       //perhaps better algorithm here
       var size = 15 + pool[savedCirclesCounter].value/sum* (width-15)/3;
       var uri = pool[savedCirclesCounter].uri;

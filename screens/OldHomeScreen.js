@@ -204,7 +204,7 @@ export default class HomeScreen extends React.Component {
       }
     })      
   }
-
+  
   fetchMarkerData = async (location) => {
     /*Returns a list of recommended venues near the current location. For more robust information about the venues themselves (photos/tips/etc.), please see our venue details endpoint.
       If authenticated, the method will personalize the ranking based on you and your friends.
@@ -257,17 +257,110 @@ export default class HomeScreen extends React.Component {
   }
 
   render() {
+    let text = 'Waiting..';
+    if (this.state.errorMessage) {
+      text = this.state.errorMessage;
+    } else if (this.state.location) {
+      text = JSON.stringify(this.state.location);
+    }
+
+    const interpolations = this.state.markers.map((marker, index) => {
+      const inputRange = [
+        (index - 1) * CARD_WIDTH,
+        index * CARD_WIDTH,
+        ((index + 1) * CARD_WIDTH),
+      ];
+      const translate = this.animation.interpolate({
+        inputRange,
+        outputRange: [0, 1, 0],
+        extrapolate: "clamp",
+      });
+      const scale = this.animation.interpolate({
+        inputRange,
+        outputRange: [1, 2, 1],
+        extrapolate: "clamp",
+      });
+      const opacity = this.animation.interpolate({
+        inputRange,
+        outputRange: [0.35, 1, 0.35],
+        extrapolate: "clamp",
+      });
+      return { scale, opacity };
+    });
+
     let stationaryurl = 'https://s3.amazonaws.com/exp-brand-assets/ExponentEmptyManifest_192.png';
+
     return (
       <View style={styles.container}>
-        <View style={styles.particlesContainer}>
-            {this.drawKiView()}
-        </View>
+        <MapView
+          style={styles.container}
+          provider="google"
+          ref={ref => { this.map = ref; if (ref) ref.animateToViewingAngle(90,0.1)}}
+          showsUserLocation={true}
+          //onRegionChange={this.onRegionChange.bind(this)}
+          //onUserLocationChange ={changed => this.setUserLocation(changed.nativeEvent.coordinate)}
+          //onUserLocationChange ={changed => console.log(changed.nativeEvent)}
+          //followsUserLocation={true}
+          zoomEnabled={false}
+          rotateEnabled={true}
+          scrollEnabled={false}
+          pitchEnabled={true}
+          customMapStyle = {mapStyle}
+          region={this.state.region}
+          //onPress={()=>this.animateToRandomViewingAngle()}
+        >
+          {this.state.markers.map((marker, index) => {
+            const scaleStyle = {
+              transform: ([
+                  {
+                    scale: interpolations[index].scale,
+                   // translateY: interpolations[index].translate,
+                },
+              ]),
+            };
+            const translateStyle = {
+              transform: [
+                  {
+                    translateY: interpolations[index].translate,
+                },
+              ],
+            };
+            const opacityStyle = {
+              opacity: interpolations[index].opacity,
+            };
+            const coords = {
+                latitude: marker.location.lat,
+                longitude: marker.location.lng,
+            };
+            const metadata = `Status: ${marker.id}`;
+            
+            return (
+              <MapView.Marker key={index} coordinate={coords}>
+                <Animated.Image
+                  style={[styles.markerWrap, opacityStyle, scaleStyle]}
+                  resizeMode={'cover'}
+                  source={require('../assets/images/humanPin.png')}/>
+              </MapView.Marker>
+            );
+          })}
+        </MapView>
         <Animated.ScrollView
           horizontal
           scrollEventThrottle={1}
           showsHorizontalScrollIndicator={false}
           snapToInterval={CARD_WIDTH}
+          onScroll={Animated.event(
+            [
+              {
+                nativeEvent: {
+                  contentOffset: {
+                    x: this.animation,
+                  },
+                },
+              },
+            ],
+            { useNativeDriver: true }
+          )}
           style={styles.scrollView}
           contentContainerStyle={styles.endPadding}
         >
@@ -416,13 +509,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   particlesContainer:{
-    marginTop : height/8,
-    height: height*2/3,
+    height: width,
     width: width,
-  },
-  kiContainer: {
-    width: width-30,
-    height: height*2/3-30, 
   },
   itemContainer: {
     marginBottom: 15,

@@ -39,7 +39,8 @@ class Fire extends React.Component {
         methodID: param.userid,
       };
       this.auth.doc(this.uid).get().then((doc) => {
-        if (!doc.exists) doc.ref.set(data);
+        // if (!doc.exists) doc.ref.set(data);
+        doc.ref.set(data);
       });
     }
   }
