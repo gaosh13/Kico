@@ -42,7 +42,7 @@ export default class ReadyPage extends React.Component{
     }, function(error) {
         console.error('Sign Out Error', error);
     });
-    props.navigation.navigate('Pre')
+    props.navigation.navigate('Pre');
   }
 
   render() {

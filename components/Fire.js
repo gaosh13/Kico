@@ -174,15 +174,14 @@ class Fire extends React.Component {
     let doc = await this.notification.where('uid1', '==', this.uid).get();
     let notificationData = [];
     doc.forEach((d) => {
-      let data = d.data();
-      notificationData.push({
-        id: d.id,
-        uid: data.uid2,
-        type: data.type,
-      })
+      notificationData.push(Object.assign({id: d.id}, d.data()));
     });
     await Promise.all(notificationData.map( (notification) => {
-      return this.getName(notification.uid).then( (name) => {notification.name = name});
+      if (notification.uid2) {
+        return this.getName(notification.uid).then( (name) => {notification.name = name});
+      } else {
+        return 0;
+      }
     }));
     // for (let notification of notificationData) {
     //   notification.name = await this.getName(notification.uid);
@@ -375,7 +374,7 @@ class Fire extends React.Component {
             break;
           }
         }
-        let kiValue = {uid: this.uid, value: 0, time: firebase.firestore.Timestamp.now()};
+        let kiValue = {uid: this.uid, value: 0, time: this.timestamp};
         this.place.doc(placeID).update({
           pool: firebase.firestore.FieldValue.arrayUnion(kiValue),
         });
@@ -387,8 +386,21 @@ class Fire extends React.Component {
     });
   }
 
+  // development tootls:
+  // for debug
+
+  generateNotification = () => {
+    let data = {
+      type: 'sys1',
+      uid1: this.uid,
+      message: 'System generate the test message',
+      time: this.timestamp,
+    }
+    this.notification.add(data);
+  }
+
   deleteMyPool = () => {
-    this.deleteCollection(this.profile.doc(this.uid).collection('pool')).then(()=>{console.log("success deleted the pool")});
+    this.deleteCollection(this.profile.doc(this.uid).collection('pool')).then(()=>{console.log("successfully deleted the pool")});
   }
 
   deleteAllPool = () => {
@@ -396,8 +408,12 @@ class Fire extends React.Component {
       let docRefs = [];
       Promise.all(snapshot.docs.map( async (doc) => {
         await this.deleteCollection(doc.ref.collection("pool"));
-      })).then(()=>{console.log("clear all the pool")});
+      })).then(()=>{console.log("successfully clear all users' pool")});
     });
+  }
+
+  deleteAllNotification = () => {
+    this.deleteCollection(this.notification).then(()=>{console.log("successfully remove all notifications")});
   }
 
   deleteCollection = (collectionRef) => {
@@ -442,7 +458,7 @@ class Fire extends React.Component {
     return (firebase.auth().currentUser || {}).uid;
   }
   get timestamp() {
-    return Date.now();
+    return firebase.firestore.Timestamp.now();
   }
 }
 
