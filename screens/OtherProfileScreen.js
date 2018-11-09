@@ -24,6 +24,8 @@ import Fire from '../components/Fire';
 import ButtonComponent, { CircleButton, RoundButton, RectangleButton } from 'react-native-button-component';
 import AwesomeButton from 'react-native-really-awesome-button';
 
+import AsyncImageAnimated from 'react-native-async-image-animated';
+
 
 const Spacer = () => <View style={styles.spacer} />;
 const { width, height } = Dimensions.get("window");
@@ -43,13 +45,12 @@ export default class ProfileScreen extends React.Component {
   constructor(props) {
     super(props);
     const { getParam } = this.props.navigation;
+    console.log(getParam('name'));
     this.state = {
       name: getParam('name','______'),
       gender: 'unknown',
       age: 'unknown',
-      friendsLoaded: false,
-      poolLoaded: false,
-      photoUrl: '../assets/images/icon.png',
+      photoUrl: getParam('uri'),
     };
   }
 
@@ -57,13 +58,12 @@ export default class ProfileScreen extends React.Component {
     await this.fetchdata();
   }
 
-  async fetchdata(){
-    let data = await Fire.shared.readInfo();
-    let moredata = await Fire.shared.readAuth();
-    if (data && moredata) {
+  async fetchdata(){ 	
+    const { getParam } = this.props.navigation;
+    let data = await Fire.shared.readUserInfo(getParam('uid'));
+    if (data) {
       const {name, gender, age} = data;
-      const {photoURL} = moredata;
-      this.setState({name: name, gender: gender, age: age.toString(),photoUrl: photoURL});
+      await this.setState({name: name, gender: gender, age: age.toString()},function(){console.log(this.state);});
     }
   }
 
@@ -76,14 +76,13 @@ export default class ProfileScreen extends React.Component {
           <View style={styles.headerColumn}>
             <Spacer />
             <Spacer />
-            <Spacer />
-            <Spacer />
-            <Image
-              style={styles.userImage}
-              source={{
-                uri: this.state.photoUrl,
-              }}
-            />
+            <AsyncImageAnimated
+	            style={styles.userImage}
+	            source={{
+	              uri: this.state.photoUrl
+	            }}
+	            placeholderColor='purple'
+	            animationStyle='fade'/>
             <Text style={styles.userNameText}>{this.state.name}</Text>
             <View style={styles.centerRow}>
               <View style={styles.transparentRow}>
@@ -99,11 +98,6 @@ export default class ProfileScreen extends React.Component {
                 </Text>
               </View>
             </View>
-            <Spacer />
-            <Spacer />
-	        <Spacer />
-	        <Spacer />
-	        <Spacer />
             <Spacer />
 	        <AwesomeButton
 		       progress
@@ -132,7 +126,7 @@ export default class ProfileScreen extends React.Component {
 
 const styles = StyleSheet.create({
   spacer: {
-    height: 20,
+    height: 100,
   },
   text: {
     fontFamily :"kontakt",
@@ -186,15 +180,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   userImage: {
-  	marginTop:100,
-    borderColor: '#01C89E',
     borderRadius: 100,
-    borderWidth: 3,
     height: 200,
-    marginBottom: 15,
     width: 200,
   },
   userNameText: {
+  	marginTop: 20,
     color: '#FFF',
     fontSize: 22,
     fontWeight: 'bold',

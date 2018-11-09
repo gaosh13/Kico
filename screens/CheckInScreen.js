@@ -84,7 +84,7 @@ export default class CheckInScreen extends React.Component {
       console.log('ZZZZZZZZ',this.state.sum);
       return (
         <View style={styles.kiContainer}>
-          {KiVisual.shared.generateCircles(this.state.pool,this.state.sum)}
+          {KiVisual.shared.generateCircles(this.state.pool,this.state.sum,this.props.navigation)}
           
         </View>
         )

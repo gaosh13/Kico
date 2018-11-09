@@ -11,7 +11,7 @@ class KiVisual extends React.Component {
   }
 
 
-  generateCircles = (pool,sum) => {  
+  generateCircles = (pool,sum,navigation) => {  
     var NumCircles = pool.length ;
 
     var values = pool.sort((a,b)=>{return b.value-a.value})
@@ -58,17 +58,17 @@ class KiVisual extends React.Component {
       counter++;
     }
     //console.log('cirles to be rendered',circles);
-    return this.clickBox(circles);
+    return this.clickBox(circles,navigation);
   }
 
-  clickBox(circles){
+  clickBox(circles,navigation){
     return circles.map((element, index) => {
       console.log('dararda', element);
       return(
         <TouchableOpacity
           key={index}
           onPress={
-            () => this.props.navigation.navigate("ViewOther", {
+            () => navigation.navigate("ViewOther", {
               uri: element.uri,
               name: element.name,
               uid: element.uid,

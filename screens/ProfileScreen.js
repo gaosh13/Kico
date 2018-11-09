@@ -227,7 +227,7 @@ export default class ProfileScreen extends React.Component {
       // let friendSum = this.state.pool.reduce((prev,next) => prev + next.value,0);
       return (
         <View style={styles.kiContainer}>
-          {KiVisual.shared.generateCircles(this.state.pool,this.state.sum)}      
+          {KiVisual.shared.generateCircles(this.state.pool,this.state.sum,this.props.navigation)}      
         </View>
       );
     }else{
