@@ -349,7 +349,7 @@ export default class HomeScreen extends React.Component {
 
         <TouchableOpacity
           style={styles.notificationContainer}
-          onPress={this._showNotification}>
+          onPress={() => {this.props.navigation.navigate("Notification")}}>
           <Ionicons name='ios-notifications-outline' size={25} color="#000"/>
         </TouchableOpacity>
         <TouchableOpacity

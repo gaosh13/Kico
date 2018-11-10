@@ -16,6 +16,7 @@ import SettingsScreen from '../screens/SettingsScreen';
 import HelpScreen from '../screens/HelpScreen';
 import DevelopmentScreen from '../screens/DevelopmentScreen';
 import CheckInScreen from '../screens/CheckInScreen';
+import NotificationScreen from '../screens/NotificationScreen';
 import ChangeScreen from '../screens/ChangeScreen';
 import OtherProfileScreen from '../screens/OtherProfileScreen';
 
@@ -51,13 +52,20 @@ const PersonalDrawer = createDrawerNavigator({
   //     },
   //   }
   // }),
-  Home: createStackNavigator({HomeScreen, CheckIn: CheckInScreen, ViewOther:OtherProfileScreen}),
+  HomeStack: createStackNavigator({
+    Home: HomeScreen,
+    CheckIn: CheckInScreen,
+    Notification: NotificationScreen,
+    ViewOther:OtherProfileScreen
+  }, {
+    initialRouteName: 'Home',
+  }),
   Profile: createStackNavigator({ProfileScreen, Edit: EditScreen}),
   Settings: createStackNavigator({SettingsScreen}),
   Help: createStackNavigator({HelpScreen}),
   Development: createStackNavigator({DevelopmentScreen}),
 }, {
-  initialRouteName: 'Home',
+  initialRouteName: 'HomeStack',
   drawerPosition: 'left',
   contentComponent: DrawerView,
 });
