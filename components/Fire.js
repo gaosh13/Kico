@@ -174,12 +174,18 @@ class Fire extends React.Component {
     let doc = await this.notification.where('uid1', '==', this.uid).get();
     let notificationData = [];
     doc.forEach((d) => {
-      notificationData.push(Object.assign({id: d.id}, d.data()));
+      let pushData = Object.assign({id: d.id}, d.data());
+      pushData.time = this.timeSince(pushData.time) + ' ago';
+      notificationData.push(pushData);
     });
     await Promise.all(notificationData.map( (notification) => {
       if (notification.uid2) {
-        return this.getName(notification.uid).then( (name) => {notification.name = name});
+        return Promise.all([
+          this.getName(notification.uid2).then( (name) => {notification.name = name}),
+          this.readUserAvatar(notification.uid2).then( (uri) => {notification.uri = uri}),
+        ]);
       } else {
+        notification.uri = '../assets/images/robot-dev.png';
         return 0;
       }
     }));
@@ -452,6 +458,31 @@ class Fire extends React.Component {
         });
       })
       .catch(reject);
+  }
+
+  timeSince = (date) => {
+    var seconds = Math.floor((this.timestamp.toDate() - date.toDate()) / 1000);
+    var interval = Math.floor(seconds / 31536000);
+    if (interval > 1) {
+      return interval + " years";
+    }
+    interval = Math.floor(seconds / 2592000);
+    if (interval > 1) {
+      return interval + " months";
+    }
+    interval = Math.floor(seconds / 86400);
+    if (interval > 1) {
+      return interval + " days";
+    }
+    interval = Math.floor(seconds / 3600);
+    if (interval > 1) {
+      return interval + " hours";
+    }
+    interval = Math.floor(seconds / 60);
+    if (interval > 1) {
+      return interval + " minutes";
+    }
+    return Math.floor(seconds) + " seconds";
   }
 
   get uid() {

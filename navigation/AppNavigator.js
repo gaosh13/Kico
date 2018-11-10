@@ -52,18 +52,20 @@ const PersonalDrawer = createDrawerNavigator({
   //     },
   //   }
   // }),
-  Home: createStackNavigator({
-    HomeScreen,
+  HomeStack: createStackNavigator({
+    Home: HomeScreen,
     CheckIn: CheckInScreen,
     Notification: NotificationScreen,
     ViewOther:OtherProfileScreen
+  }, {
+    initialRouteName: 'Home',
   }),
   Profile: createStackNavigator({ProfileScreen, Edit: EditScreen}),
   Settings: createStackNavigator({SettingsScreen}),
   Help: createStackNavigator({HelpScreen}),
   Development: createStackNavigator({DevelopmentScreen}),
 }, {
-  initialRouteName: 'Home',
+  initialRouteName: 'HomeStack',
   drawerPosition: 'left',
   contentComponent: DrawerView,
 });
