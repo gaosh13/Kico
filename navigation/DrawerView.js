@@ -66,7 +66,7 @@ class DrawerView extends Component {
         </TouchableHighlight>
 
         <TouchableHighlight
-          onPress={() => navigate('Settings')}
+          onPress={() => navigate('Chat')}
           underlayColor="#CCC"
           style={styles.menuTouchable}>
           <View style={styles.navBar}>
@@ -75,7 +75,7 @@ class DrawerView extends Component {
             </View>
             <View style={styles.rightContainer}>
               <Text style={styles.navTextStyle}>
-                Settings
+                Chat
               </Text>
             </View>
           </View>
