@@ -12,16 +12,18 @@ import {
   FlatList,
   AppRegistry,
   Button,
+  ImageBackground,
 } from 'react-native';
-import { WebBrowser,Constants,Location,Permissions } from 'expo';
+import { WebBrowser,Constants,Location,Permissions,LinearGradient } from 'expo';
 import Touchable from 'react-native-platform-touchable';
 import { MonoText } from '../components/StyledText';
 import { MapView, MapContainer } from "expo";
 import { Ionicons } from '@expo/vector-icons';
 import Fire from '../components/Fire';
 import { REACT_APP_FOURSQUARE_ID, REACT_APP_FOURSQUARE_SECRET } from 'react-native-dotenv'
-import AsyncImageAnimated from 'react-native-async-image-animated';
+import AsyncImageAnimated from '../components/AsyncImageAnimated';
 import KiVisual from '../components/KiVisual';
+import { BlurView, VibrancyView } from 'react-native-blur';
 
 const { width, height } = Dimensions.get("window");
 
@@ -260,56 +262,62 @@ export default class HomeScreen extends React.Component {
     let stationaryurl = 'https://s3.amazonaws.com/exp-brand-assets/ExponentEmptyManifest_192.png';
     return (
       <View style={styles.container}>
-        <View style={styles.particlesContainer}>
-            {this.drawKiView()}
-        </View>
-        <Animated.ScrollView
-          horizontal
-          scrollEventThrottle={1}
-          showsHorizontalScrollIndicator={false}
-          snapToInterval={CARD_WIDTH}
-          style={styles.scrollView}
-          contentContainerStyle={styles.endPadding}
-        >
-          {this.state.markers.map((marker, index) => (
-            <TouchableOpacity key={index} onPress={
-              () => this.props.navigation.navigate("CheckIn", {
-                uri: marker.uri,
-                name: marker.name,
-                placeID: marker.id,
-              })
-            }>
-              <View style={styles.card}>
-                <View style={styles.textContent}>
-                  <Text numberOfLines={1} style={styles.cardtitle}>
-                    {marker.name}
-                  </Text>
-                  <Text numberOfLines={1} style={styles.cardDescription}>
-                    {marker.location.formattedAddress.slice(0,-1)}
-                  </Text>
+          <View style={styles.particlesContainer}>
+              {this.drawKiView()}
+          </View>
+          <ScrollView
+            horizontal
+            scrollEventThrottle={1}
+            showsHorizontalScrollIndicator={false}
+            snapToInterval={CARD_WIDTH+5}
+            style={styles.scrollView}
+            contentContainerStyle={styles.endPadding}
+            decelerationRate='fast'
+          >
+            {this.state.markers.map((marker, index) => (
+              <TouchableOpacity key={index} onPress={
+                () => this.props.navigation.navigate("CheckIn", {
+                  uri: marker.uri,
+                  name: marker.name,
+                  placeID: marker.id,
+                })
+              }>
+                <View style={styles.card}>
+                  <AsyncImageAnimated
+                    style={styles.cardImage}
+                    source={{
+                      uri: marker.uri
+                    }}
+                    placeholderColor='#cfd8dc'
+                    animationStyle='fade'
+                    >
+                  </AsyncImageAnimated>  
+                  <LinearGradient colors={['rgba(0,0,0,0)','rgba(0,0,0,0.8)' ,'rgba(0,0,0,1)']} style={styles.blurView}/>
+                  <View style={styles.textContent} >
+                    <Text numberOfLines={1} style={styles.cardtitle}>
+                      {marker.name}
+                    </Text>
+                    <Text numberOfLines={1} style={styles.cardDescription}>
+                      {marker.location.formattedAddress.slice(0,-1)}
+                    </Text>
+                  </View>
+                  <View style={styles.handle}/> 
                 </View>
-                <AsyncImageAnimated
-                  style={styles.cardImage}
-                  source={{
-                    uri: marker.uri
-                  }}
-                  placeholderColor='#cfd8dc'/>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </Animated.ScrollView>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
 
-        <TouchableOpacity
-          style={styles.notificationContainer}
-          onPress={this._showNotification}>
-          <Ionicons name='ios-notifications-outline' size={25} color="#000"/>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.drawerContainer}
-          onPress={() => {this.props.navigation.openDrawer()}}>
-          <Ionicons name='ios-menu' size={25} color="#000"/>
-        </TouchableOpacity>
-        {this._renderList()}
+          <TouchableOpacity
+            style={styles.notificationContainer}
+            onPress={this._showNotification}>
+            <Ionicons name='ios-notifications-outline' size={25} color="#000"/>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.drawerContainer}
+            onPress={() => {this.props.navigation.openDrawer()}}>
+            <Ionicons name='ios-menu' size={25} color="#000"/>
+          </TouchableOpacity>
+          {this._renderList()}
       </View>
     );
   }
@@ -402,6 +410,7 @@ export default class HomeScreen extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor:'white'
   },
   notificationContainer: {
     position: 'absolute',
@@ -468,49 +477,81 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
   },
   endPadding: {
-    paddingRight: width - CARD_WIDTH,
+    paddingLeft: (width - CARD_WIDTH)/2,
+    paddingRight: (width - CARD_WIDTH)/2,
   },
   card: {
-    padding: 1,
+    alignItems: 'center',
     elevation: 2,
     backgroundColor: "#FFF",
-    marginHorizontal: 5,
-    shadowColor: "#000",
-    shadowRadius: 5,
-    shadowOpacity: 0.3,
-    shadowOffset: { x: 2, y: -2 },
+    marginHorizontal: 2.5,
+    borderTopLeftRadius:5,
+    borderTopRightRadius:5,
+    shadowColor: "#000000",
+    shadowRadius: 1.5,
+    shadowOpacity: 0.1,
+    shadowOffset: { x: 1, y: 1 },
     height: CARD_HEIGHT,
     width: CARD_WIDTH,
     overflow: "hidden",
   },
   cardImage: {
-    flex: 3,
-    width: "100%",
-    height: "100%",
-    alignSelf: "center",
+    width: CARD_WIDTH,
+    height: CARD_HEIGHT,
+  },
+  handle:{
+    position:"absolute",
+    top:12,
+    backgroundColor:"#D8D8D8",
+    borderRadius:2,
+    width:40,
+    height:4,
+  },
+  blurView: {
+    position:"absolute",
+    bottom:0,
+    left:0,
+    width:'100%',
+    height:'60%',
   },
   textContent: {
-    flex: 1,
+    position:"absolute",
+    bottom:0,
+    left:0,
+    width:'100%',
+    height:'40%',
   },
   cardtitle: {
-    textAlign: "center",
+    left:10,
+    top:32,
+    color:'white',
+    textAlign: "left",
     fontFamily :"kontakt",
-    fontSize: 12,
+    fontSize: 18,
     marginTop: 12,
     fontWeight: "bold",
   },
   cardDescription: {
-    textAlign: "center",   
-    fontFamily :"mylodon-light",
-    fontSize: 12,
-    color: "#444",
+    top:32,
+    left:10,
+    textAlign: "left", 
+    color:'#FFFFFF',
+    fontSize: 14,
+    opacity: 0.6
   },
   markerWrap: {
     resizeMode:"cover",
-  }
+  },
+  headerBackgroundImage: {
+    flex:1,
+    width: width, 
+    height: height
+  },
 });
 
 AppRegistry.registerComponent("mapfocus", () => screens);
+
+
 
 mapStyle =[
   {

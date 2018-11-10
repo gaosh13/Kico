@@ -23,8 +23,7 @@ import {
 import Fire from '../components/Fire';
 import ButtonComponent, { CircleButton, RoundButton, RectangleButton } from 'react-native-button-component';
 import AwesomeButton from 'react-native-really-awesome-button';
-
-import AsyncImageAnimated from 'react-native-async-image-animated';
+import AsyncImageAnimated from '../components/AsyncImageAnimated';
 
 
 const Spacer = () => <View style={styles.spacer} />;

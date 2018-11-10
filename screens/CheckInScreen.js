@@ -7,7 +7,7 @@ import ChangeScreen from './ChangeScreen.js';
 import Fire from '../components/Fire';
 import KiVisual from '../components/KiVisual';
 import Canvas from 'react-native-canvas';
-import AsyncImageAnimated from 'react-native-async-image-animated';
+import AsyncImageAnimated from '../components/AsyncImageAnimated';
 const { width, height } = Dimensions.get("window");
 
 
