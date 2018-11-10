@@ -31,7 +31,7 @@ export default class Login extends React.Component {
         console.log('google signed in, userID: ', Fire.shared.uid);
         await this.upload(result.user.name,result.user.photoUrl,result.user.id,'google');
         await console.log('firebase has been updated');
-        if (this.mountedState) await this.setState({
+        if (this.mountedState) this.setState({
           signedIn: true,
         })
      } else {
@@ -114,6 +114,7 @@ const LoginPage = (props) => {
     <View>
       <Text style={styles.header}>WELCOME PLAYER {"\n"}</Text>
       <Text style={styles.header}>Please Sign In {"\n"}</Text>
+      <View style={{marginTop:75}} />
       <FaceBookSignInButton
       onPress={async() => await props.FsignIn()} />
       <View style={{marginTop:10}} />
