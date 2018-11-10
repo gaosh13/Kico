@@ -12,7 +12,7 @@ import HomeScreen from '../screens/HomeScreen';
 import DrawerView from './DrawerView.js';
 import ProfileScreen from '../screens/ProfileScreen';
 import EditScreen from '../screens/EditScreen';
-import SettingsScreen from '../screens/SettingsScreen';
+import ChatsScreen from '../screens/ChatsScreen';
 import HelpScreen from '../screens/HelpScreen';
 import DevelopmentScreen from '../screens/DevelopmentScreen';
 import CheckInScreen from '../screens/CheckInScreen';
@@ -61,7 +61,7 @@ const PersonalDrawer = createDrawerNavigator({
     initialRouteName: 'Home',
   }),
   Profile: createStackNavigator({ProfileScreen, Edit: EditScreen}),
-  Settings: createStackNavigator({SettingsScreen}),
+  Chat: createStackNavigator({ChatsScreen}),
   Help: createStackNavigator({HelpScreen}),
   Development: createStackNavigator({DevelopmentScreen}),
 }, {

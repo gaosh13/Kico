@@ -55,7 +55,7 @@ export default class ReadyPage extends React.Component{
           <Text style={styles.back}>{"\n"}</Text>
           <Image style={styles.image} source={{ uri: this.state.photoUrl }}/>
           <Text style={styles.back}>{"\n"}</Text>
-          <AwesomeButtonRick type="primary" progress={true} height={50} onPress={() => this.props.navigation.navigate('HomeStack')}>
+          <AwesomeButtonRick type="primary" progress={true} height={50} onPress={() => this.props.navigation.navigate('PersonalDrawer')}>
             <Text style={styles.back}>{"Synchronize to Game"}</Text>
           </AwesomeButtonRick>
           <Text style={styles.back}>{"\n"}</Text>       

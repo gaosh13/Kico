@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Touchable from 'react-native-platform-touchable';
 import Fire from '../components/Fire';
 
-export default class NotificationScreen extends React.Component {
+export default class ChatsScreen extends React.Component {
   static navigationOptions = {
     header: null,
   };
@@ -14,16 +14,23 @@ export default class NotificationScreen extends React.Component {
     super();
     this.mountState = false;
     this.state = {
-      notification: [],
+      strangers: [],
+      friends: [],
     };
-    Fire.shared.getNotification().then((data) => {
+    let timestamp = Fire.shared.timestamp;
+    Fire.shared.getFriends().then((data) => {
       if (this.mountState && data.length) {
         // this.setState({notification: data});
-        let dataArray = [];
+        data.forEach((element) => {
+          element.time = Fire.shared.timeSince(timestamp) + " ago";
+        });
+        let strangersList = [];
+        let friendsList = [];
         for (let i = 0; i < 10; ++i) {
-          dataArray.push(data[i % data.length]);
+          strangersList.push(data[i % data.length]);
+          friendsList.push(data[i % data.length]);
         }
-        this.setState({notification: dataArray});
+        this.setState({strangers: strangersList, friends: friendsList});
       }
     });
   }
@@ -40,59 +47,45 @@ export default class NotificationScreen extends React.Component {
     return (
       <View style={styles.container}>
         <View style={{marginBottom: 10}}>
-          <Text style={styles.titleText}>Notification</Text>
+          <Text style={styles.titleText}>Recent</Text>
         </View>
         <FlatList
-          style={styles.notificationList}
-          data={this.state.notification}
-          keyExtractor={this._keyExtractor}
-          renderItem={this._renderListItem}>
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          style={styles.strangerList}
+          data={this.state.strangers}
+          keyExtractor={(item, index) => {return "stranger" + index}}
+          renderItem={this._renderStrangerListItem}>
+        </FlatList>
+        <View style={{borderBottomColor: '#ccc', borderBottomWidth: 1, marginTop: 10, marginBottom: 10,}}/>
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          style={styles.friendList}
+          data={this.state.friends}
+          keyExtractor={(item, index) => {return "friend" + index}}
+          renderItem={this._renderFriendListItem}>
         </FlatList>
         <TouchableOpacity
-          style={styles.closeButtonContainer}
-          onPress={() => {this.props.navigation.navigate("Home")}}>
+          style={styles.backButtonContainer}
+          onPress={() => {this.props.navigation.openDrawer()}}>
           <Ionicons name='ios-close' size={25} color="#000"/>
         </TouchableOpacity>
       </View>
     );
   }
 
-  _keyExtractor = (item, index) => {return "notification" + index}
-
-  _renderSingleItem = (item) => {
-    if (item.type == 'sys1') {
-      return (
-        <View style={styles.messageTextContainer}>
-          <Text style={styles.messageText}>{item.message}</Text>
-        </View>
-      );
-    } else if (item.type == 'taski') {
-      return (
-        <View style={styles.messageTextContainer}>
-          <Button title="Confirm" onPress={()=>{}} />
-          <Button title="Reject" onPress={()=>{}} />
-        </View>
-      );
-    } else if (item.type == 'add1') {
-      return (
-        <View style={styles.messageTextContainer}>
-          <Button title="Confirm" onPress={()=>{}} />
-          <Button title="Reject" onPress={()=>{}} />
-        </View>
-      );
-    } else if (item.type == 'add2') {
-      return (
-        <View style={styles.messageTextContainer}>
-          <Button title="Confirm" onPress={()=>{}} />
-          <Button title="Reject" onPress={()=>{}} />
-        </View>
-      );
-    } else {
-      return null;
-    }
+  _renderStrangerListItem = ({item}) => {
+    return (
+      <View style={{marginRight: 15}}>
+        <Image
+          style={styles.userImage}
+          source={{uri: item.uri}}
+        />
+      </View>
+    );
   }
 
-  _renderListItem = ({item}) => {
+  _renderFriendListItem = ({item}) => {
     let displayText = 'Here comes a new message';
     // console.log("item.uri", item.uri);
     return (
@@ -102,14 +95,17 @@ export default class NotificationScreen extends React.Component {
         }}>
           <Image
             style={styles.userImage}
-            source={{uri: "https://lh3.googleusercontent.com/-14MN7hgJpXw/AAAAAAAAAAI/AAAAAAAAAXQ/jHyRSDt4-vs/photo.jpg"}}
+            source={{uri: item.uri}}
           />
         </View>
         <View style={{flex: 0.75, justifyContent: 'center',
           // borderWidth: 1, borderColor: '#000',
         }}>
-          {this._renderSingleItem(item)}
-          <Text style={styles.timestampText}>{item.time}</Text>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+            <Text style={styles.usernameText}>{item.name}</Text>
+            <Text style={styles.timestampText}>{item.time}</Text>
+          </View>
+          <Text style={styles.messageText}>Lorem ipsum dolor sit ameta....</Text>
         </View>
       </View>
     );
@@ -129,14 +125,19 @@ const styles = StyleSheet.create({
     height: 64,
     width: 64,
   },
-  messageText: {
-    fontSize: 15,
+  usernameText: {
+    fontSize: 18,
     color: '#072A4E',
+    fontWeight: '600', // semi-bold
   },
   timestampText: {
     fontSize: 10,
     color: '#C7C6CE',
-    fontWeight: 'bold',
+    // fontWeight: 'bold',
+  },
+  messageText: {
+    fontSize: 14,
+    color: '#C7C6CE',
   },
   titleText: {
     fontSize: 32,
@@ -159,12 +160,21 @@ const styles = StyleSheet.create({
     // borderWidth: 1,
     // borderColor: '#f00',
   },
-  notificationList: {
+  friendList: {
+    // marginTop: 10,
+    // borderTopWidth: 2,
+    // borderTopColor: '#ccc',
   },
-  closeButtonContainer: {
+  strangerList: {
+    height: 90,
+    // paddingRight: 15,
+    // borderWidth: 1,
+    // marginBottom: 10,
+  },
+  backButtonContainer: {
     position: 'absolute',
     top: 60,
-    right: 30,
+    left: 30,
     borderRadius: 30,
     width: 30,
     height: 30,

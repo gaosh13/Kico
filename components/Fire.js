@@ -121,10 +121,13 @@ class Fire extends React.Component {
       data.forEach( (doc) => {
         friends.push({uid: doc.id, name: doc.get('nick'), tag: doc.get('tag')})
       });
-      return await Promise.all(friends.map( async (friend) => {
-        if (!friend.name) friend.name = await this.getName(friend.uid);
-        return friend;
+      await Promise.all(friends.map( async (friend) => {
+        return Promise.all([
+          this.getName(friend.uid).then( (name) => {friend.name = name}),
+          this.readUserAvatar(friend.uid).then( (uri) => {friend.uri = uri}),
+        ]);
       }));
+      return friends;
     });
   }
 
