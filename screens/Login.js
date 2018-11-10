@@ -112,11 +112,13 @@ export default class Login extends React.Component {
 const LoginPage = (props) => {
   return (
     <View>
-        <Text style={styles.header}>WELCOME PLAYER {"\n"}</Text>
-        <Text style={styles.header}>Please Sign In {"\n"}</Text>
-        <FaceBookSignInButton
+      <Text style={styles.header}>WELCOME PLAYER {"\n"}</Text>
+      <Text style={styles.header}>Please Sign In {"\n"}</Text>
+      <View style={{marginTop:75}} />
+      <FaceBookSignInButton
       onPress={async() => await props.FsignIn()} />
-    <GoogleSignInButton style={{marginTop:'100px'}}
+      <View style={{marginTop:10}} />
+      <GoogleSignInButton
       onPress={async() => await props.GsignIn()} />
     </View>
   )

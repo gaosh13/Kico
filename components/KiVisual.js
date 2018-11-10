@@ -1,6 +1,6 @@
 import React from 'react'; 
 import {TouchableOpacity, Dimensions } from 'react-native'; 
-import AsyncImageAnimated from 'react-native-async-image-animated';
+import AsyncImageAnimated from '../components/AsyncImageAnimated';
 
 const { width, height } = Dimensions.get("window");
 
@@ -27,9 +27,10 @@ class KiVisual extends React.Component {
          counter < protection) {
 
       var randomX = Math.round(50+Math.random() * (width-130));
-      var randomY = Math.round(50+Math.random() * (width-130));
+      var randomY = Math.round(50+Math.random() * (height*13/24-130));
       //perhaps better algorithm here
-      var size = 15 + pool[savedCirclesCounter].value/sum* (width-15)/3;
+      var size = 15 + pool[savedCirclesCounter].value/sum* (width-15)/2;
+      var opacity = 0.5 + 0.5 * (Math.max(0,5 - savedCirclesCounter)/5);  
       var uri = pool[savedCirclesCounter].uri;
       var name = pool[savedCirclesCounter].name;
       var uid = pool[savedCirclesCounter].uid;
@@ -42,7 +43,8 @@ class KiVisual extends React.Component {
       for (var i = 0; i < circles.length; i++) {
         var existing = circles[i];
         var d = Math.hypot(randomX-existing.xPos,randomY-existing.yPos);
-        if (d < size + existing.width) {
+        //fixed 12 pixel seperation
+        if (d < size + existing.width + 12) {
           // They are overlapping
           overlapping = true;
           // do not add to array
@@ -51,7 +53,7 @@ class KiVisual extends React.Component {
       } 
       // add valid circles to array
       if (!overlapping) {
-        var circle = {width:size, xPos:randomX, yPos:randomY,uri:uri,uid:uid,name:name};
+        var circle = {width:size, xPos:randomX, yPos:randomY,opacity:opacity,uri:uri,uid:uid,name:name};
         savedCirclesCounter++;
         circles.push(circle);      
       }   
@@ -79,6 +81,10 @@ class KiVisual extends React.Component {
             width: element.width*2,
             height: element.width*2, 
             borderRadius: element.width,
+            shadowOffset:{width:0,height:10},
+            shadowRadius: 20,
+            shadowColor: "rgba(0,0,0,1)",
+            shadowOpacity:0.4,
             top: element.yPos-element.width,
             left: element.xPos-element.width}}>
           <AsyncImageAnimated
@@ -87,6 +93,8 @@ class KiVisual extends React.Component {
               width: element.width*2,
               height: element.width*2, 
               borderRadius: element.width,
+              opacity:element.opacity,
+
             }}
             source={{
               uri: element.uri

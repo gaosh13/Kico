@@ -12,18 +12,16 @@ import {
   FlatList,
   AppRegistry,
   Button,
-  ImageBackground,
 } from 'react-native';
-import { WebBrowser,Constants,Location,Permissions,LinearGradient } from 'expo';
+import { WebBrowser,Constants,Location,Permissions } from 'expo';
 import Touchable from 'react-native-platform-touchable';
 import { MonoText } from '../components/StyledText';
 import { MapView, MapContainer } from "expo";
 import { Ionicons } from '@expo/vector-icons';
 import Fire from '../components/Fire';
 import { REACT_APP_FOURSQUARE_ID, REACT_APP_FOURSQUARE_SECRET } from 'react-native-dotenv'
-import AsyncImageAnimated from '../components/AsyncImageAnimated';
+import AsyncImageAnimated from 'react-native-async-image-animated';
 import KiVisual from '../components/KiVisual';
-import { BlurView, VibrancyView } from 'react-native-blur';
 
 const { width, height } = Dimensions.get("window");
 
@@ -206,7 +204,7 @@ export default class HomeScreen extends React.Component {
       }
     })      
   }
-
+  
   fetchMarkerData = async (location) => {
     /*Returns a list of recommended venues near the current location. For more robust information about the venues themselves (photos/tips/etc.), please see our venue details endpoint.
       If authenticated, the method will personalize the ranking based on you and your friends.
@@ -259,65 +257,152 @@ export default class HomeScreen extends React.Component {
   }
 
   render() {
+    let text = 'Waiting..';
+    if (this.state.errorMessage) {
+      text = this.state.errorMessage;
+    } else if (this.state.location) {
+      text = JSON.stringify(this.state.location);
+    }
+
+    const interpolations = this.state.markers.map((marker, index) => {
+      const inputRange = [
+        (index - 1) * CARD_WIDTH,
+        index * CARD_WIDTH,
+        ((index + 1) * CARD_WIDTH),
+      ];
+      const translate = this.animation.interpolate({
+        inputRange,
+        outputRange: [0, 1, 0],
+        extrapolate: "clamp",
+      });
+      const scale = this.animation.interpolate({
+        inputRange,
+        outputRange: [1, 2, 1],
+        extrapolate: "clamp",
+      });
+      const opacity = this.animation.interpolate({
+        inputRange,
+        outputRange: [0.35, 1, 0.35],
+        extrapolate: "clamp",
+      });
+      return { scale, opacity };
+    });
+
     let stationaryurl = 'https://s3.amazonaws.com/exp-brand-assets/ExponentEmptyManifest_192.png';
+
     return (
       <View style={styles.container}>
-          <View style={styles.particlesContainer}>
-              {this.drawKiView()}
-          </View>
-          <ScrollView
-            horizontal
-            scrollEventThrottle={1}
-            showsHorizontalScrollIndicator={false}
-            snapToInterval={CARD_WIDTH+5}
-            style={styles.scrollView}
-            contentContainerStyle={styles.endPadding}
-            decelerationRate='fast'
-          >
-            {this.state.markers.map((marker, index) => (
-              <TouchableOpacity key={index} onPress={
-                () => this.props.navigation.navigate("CheckIn", {
-                  uri: marker.uri,
-                  name: marker.name,
-                  placeID: marker.id,
-                })
-              }>
-                <View style={styles.card}>
-                  <AsyncImageAnimated
-                    style={styles.cardImage}
-                    source={{
-                      uri: marker.uri
-                    }}
-                    placeholderColor='#cfd8dc'
-                    animationStyle='fade'
-                    >
-                  </AsyncImageAnimated>  
-                  <LinearGradient colors={['rgba(0,0,0,0)','rgba(0,0,0,0.8)' ,'rgba(0,0,0,1)']} style={styles.blurView}/>
-                  <View style={styles.textContent} >
-                    <Text numberOfLines={1} style={styles.cardtitle}>
-                      {marker.name}
-                    </Text>
-                    <Text numberOfLines={1} style={styles.cardDescription}>
-                      {marker.location.formattedAddress.slice(0,-1)}
-                    </Text>
-                  </View>
-                  <View style={styles.handle}/> 
+        <MapView
+          style={styles.container}
+          provider="google"
+          ref={ref => { this.map = ref; if (ref) ref.animateToViewingAngle(90,0.1)}}
+          showsUserLocation={true}
+          //onRegionChange={this.onRegionChange.bind(this)}
+          //onUserLocationChange ={changed => this.setUserLocation(changed.nativeEvent.coordinate)}
+          //onUserLocationChange ={changed => console.log(changed.nativeEvent)}
+          //followsUserLocation={true}
+          zoomEnabled={false}
+          rotateEnabled={true}
+          scrollEnabled={false}
+          pitchEnabled={true}
+          customMapStyle = {mapStyle}
+          region={this.state.region}
+          //onPress={()=>this.animateToRandomViewingAngle()}
+        >
+          {this.state.markers.map((marker, index) => {
+            const scaleStyle = {
+              transform: ([
+                  {
+                    scale: interpolations[index].scale,
+                   // translateY: interpolations[index].translate,
+                },
+              ]),
+            };
+            const translateStyle = {
+              transform: [
+                  {
+                    translateY: interpolations[index].translate,
+                },
+              ],
+            };
+            const opacityStyle = {
+              opacity: interpolations[index].opacity,
+            };
+            const coords = {
+                latitude: marker.location.lat,
+                longitude: marker.location.lng,
+            };
+            const metadata = `Status: ${marker.id}`;
+            
+            return (
+              <MapView.Marker key={index} coordinate={coords}>
+                <Animated.Image
+                  style={[styles.markerWrap, opacityStyle, scaleStyle]}
+                  resizeMode={'cover'}
+                  source={require('../assets/images/humanPin.png')}/>
+              </MapView.Marker>
+            );
+          })}
+        </MapView>
+        <Animated.ScrollView
+          horizontal
+          scrollEventThrottle={1}
+          showsHorizontalScrollIndicator={false}
+          snapToInterval={CARD_WIDTH}
+          onScroll={Animated.event(
+            [
+              {
+                nativeEvent: {
+                  contentOffset: {
+                    x: this.animation,
+                  },
+                },
+              },
+            ],
+            { useNativeDriver: true }
+          )}
+          style={styles.scrollView}
+          contentContainerStyle={styles.endPadding}
+        >
+          {this.state.markers.map((marker, index) => (
+            <TouchableOpacity key={index} onPress={
+              () => this.props.navigation.navigate("CheckIn", {
+                uri: marker.uri,
+                name: marker.name,
+                placeID: marker.id,
+              })
+            }>
+              <View style={styles.card}>
+                <View style={styles.textContent}>
+                  <Text numberOfLines={1} style={styles.cardtitle}>
+                    {marker.name}
+                  </Text>
+                  <Text numberOfLines={1} style={styles.cardDescription}>
+                    {marker.location.formattedAddress.slice(0,-1)}
+                  </Text>
                 </View>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+                <AsyncImageAnimated
+                  style={styles.cardImage}
+                  source={{
+                    uri: marker.uri
+                  }}
+                  placeholderColor='#cfd8dc'/>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </Animated.ScrollView>
 
-          <TouchableOpacity
-            style={styles.notificationContainer}
-            onPress={() => {this.props.navigation.navigate("Notification")}}>
-            <Ionicons name='ios-notifications-outline' size={25} color="#000"/>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.drawerContainer}
-            onPress={() => {this.props.navigation.openDrawer()}}>
-            <Ionicons name='ios-menu' size={25} color="#000"/>
-          </TouchableOpacity>
-          {this._renderList()}
+        <TouchableOpacity
+          style={styles.notificationContainer}
+          onPress={this._showNotification}>
+          <Ionicons name='ios-notifications-outline' size={25} color="#000"/>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.drawerContainer}
+          onPress={() => {this.props.navigation.openDrawer()}}>
+          <Ionicons name='ios-menu' size={25} color="#000"/>
+        </TouchableOpacity>
+        {this._renderList()}
       </View>
     );
   }
@@ -410,7 +495,6 @@ export default class HomeScreen extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor:'white'
   },
   notificationContainer: {
     position: 'absolute',
@@ -425,13 +509,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   particlesContainer:{
-    marginTop : height/8,
-    height: height*2/3,
+    height: width,
     width: width,
-  },
-  kiContainer: {
-    width: width-30,
-    height: height*2/3-30, 
   },
   itemContainer: {
     marginBottom: 15,
@@ -477,81 +556,49 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
   },
   endPadding: {
-    paddingLeft: (width - CARD_WIDTH)/2,
-    paddingRight: (width - CARD_WIDTH)/2,
+    paddingRight: width - CARD_WIDTH,
   },
   card: {
-    alignItems: 'center',
+    padding: 1,
     elevation: 2,
     backgroundColor: "#FFF",
-    marginHorizontal: 2.5,
-    borderTopLeftRadius:5,
-    borderTopRightRadius:5,
-    shadowColor: "#000000",
-    shadowRadius: 1.5,
-    shadowOpacity: 0.1,
-    shadowOffset: { x: 1, y: 1 },
+    marginHorizontal: 5,
+    shadowColor: "#000",
+    shadowRadius: 5,
+    shadowOpacity: 0.3,
+    shadowOffset: { x: 2, y: -2 },
     height: CARD_HEIGHT,
     width: CARD_WIDTH,
     overflow: "hidden",
   },
   cardImage: {
-    width: CARD_WIDTH,
-    height: CARD_HEIGHT,
-  },
-  handle:{
-    position:"absolute",
-    top:12,
-    backgroundColor:"#D8D8D8",
-    borderRadius:2,
-    width:40,
-    height:4,
-  },
-  blurView: {
-    position:"absolute",
-    bottom:0,
-    left:0,
-    width:'100%',
-    height:'60%',
+    flex: 3,
+    width: "100%",
+    height: "100%",
+    alignSelf: "center",
   },
   textContent: {
-    position:"absolute",
-    bottom:0,
-    left:0,
-    width:'100%',
-    height:'40%',
+    flex: 1,
   },
   cardtitle: {
-    left:10,
-    top:32,
-    color:'white',
-    textAlign: "left",
+    textAlign: "center",
     fontFamily :"kontakt",
-    fontSize: 18,
+    fontSize: 12,
     marginTop: 12,
     fontWeight: "bold",
   },
   cardDescription: {
-    top:32,
-    left:10,
-    textAlign: "left", 
-    color:'#FFFFFF',
-    fontSize: 14,
-    opacity: 0.6
+    textAlign: "center",   
+    fontFamily :"mylodon-light",
+    fontSize: 12,
+    color: "#444",
   },
   markerWrap: {
     resizeMode:"cover",
-  },
-  headerBackgroundImage: {
-    flex:1,
-    width: width, 
-    height: height
-  },
+  }
 });
 
 AppRegistry.registerComponent("mapfocus", () => screens);
-
-
 
 mapStyle =[
   {

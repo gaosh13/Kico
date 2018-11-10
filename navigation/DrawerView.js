@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   userImage: {
-    borderColor: '#01C89E',
+    borderColor: "rgba(0,0,0,0.2)",
     borderRadius: 45,
     borderWidth: 3,
     height: 90,
