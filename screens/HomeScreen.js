@@ -295,7 +295,7 @@ export default class HomeScreen extends React.Component {
                     animationStyle='fade'
                     >
                   </AsyncImageAnimated>  
-                  <LinearGradient colors={['rgba(0,0,0,0)','rgba(0,0,0,0.8)' ,'rgba(0,0,0,1)']} style={styles.blurView}/>
+                  <LinearGradient colors={['rgba(0,0,0,0)','rgba(0,0,0,0.6)']} style={styles.blurView}/>
                   <View style={styles.textContent} >
                     <Text numberOfLines={1} style={styles.cardtitle}>
                       {marker.name}
@@ -549,7 +549,7 @@ const styles = StyleSheet.create({
     bottom:0,
     left:0,
     width:'100%',
-    height:'60%',
+    height:'50%',
   },
   textContent: {
     position:"absolute",
