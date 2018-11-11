@@ -4,6 +4,7 @@ import { NavigationActions } from 'react-navigation';
 import { ScrollView, Text, View, StyleSheet, Button, TouchableHighlight, Image, FlatList } from 'react-native';
 import { Constants } from 'expo';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import * as firebase from 'firebase';
 import Fire from '../components/Fire';
 
 class DrawerView extends Component {
@@ -128,8 +129,30 @@ class DrawerView extends Component {
             </View>
           </View>
         </TouchableHighlight>
+
+        <TouchableHighlight
+          onPress={this.Logout}
+          underlayColor="#CCC"
+          style={{position: 'absolute', bottom: 0}}>
+          <View style={{alignItems: 'center', justifyContent: 'center'}}>
+            <Text style={{color: 'red'}}>
+              Log out
+            </Text>
+          </View>
+        </TouchableHighlight>
       </View>
     );
+  }
+
+  Logout = async() => {
+    console.log('logging out');
+    await firebase.auth().signOut()
+    .then(function() {
+      console.log('successfully logged out')
+    }, function(error) {
+      console.error('Sign Out Error', error);
+    });
+    return (this.props.navigation.navigate('Pre')) ;
   }
 
   _renderItem = ({item}) => {

@@ -101,7 +101,7 @@ function clickBox(circles,navigation){
 
 
 export function generateCirclesRow(pool) {
-  console.log(pool);  
+  // console.log('generateCircle', pool);
   var NumCircles = pool.length ;
   //this needs to be changed w.r.t. time not array value
   //var values = pool.sort((a,b)=>{return b.value-a.value})

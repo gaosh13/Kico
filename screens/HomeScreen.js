@@ -251,7 +251,7 @@ export default class HomeScreen extends React.Component {
         </View>
       );
     }else{
-      console.log('wait....');
+      // console.log('wait....');
       return (
         <View style={styles.kiContainer} />
       );
