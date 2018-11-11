@@ -179,12 +179,6 @@ const styles = StyleSheet.create({
   imageContainer: {
     marginBottom: 20,
   },
-  buttonsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 15,
-    marginBottom: 15,
-  },
   cancelButton: {
     flex: 0.5,
     marginLeft: 20,
@@ -279,7 +273,7 @@ const styles = StyleSheet.create({
     // backgroundColor: '#fff',
   },
   buttonContainer:{
-    marginLeft:84/812*height,
+    alignItems:'center',
     marginTop:17/812*height,
     borderRadius:34/812*height,
     shadowOffset:{width:0,height:10},

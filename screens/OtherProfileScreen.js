@@ -29,8 +29,6 @@ import AwesomeButton from 'react-native-really-awesome-button';
 import AsyncImageAnimated from '../components/AsyncImageAnimated';
 import GenericScreen from '../components/GenericScreen';
 
-
-const Spacer = () => <View style={styles.spacer} />;
 const { width, height } = Dimensions.get("window");
 
 export default class ProfileScreen extends React.Component {
@@ -66,7 +64,7 @@ export default class ProfileScreen extends React.Component {
   render() {
     const { getParam } = this.props.navigation;
     return (
-      <View style={{flex:1, backgroundColor:'#FFF'}}>
+      <View style={{flex:1, backgroundColor:'#FFF',alignItems:'center'}}>
         <View style={styles.textContent} >
           <Text numberOfLines={1} style={styles.userNameText}>
             {this.state.name}
@@ -98,24 +96,24 @@ export default class ProfileScreen extends React.Component {
 
 
 const styles = StyleSheet.create({
-  spacer: {
-    height: 100,
-  },
   closeButtonContainer: {
     position: 'absolute',
-    top: 60,
-    right: 30,
+    top: 60/812*height,
+    right: 30/812*height,
     borderRadius: 30,
-    width: 30,
-    height: 30,
+    width: 30/812*height,
+    height: 30/812*height,
     alignItems:'center',
     borderWidth: 0.5,
     borderColor: '#000',
     backgroundColor:"#fff",
+    shadowOffset:{width:0,height:10},
+    shadowRadius: 10,
+    shadowColor: "rgba(0,0,0,1)",
+    shadowOpacity:0.1,
     // backgroundColor: '#fff',
   },
   buttonContainer:{
-    marginLeft:84/812*height,
     marginTop:56/812*height,
     marginBottom:55/812*height,
     borderRadius:34/812*height,
@@ -125,31 +123,31 @@ const styles = StyleSheet.create({
     shadowOpacity:0.2,
   },
   textContent: {
-    marginLeft:42,
+    width:"82.934%",
     marginTop:121/812*height,
   },
   userImage: {
     borderRadius: 15,
-    height: 427,
-    width: 315,
-    shadowOffset:{width:0,height:10},
-    shadowRadius: 30,
-    shadowColor: "rgb(0,0,0)",
+    height: 427/812*height,
+    width: 315/375*width,
+    shadowOffset:{width:0,height:20},
+    shadowRadius: 10,
+    shadowColor: "rgba(0,0,0,1)",
     shadowOpacity:0.4,
     marginTop:12,
-    marginLeft:32,
+    resizeMode:'cover',
   },
   userNameText: {
     color:'rgb(7,43,79)',
     textAlign: "left",
-    fontSize: 36,
+    fontSize: 36/812*height,
     fontWeight: "bold",
   },
   userDescriptionText: {
-    marginTop:4,
+    marginTop:4/812*height,
     textAlign: "left",
     color:'rgb(7,43,79)',
     opacity:0.6,
-    fontSize: 14
+    fontSize: 14/812*height,
   }
 });

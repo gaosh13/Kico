@@ -41,15 +41,15 @@ class GenericScreen extends Component {
     const { source ,children , name, description, note,ki,friends} = this.props; 
     return (
     		<View style={styles.container}>
-    			<View style={{ width: width, height: width/375*520}}>
+    			<View style={{ width: "100%", height: 0.6403*height}}>
   			    <Image
 		          source={{
                 uri: source
               }}
-			        style={{ width: width, height: width/375*520}}
+			        style={{ width: "100%", height: 0.6403*height}}
 			        resizeMode="cover"
   			    />
-  			    <LinearGradient colors={['rgba(0,0,0,0)','rgba(0,0,0,0.6)' ,'rgba(0,0,0,0.9)','rgba(0,0,0,1)','rgba(0,0,0,1)']} style={styles.blurView}/>
+  			    <LinearGradient colors={['rgba(0,0,0,0)','rgba(0,0,0,0.6)']} style={styles.blurView}/>
   			    <View style={styles.textContent} >
               <Text numberOfLines={1} style={styles.cardtitle}>
                 {name}
@@ -73,41 +73,39 @@ class GenericScreen extends Component {
 
 const styles = StyleSheet.create({
   container:{
-  	flex:1
+  	flex:1,
+    backgroundColor:'#FFF'
   },
   cardContainer: {
-    marginTop: -23,
+    marginTop: -23/812*height,
     left: 0,
     right: 0,
-    //height:315/812*height,
     backgroundColor:'#FFFFFF',
     borderTopLeftRadius:10,
     borderTopRightRadius:10,
-
   },
   blurView: {
-    marginTop:400/812*height,
+    marginTop:-275/812*height,
     left:0,
     width:'100%',
-    height:120/812*height,
+    height:275/812*height,
   },
   textContent: {
     alignItems:"center",
-    marginTop:392/812*height,
-    height:100/812*height,
+    marginTop:-120/812*height,
+    height:120/812*height,
     left:0,
     width:'100%',
-    height:'25%',
   },
   cardtitle: {
-  	marginTop:32,
+  	marginTop:24/812*height,
     color:'#FFFFFF',
     textAlign: "center",
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: "bold",
   },
   cardDescription: {
-    marginTop:4,
+    marginTop:4/812*height,
     textAlign: "center",
     color:'#FFFFFF',
     opacity:0.6,
