@@ -11,7 +11,7 @@ export function generateRandomCircles(pool,sum,navigation) {
   var counter = 0;
   var savedCirclesCounter = 0;
   //maximum number of bubbles to be tested
-  var protection = NumCircles * 25;
+  var protection = NumCircles * 100;
   var overlapping = false;
 
   circles=[];
@@ -19,8 +19,8 @@ export function generateRandomCircles(pool,sum,navigation) {
   while (circles.length < NumCircles &&
        counter < protection) {
 
-    var randomX = Math.round(50+Math.random() * (width-130));
-    var randomY = Math.round(50+Math.random() * (height*13/24-130));
+    var randomX = Math.round(50+Math.random() * (width-80));
+    var randomY = Math.round(50+Math.random() * (500/812*height-80));
     //perhaps better algorithm here
     var size = 15 + pool[savedCirclesCounter].value/sum* (width-15)/2;
     var opacity = 0.5 + 0.5 * (Math.max(0,5 - savedCirclesCounter)/5);  
@@ -101,8 +101,6 @@ function clickBox(circles,navigation){
 
 
 export function generateCirclesRow(pool) {
-  // console.log('generateCircle', pool);
-  var NumCircles = pool.length ;
   //this needs to be changed w.r.t. time not array value
   //var values = pool.sort((a,b)=>{return b.value-a.value})
 
@@ -113,15 +111,13 @@ export function generateCirclesRow(pool) {
       showsHorizontalScrollIndicator={false}
       snapToInterval={68/812*height+5}
       style={{
-        position: "absolute",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        paddingVertical: 0,
+        paddingBottom:15,
+        paddingTop:8,
       }}
       contentContainerStyle={{
         paddingLeft: 16,
         paddingRight: 16,
+        justifyContent:"center",
       }}
       decelerationRate='fast'>
       {pool.map((element, index) => (
@@ -132,8 +128,8 @@ export function generateCirclesRow(pool) {
             width: 68/812*height,
             height: 68/812*height,
             borderRadius: 34/812*height,
-            shadowOffset:{width:0,height:10},
-            shadowRadius: 10,
+            shadowOffset:{width:0,height:5},
+            shadowRadius: 5,
             shadowColor: "rgba(0,0,0,1)",
             shadowOpacity:0.2}}
           source={{

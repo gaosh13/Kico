@@ -25,30 +25,45 @@ export default class CheckInScreen extends React.Component {
     super(props);
     this.state = {
       pool: [],
-      isVisited: true,
+      sum: 1,
+      loaded:false,
       circles:[],
     };
-
     // this.props.navigation.setParams({ jump: this._onPress });
     //this.fetchdata();
   }
 
-  componentDidMount() {
-    this.fetchdata();
+  async componentDidMount() {
+    await this.fetchdata();
    // await this.fetchVenueData();
   }
 
-  fetchdata() {
-    const place = this.props.navigation.getParam('placeID', '0');
-    // console.log("begin fetching");
-    Promise.all([
-      Fire.shared.getPlacePool(place),
-      Fire.shared.isVisited(place),
-    ]).then( ([pool, isVisited])=>{
-      // console.log("changed", isVisited);
-      this.setState({pool, isVisited});
-    });
-  }
+  async fetchdata() {
+    Fire.shared.getPlacePool(this.props.navigation.getParam('placeID', '0')).then( (Data) => {
+        return Promise.all(Data.map( (users, index) => {
+          return Fire.shared.readUserAvatar(users.uid).then( (uri) => {
+            if (uri) {
+              return {
+                uid: users.uid,
+                uri: uri,
+                value:users.value,
+                name: users.name,
+              };
+            } else {
+              console.log('URL fetching failed')
+                }
+          });
+        }))
+    }).then( (updatedData)=>{
+      if (updatedData) {
+        //console.log('marker PlayerX Data has been pulled', updatedData);
+        let checkinSum = updatedData.reduce((prev,next) => prev + next.value,0); 
+        this.setState({pool: updatedData, sum: checkinSum});
+      }else{
+        console.log('marker PlayerX Data fetch has failed');
+      }
+    })      
+  }  
 
   drawKiView(){
 // follows this tutorial:
@@ -58,20 +73,19 @@ console.log(this.state.pool)
       //console.log('ZZZZZZZZ',this.state.sum);
       return (
         <View style={styles.kiContainer}>
-          {generateCirclesRow(this.state.pool)}
+          {generateCirclesRow(this.state.pool)}          
         </View>
-      )
-    } else {
+        )
+    }else{
+      console.log('wait....');
       return (
         <View style={styles.kiContainer} />
-      )
+        )
     }
   }
 
   render() {
-    const { navigate, getParam, pop } = this.props.navigation;
-    const displayText = this.state.isVisited ? "Take back Ki" : "Deposit Ki";
-    const place = this.props.navigation.getParam('placeID', '0');
+    const {getParam} = this.props.navigation;
     return (
       <View style={{flex:1}}>
         <GenericScreen
@@ -82,19 +96,14 @@ console.log(this.state.pool)
           <Text style={styles.descriptionText}> # of Ki </Text>   
           {this.drawKiView()}
           <View style={styles.buttonContainer}>
-            <AwesomeButton
-              // progress
-              height={68/812*height}
-              backgroundColor="#FFFFFF"
-              borderRadius= {34/812*height}
-              onPress={(next) => {
-                ((this.state.isVisited) ? Fire.shared.checkout(place) : Fire.shared.checkin(place)).then(()=>{
-                  this.fetchdata();
-                });
-                next();
-              }}>
-              <Text style={styles.text}>{displayText}</Text>
-            </AwesomeButton>
+              <AwesomeButton
+                progress
+                height={68/812*height}
+                backgroundColor="#FFFFFF"
+                borderRadius= {34/812*height}
+                onPress={(next) => setTimeout(() => { next(console.log('finished')) }, 1000)}>
+                <Text style={styles.text}>{"Join Task"}</Text>
+              </AwesomeButton>
           </View>
         </GenericScreen>
         <TouchableOpacity
@@ -105,6 +114,24 @@ console.log(this.state.pool)
       </View>
     );
   }
+
+  _collect = () => {
+    const { getParam } = this.props.navigation;
+    Fire.shared.mixPool(getParam('placeID', '0'), {description: getParam('name', '0')});
+  }
+
+  _put = () => {
+    const { getParam } = this.props.navigation;
+    Fire.shared.updateVisit(getParam('placeID', '0'), {description: getParam('name', '0')});
+  }
+
+  // _onPress = () => {
+  //   this.props.navigation.navigate('Change', {callback: this.returnData.bind(this)});
+  // }
+
+  // returnData = (args) => {
+  //   this.props.navigation.setParams({ name: args.Location });
+  // }
 }
 
 
