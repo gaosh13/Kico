@@ -50,6 +50,7 @@ class Fire extends React.Component {
       const data = {
         uid: this.uid,
         name: param.name,
+        photoURL: param.photoUrl,
         age: -1,
         gender: 'unknown',
       };
@@ -103,20 +104,6 @@ class Fire extends React.Component {
   }
 
   getFriends = async () => {
-    // let data = await this.readInfo();
-    // let friendsData = [];
-    // if (data && data.friends) {
-    //   for (let i = 0; i < data.friends.length; ++i) {
-    //     let element = data.friends[i];
-    //     let name = await Fire.shared.getName(element.uid);
-    //     friendsData.push({
-    //       uid: element.uid,
-    //       name: element.nick || name,
-    //       tag: element.tag,
-    //     });
-    //   }
-    // }
-    // return friendsData;
     return await this.profile.doc(this.uid).collection('friends').get().then( async (data) => {
       let friends = [];
       data.forEach( (doc) => {
@@ -133,35 +120,53 @@ class Fire extends React.Component {
   }
 
   getPersonalPool = async () => {
-    return await this.profile.doc(this.uid).collection('pool').get().then( async (data) => {
-      let friends = [];
-      data.forEach( (doc) => {
-        if (doc.id != this.uid)
-          friends.push({uid: doc.id, value: doc.get('value')})
-      });
-      return await Promise.all(friends.map( async (friend) => {
-        if (!friend.name) friend.name = await this.getName(friend.uid);
-        return friend;
-      })).then( (poolData) => {
-        poolData.sort(function(a, b) {return b.value-a.value});
-        return poolData;
-      });
+    let time = (await this.profile.doc(this.uid).get()).get('time');
+    if (time && this.timeLimit(time)) {
+      return (await this.profile.doc(this.uid).collection('pool').doc('0').get()).get('data');
+    }
+    let rid = (data) => {return data.docs.map( (doc) => doc.id )}
+    let saved = await Promise.all([
+      this.profile.doc(this.uid).collection('places').get().then(rid),
+      this.profile.doc(this.uid).collection('friends').get().then(rid),
+      this.profile.doc(this.uid).collection('blacklist').get().then(rid),
+    ]).then( async ([places, friends, blacklist ]) => {
+      let hidden = new Set(friends + blacklist);
+      hidden.add(this.uid);
+      let alluser = await Promise.all(places.map( (place) => {
+        return this.place.doc(place).collection('users').get().then(rid);
+      }));
+      let counter = {};
+      alluser.forEach( (users) => {users.forEach( (user) => {
+        if (!hidden.has(user)) counter[user] = (counter[user] || 0) + 1;
+      })});
+      let items = Object.keys(counter).map((key) => ({uid: key, value: counter[key]}));
+      items.sort((first, second) => (second.value - first.value));
+      items = items.slice(0, 20);
+      await Promise.all(items.map( async (friend) => {
+        return Promise.all([
+          this.getName(friend.uid).then( (name) => {friend.name = name}),
+          this.readUserAvatar(friend.uid).then( (uri) => {friend.uri = uri}),
+        ]);
+      }));
+      return items;
     });
-    // let data = await this.readInfo();
-    // let poolData = [];
-    // if (data && data.pool) {
-    //   for (let i = 0; i < data.pool.length; ++i) {
-    //     let element = data.pool[i];
-    //     let name = await this.getName(element.uid);
-    //     if (element.uid != this.uid) poolData.push({
-    //       uid: element.uid,
-    //       name: name,
-    //       value: element.value,
-    //     });
-    //   }
-    //   poolData.sort((a, b) => {b.value-a.value});
-    // }
-    // return poolData;
+    this.savePersonalPool(saved);
+    this.profile.doc(this.uid).update({time: this.timestamp});
+    return saved;
+  }
+
+  savePersonalPool = (saved) => {
+    this.profile.doc(this.uid).collection('pool').doc('0').set({data: saved});
+  }
+
+  getCheckedPlaces = async () => {
+    return await this.profile.doc(this.uid).collection('places').get().then( async (data) => {
+      let places = [];
+      data.forEach( (doc) => {
+        places.push(doc.data());
+      });
+      return places;
+    });
   }
 
   getName = async (uid) => {
@@ -193,10 +198,7 @@ class Fire extends React.Component {
         return 0;
       }
     }));
-    // for (let notification of notificationData) {
-    //   notification.name = await this.getName(notification.uid);
-    // }
-    console.log(notificationData);
+    // console.log(notificationData);
     return notificationData;
   }
 
@@ -225,18 +227,6 @@ class Fire extends React.Component {
   }
 
   removeFriend = (uid, type='passive') => {
-    // this.readInfo().then( (info) => {
-    //   if (info && info.friends) {
-    //     for (let i = 0; i < info.friends.length; ++i) {
-    //       if (info.friends[i].uid == uid) {
-    //         this.profile.doc(this.uid).update({
-    //           friends: firebase.firestore.FieldValue.arrayRemove(info.friends[i]),
-    //         })
-    //         break;
-    //       }
-    //     }
-    //   }
-    // });
     if (type != 'passive') {
       const data = {
         type: 'remove',
@@ -259,18 +249,6 @@ class Fire extends React.Component {
     this.profile.doc(this.uid).collection('pool').doc(uid).get().then((doc) => {
       if (doc.exists) doc.ref.delete();
     })
-    // this.readInfo().then((info) => {
-    //   if (info && info.pool) {
-    //     for (let i = 0; i < info.pool.length; ++i) {
-    //       if (info.pool[i].uid == uid) {
-    //         this.profile.doc(this.uid).update({
-    //           pool: firebase.firestore.FieldValue.arrayRemove(info.pool[i]),
-    //         })
-    //         break;
-    //       }
-    //     }
-    //   }
-    // });
   }
 
   getPlaceInfo = async (placeID, default_param={}) => {
@@ -281,7 +259,6 @@ class Fire extends React.Component {
       let data = {
         description: default_param.description || '',
         uri: default_param.uri || '',
-        pool: []
       }
       await this.place.doc(placeID).set(data);
       return data;
@@ -299,100 +276,75 @@ class Fire extends React.Component {
   }
 
   addPlaceURI = (placeID, URI) => {
-    return this.place.doc(placeID).update({uri: URI});
+    this.place.doc(placeID).update({uri: URI});
   }
 
   getPlacePool = async (placeID) => {
-    return await this.getPlaceInfo(placeID).then( (data) => {
-      if (data && data.pool) {
-        return Promise.all(data.pool.map( (element) => {
-          return this.getName(element.uid).then( (name) => {
-            return {
-              uid: element.uid,
-              name: name,
-              value: element.value,
-            }
-          });
-        }));
-      } else return [];
-    }).then( (poolData) => {
-      poolData.sort(function(a, b) {return b.value-a.value});
-      return poolData;
-    });
-  }
-
-  mixPool = (placeID, default_param={}) => {
-    Promise.all([
-      this.getPlaceInfo(placeID, default_param).then( (data) => {
-        return (data && data.pool) ? data.pool : [];
-      }),
-      this.profile.doc(this.uid).get(),
-      this.profile.doc(this.uid).collection('friends').get().then( (data) => {
-        let friends = [];
-        data.forEach( (doc) => {friends.push(doc.id);} );
-        return friends;
-      }),
-    ]).then( ([place, profile, friends]) => {
-      if (profile.exists) {
-        const default_KI = 300;
-        let num = profile.get('ki') || default_KI;
-        if (isNaN(num)) num = default_KI;
-        profile.ref.update({ki: num-1});
-      }
-      Promise.all(place.map( async (element) => {
-        let {uid, value} = element;
-        if (friends.indexOf(uid) == -1) {
-          let v = await this.profile.doc(this.uid).collection('pool').doc(uid).get().then((doc) => {
-            doc.exists ? doc.ref.update({value: doc.get('value') + 1}) : doc.ref.set({value: 1});
-          });
-          // await this.profile.doc(this.uid).collection('pool').doc(uid).set({value: v+1});
-        }
+    return await this.place.doc(placeID).collection('users').get().then( async (data) => {
+      let users = data.docs.map( (doc) => ({uid: doc.id, time: doc.get('time'), value: 0}));
+      await Promise.all(users.map( async (user) => {
+        return Promise.all([
+          this.getName(user.uid).then( (name) => {user.name = name}),
+          this.readUserAvatar(user.uid).then( (uri) => {user.uri = uri}),
+        ]);
       }));
+      return users;
     });
-    // Promise.all([this.getPlaceInfo(placeID, default_param), this.readInfo()]).then( ([data, info]) => {
-    //   if (data && data.pool) {
-    //     let friendList = info.friends ? info.friends.map(x => x.uid) : [];
-    //     let poolList = info.pool ? info.pool.map(x => x.uid): [];
-    //     if (!info.pool) info.pool = [];
-    //     data.pool.forEach((element) => {
-    //       let {uid, value} = element;
-    //       if (friendList.indexOf(uid) == -1) {
-    //         let k = poolList.indexOf(uid);
-    //         if (k == -1) {
-    //           poolList.push(uid);
-    //           info.pool.push({uid, value});
-    //         } else {
-    //           info.pool[k].value += value;
-    //         }
-    //       }
-    //     });
-    //     console.log('Before update', info);
-    //     this.profile.doc(this.uid).update(info);
-    //   }
-    // });
   }
 
-  updateVisit = (placeID, default_param={}) => {
-    this.getPlaceInfo(placeID, default_param).then( (data) => {
-      if (data && data.pool) {
-        for (let i = 0; i < data.pool.length; ++i) {
-          if (data.pool[i].uid == this.uid) {
-            let kiValue = data.pool[i];
-            this.place.doc(placeID).update({
-              pool: firebase.firestore.FieldValue.arrayRemove(kiValue),
-            });
-            break;
-          }
-        }
-        let kiValue = {uid: this.uid, value: 0, time: this.timestamp};
-        this.place.doc(placeID).update({
-          pool: firebase.firestore.FieldValue.arrayUnion(kiValue),
-        });
-        // kiValue.value++;
-        // this.place.doc(placeID).update({
-        //   pool: firebase.firestore.FieldValue.arrayUnion(kiValue),
-        // });
-      }
+  // mixPool = (placeID, default_param={}) => {
+  //   Promise.all([
+  //     this.getPlaceInfo(placeID, default_param).then( (data) => {
+  //       return (data && data.pool) ? data.pool : [];
+  //     }),
+  //     this.profile.doc(this.uid).get(),
+  //     this.profile.doc(this.uid).collection('friends').get().then( (data) => {
+  //       let friends = [];
+  //       data.forEach( (doc) => {friends.push(doc.id);} );
+  //       return friends;
+  //     }),
+  //   ]).then( ([place, profile, friends]) => {
+  //     if (profile.exists) {
+  //       const default_KI = 300;
+  //       let num = profile.get('ki') || default_KI;
+  //       if (isNaN(num)) num = default_KI;
+  //       profile.ref.update({ki: num-1});
+  //     }
+  //     Promise.all(place.map( async (element) => {
+  //       let {uid, value} = element;
+  //       if (friends.indexOf(uid) == -1) {
+  //         let v = await this.profile.doc(this.uid).collection('pool').doc(uid).get().then((doc) => {
+  //           doc.exists ? doc.ref.update({value: doc.get('value') + 1}) : doc.ref.set({value: 1});
+  //         });
+  //         // await this.profile.doc(this.uid).collection('pool').doc(uid).set({value: v+1});
+  //       }
+  //     }));
+  //   });
+  // }
+
+  isVisited = async (placeID) => {
+    return await this.place.doc(placeID).collection('users').doc(this.uid).get().then( async (doc) => {
+      return doc.exists;
+    });
+  }
+
+  checkout = (placeID, default_param={}) => {
+    return this.getPlaceInfo(placeID, default_param).then( () => {
+      this.place.doc(placeID).collection('users').doc(this.uid).delete();
+    });
+  }
+
+  checkin = (placeID, default_param={}) => {
+    return this.getPlaceInfo(placeID, default_param).then( (data) => {
+      let time = this.timestamp;
+      this.profile.doc(this.uid).collection('places').doc(placeID).set({
+        name: data.description,
+        time,
+      });
+      this.place.doc(placeID).collection('users').doc(this.uid).set({
+        time,
+        value: 0,
+      });
     });
   }
 
@@ -415,7 +367,6 @@ class Fire extends React.Component {
 
   deleteAllPool = () => {
     this.profile.get().then((snapshot) => {
-      let docRefs = [];
       Promise.all(snapshot.docs.map( async (doc) => {
         await this.deleteCollection(doc.ref.collection("pool"));
       })).then(()=>{console.log("successfully clear all users' pool")});
@@ -487,6 +438,12 @@ class Fire extends React.Component {
       return interval + " minutes";
     }
     return Math.floor(seconds) + " seconds";
+  }
+
+  timeLimit = (date) => {
+    var seconds = Math.floor((this.timestamp.toDate() - date.toDate()) / 1000);
+    // 1 day = 86400 seconds, 1 hour = 3600 seconds
+    return seconds < 3600;
   }
 
   get uid() {
