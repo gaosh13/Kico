@@ -82,9 +82,9 @@ class Fire extends React.Component {
   }
 
   readUserAvatar = async (UID) => {
-    console.log('accessing user Avatar Url, userID: ',UID);
+    // console.log('accessing user Avatar Url, userID: ',UID);
     let doc = await this.auth.doc(UID).get();
-    console.log('retrieved from readUserAvatar:', doc.data());
+    // console.log('retrieved from readUserAvatar:', doc.data());
     if (!doc.exists) {
       console.log('No such document!');
     } else {
