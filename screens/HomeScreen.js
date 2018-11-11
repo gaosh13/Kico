@@ -27,7 +27,7 @@ import { BlurView, VibrancyView } from 'react-native-blur';
 
 const { width, height } = Dimensions.get("window");
 
-const CARD_HEIGHT = height / 3;
+const CARD_HEIGHT = 212/812*height;
 const CARD_WIDTH = width / 1.1;
 
 //https://codedaily.io/tutorials/9/Build-a-Map-with-Custom-Animated-Markers-and-Region-Focus-when-Content-is-Scrolled-in-React-Native
@@ -321,6 +321,11 @@ export default class HomeScreen extends React.Component {
             <Ionicons name='ios-add' size={25} color="#000"/>
           </TouchableOpacity>
           <TouchableOpacity
+            style={styles.taskContainer}
+            onPress={() => {this.props.navigation.navigate("JoinTask")}}>
+            <Ionicons name='ios-add' size={25} color="#000"/>
+          </TouchableOpacity>
+          <TouchableOpacity
             style={styles.drawerContainer}
             onPress={() => {this.props.navigation.openDrawer()}}>
             <Ionicons name='ios-menu' size={25} color="#000"/>
@@ -444,14 +449,26 @@ const styles = StyleSheet.create({
     borderColor: '#000',
     backgroundColor: '#fff',
   },
+  taskContainer:{
+    position: 'absolute',
+    top: 60,
+    right: 100,
+    borderRadius: 30,
+    width: 30,
+    height: 30,
+    alignItems:'center',
+    borderWidth: 1,
+    borderColor: '#000',
+    backgroundColor: '#fff',
+  },
   particlesContainer:{
     marginTop : height/8,
     height: height*2/3,
     width: width,
   },
   kiContainer: {
-    width: width-30,
-    height: height*2/3-30, 
+    width: width,
+    height: (1-212/height)*height+20, 
   },
   itemContainer: {
     marginBottom: 15,
@@ -543,7 +560,7 @@ const styles = StyleSheet.create({
   },
   cardtitle: {
     left:10,
-    top:32,
+    top:20,
     color:'white',
     textAlign: "left",
     fontFamily :"kontakt",
@@ -552,7 +569,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   cardDescription: {
-    top:32,
+    top:20,
     left:10,
     textAlign: "left", 
     color:'#FFFFFF',

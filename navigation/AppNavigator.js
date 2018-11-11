@@ -20,6 +20,7 @@ import CheckInScreen from '../screens/CheckInScreen';
 import NotificationScreen from '../screens/NotificationScreen';
 import ChangeScreen from '../screens/ChangeScreen';
 import OtherProfileScreen from '../screens/OtherProfileScreen';
+import JoinTask from '../screens/JoinTask';
 
 import ReadyPage from '../screens/ReadyPage';
 import Login from '../screens/Login';
@@ -59,6 +60,7 @@ const PersonalDrawer = createDrawerNavigator({
     Notification: NotificationScreen,
     ViewOther:OtherProfileScreen,
     QRScanner,
+    JoinTask,
   }, {
     initialRouteName: 'Home',
   }),
