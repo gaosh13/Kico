@@ -313,6 +313,11 @@ export default class HomeScreen extends React.Component {
             <Ionicons name='ios-notifications-outline' size={25} color="#000"/>
           </TouchableOpacity>
           <TouchableOpacity
+            style={styles.scannerContainer}
+            onPress={() => {this.props.navigation.navigate("QRScanner")}}>
+            <Ionicons name='ios-add' size={25} color="#000"/>
+          </TouchableOpacity>
+          <TouchableOpacity
             style={styles.drawerContainer}
             onPress={() => {this.props.navigation.openDrawer()}}>
             <Ionicons name='ios-menu' size={25} color="#000"/>
@@ -416,6 +421,18 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 60,
     right: 30,
+    borderRadius: 30,
+    width: 30,
+    height: 30,
+    alignItems:'center',
+    borderWidth: 1,
+    borderColor: '#000',
+    backgroundColor: '#fff',
+  },
+  scannerContainer: {
+    position: 'absolute',
+    top: 60,
+    right: 65,
     borderRadius: 30,
     width: 30,
     height: 30,

@@ -13,7 +13,8 @@ import DrawerView from './DrawerView.js';
 import ProfileScreen from '../screens/ProfileScreen';
 import EditScreen from '../screens/EditScreen';
 import ChatsScreen from '../screens/ChatsScreen';
-import HelpScreen from '../screens/HelpScreen';
+import QRScanner from '../screens/QRScanner';
+import QRCodeScreen from '../screens/QRCodeScreen';
 import DevelopmentScreen from '../screens/DevelopmentScreen';
 import CheckInScreen from '../screens/CheckInScreen';
 import NotificationScreen from '../screens/NotificationScreen';
@@ -56,14 +57,15 @@ const PersonalDrawer = createDrawerNavigator({
     Home: HomeScreen,
     CheckIn: CheckInScreen,
     Notification: NotificationScreen,
-    ViewOther:OtherProfileScreen
+    ViewOther:OtherProfileScreen,
+    QRScanner,
   }, {
     initialRouteName: 'Home',
   }),
   Profile: createStackNavigator({ProfileScreen, Edit: EditScreen}),
   Chat: createStackNavigator({ChatsScreen}),
-  Help: createStackNavigator({HelpScreen}),
   Development: createStackNavigator({DevelopmentScreen}),
+  QRCode: createStackNavigator({QRCodeScreen}),
 }, {
   initialRouteName: 'HomeStack',
   drawerPosition: 'left',
