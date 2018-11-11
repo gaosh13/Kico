@@ -22,7 +22,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Fire from '../components/Fire';
 import { REACT_APP_FOURSQUARE_ID, REACT_APP_FOURSQUARE_SECRET } from 'react-native-dotenv'
 import AsyncImageAnimated from '../components/AsyncImageAnimated';
-import KiVisual from '../components/KiVisual';
+import {generateRandomCircles} from '../components/KiVisual';
 import { BlurView, VibrancyView } from 'react-native-blur';
 
 const { width, height } = Dimensions.get("window");
@@ -243,11 +243,11 @@ export default class HomeScreen extends React.Component {
   drawKiView() {
 // follows this tutorial:
 // https://www.youtube.com/watch?v=XATr_jdh-44
-    if (this.state.pool.length){
+    if (this.state.pool.length && this.mountState){
       // let friendSum = this.state.pool.reduce((prev,next) => prev + next.value,0);
       return (
         <View style={styles.kiContainer}>
-          {KiVisual.shared.generateCircles(this.state.pool,this.state.sum,this.props.navigation)}      
+          {generateRandomCircles(this.state.pool,this.state.sum,this.props.navigation)}      
         </View>
       );
     }else{
@@ -275,13 +275,16 @@ export default class HomeScreen extends React.Component {
             decelerationRate='fast'
           >
             {this.state.markers.map((marker, index) => (
+
               <TouchableOpacity key={index} onPress={
                 () => this.props.navigation.navigate("CheckIn", {
                   uri: marker.uri,
                   name: marker.name,
                   placeID: marker.id,
+                  location:marker.location.formattedAddress.slice(0,-1)
                 })
               }>
+
                 <View style={styles.card}>
                   <AsyncImageAnimated
                     style={styles.cardImage}
@@ -565,10 +568,6 @@ const styles = StyleSheet.create({
     height: height
   },
 });
-
-AppRegistry.registerComponent("mapfocus", () => screens);
-
-
 
 mapStyle =[
   {

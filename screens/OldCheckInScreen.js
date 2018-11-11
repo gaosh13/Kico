@@ -5,20 +5,32 @@ import { Ionicons } from '@expo/vector-icons';
 import Touchable from 'react-native-platform-touchable';
 import ChangeScreen from './ChangeScreen.js';
 import Fire from '../components/Fire';
-import {generateCirclesRow} from '../components/KiVisual';
+import KiVisual from '../components/KiVisual';
 import Canvas from 'react-native-canvas';
 import AsyncImageAnimated from '../components/AsyncImageAnimated';
-import GenericScreen from '../components/GenericScreen';
-import AwesomeButton from 'react-native-really-awesome-button';
-
-
 const { width, height } = Dimensions.get("window");
 
 
 
 export default class CheckInScreen extends React.Component {
-  static navigationOptions = {
-    header: null,
+  static navigationOptions = ( {navigation} ) => {
+    const { getParam } = navigation; 
+    return {
+      headerTitle: (
+        <View style={styles.titleCenter}>
+          <Text style={styles.titleText}>
+            {getParam('name', 'Steven Ballmar Building')}
+          </Text>
+          {/*
+          <TouchableOpacity style={styles.titleButton} onPress={getParam('jump', ()=>{})}>
+            <Text style={styles.titleChangeText}>
+              Change location
+            </Text>
+          </TouchableOpacity>
+          */}
+        </View>
+      ),
+    }
   };
 
   constructor(props) {
@@ -69,10 +81,11 @@ export default class CheckInScreen extends React.Component {
 // follows this tutorial:
 // https://www.youtube.com/watch?v=XATr_jdh-44
     if (this.state.pool.length){
-      //console.log('ZZZZZZZZ',this.state.sum);
+      console.log('ZZZZZZZZ',this.state.sum);
       return (
         <View style={styles.kiContainer}>
-          {generateCirclesRow(this.state.pool)}          
+          {KiVisual.shared.generateCircles(this.state.pool,this.state.sum,this.props.navigation)}
+          
         </View>
         )
     }else{
@@ -85,30 +98,62 @@ export default class CheckInScreen extends React.Component {
 
   render() {
     const { navigate, getParam, pop } = this.props.navigation;
+    const likes = 31, comments = 2;
     return (
-      <View style={{flex:1}}>
-        <GenericScreen
-          source={this.props.navigation.getParam("uri") }
-          venueName={this.props.navigation.getParam("name") }
-          venueLocation={this.props.navigation.getParam("location")}>
-          {this.drawKiView()}
-          <View style={styles.buttonContainer}>
-              <AwesomeButton
-                progress
-                height={68/812*height}
-                backgroundColor="#FFFFFF"
-                borderRadius= {34/812*height}
-                onPress={(next) => setTimeout(() => { next(console.log('finished')) }, 1000)}>
-                <Text style={styles.text}>{"Deposit Ki"}</Text>
-            </AwesomeButton>
-          </View>
-        </GenericScreen>
-        <TouchableOpacity
-          style={styles.closeButtonContainer}
-          onPress={() => {this.props.navigation.navigate("Home")}}>
-          <Ionicons name='ios-close' size={25} color="#000"/>
-        </TouchableOpacity>
-      </View>
+      <ScrollView style={styles.container}>
+
+        {this.drawKiView()}
+
+        <View style={styles.buttonsContainer}>
+          <TouchableOpacity
+            onPress={() => pop()}
+            style={styles.cancelButton}>
+            <Text style={styles.cancelText}>Cancel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {this._collect(); this._put(); pop();}}
+            style={styles.confirmButton}>
+            <Text style={styles.confirmText}>Check In</Text>
+          </TouchableOpacity>
+        </View>
+
+        { !this.state.description ? null:        
+          (<View style={styles.descriptionContainer}>
+            <Text style = {styles.generalText}>
+              Suzzallo Library is the central library of the University of Washington in Seattle,
+              and perhaps the most recognizable building on campus.
+            </Text>
+          </View>)
+        }  
+
+        <View style={styles.commentContainer}>
+          <Ionicons name='ios-heart' size={20} color="#000"/>
+          <Text style={styles.commentNumber}>&nbsp;{likes}&nbsp;&nbsp;&nbsp;</Text>
+          <Ionicons name='ios-chatbubbles' size={20} color="#000"/>
+          <Text style={styles.commentNumber}>&nbsp;{comments}</Text>
+        </View>
+        
+        <View style={styles.imagePropmtContainer}>
+          <Text style={styles.imagePropmtText}>
+            Album of {getParam('name', 'Steven Ballmar Building')}
+          </Text>
+        </View>
+        
+        <View style={styles.imageContainer} contentContainerStyle={styles.endPadding}>
+          <ScrollView horizontal={true}>
+            {this.ImageSlide()}
+            {this.ImageSlide()}
+            {this.ImageSlide()}
+          </ScrollView>
+        </View>
+       
+        <FlatList
+          data={this.state.pool}
+          keyExtractor={this._keyExtractor}
+          renderItem={this._renderPool}
+          style={styles.container}>
+        </FlatList>
+      </ScrollView>
     );
   }
 
@@ -124,6 +169,28 @@ export default class CheckInScreen extends React.Component {
         resizeMode="cover"
       />
     )
+  }
+
+  _keyExtractor = (item, index) => {return "pool" + index.toString()}
+
+  _renderPool = ({item}) => {
+    return (
+      <View style={styles.itemContainer}>
+        <View style={styles.itemLeft}>
+          <Image
+            source={require("../assets/images/robot-dev.png")}
+            style={{ width: 30, height: 30 }}
+            resizeMode="cover"
+          />
+          <Text style={{fontSize: 18}}>{item.name}</Text>
+        </View>
+
+        <View style={styles.itemRight}>
+          <Text style={{fontSize: 18, color: 'blue'}}>{item.value ? item.value.toString() : 0}</Text>
+          {/* <Button title="Add Friend" onPress={() => {this.addFriend(item.uid)}}/> */}
+        </View>
+      </View>
+    );
   }
 
   _collect = () => {
@@ -155,9 +222,8 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
   kiContainer: {
-    width: width,
-    height: 80/812*height,
-    overflow: "visible", 
+    width: width-30,
+    height: width-30, 
   },
   container: {
     flex: 1,
@@ -275,38 +341,6 @@ const styles = StyleSheet.create({
   },
   generalText:{
     fontFamily :"kontakt",
-  },
-  closeButtonContainer: {
-    position: 'absolute',
-    top: 60,
-    right: 30,
-    borderRadius: 30,
-    width: 30,
-    height: 30,
-    alignItems:'center',
-    borderWidth: 1.5,
-    borderColor: '#000',
-    backgroundColor:"#fff",
-    // backgroundColor: '#fff',
-  },
-  buttonContainer:{
-    position:"absolute",
-    left:84/812*height,
-    bottom:55/812*height,
-    borderRadius:34/812*height,
-    shadowOffset:{width:0,height:10},
-    shadowRadius: 30,
-    shadowColor: "rgba(0,0,0,1)",
-    shadowOpacity:0.2,
-  },
-  textContent: {
-    position:"absolute",
-    alignItems:"center",
-    bottom:50/812*height,
-    height:100/812*height,
-    left:0,
-    width:'100%',
-    height:'25%',
   },
 
 });
