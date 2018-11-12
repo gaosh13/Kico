@@ -20,7 +20,8 @@ import CheckInScreen from '../screens/CheckInScreen';
 import NotificationScreen from '../screens/NotificationScreen';
 import ChangeScreen from '../screens/ChangeScreen';
 import OtherProfileScreen from '../screens/OtherProfileScreen';
-import JoinTask from '../screens/JoinTask';
+import JoinTaskScreen from '../screens/JoinTask';
+import CreateTaskScreen from '../screens/CreateTask';
 
 import ReadyPage from '../screens/ReadyPage';
 import Login from '../screens/Login';
@@ -58,9 +59,9 @@ const PersonalDrawer = createDrawerNavigator({
     Home: HomeScreen,
     CheckIn: CheckInScreen,
     Notification: NotificationScreen,
-    ViewOther:OtherProfileScreen,
+    ViewOther: OtherProfileScreen,
     QRScanner,
-    JoinTask,
+    CreateTask: CreateTaskScreen,
   }, {
     initialRouteName: 'Home',
   }),
@@ -68,6 +69,7 @@ const PersonalDrawer = createDrawerNavigator({
   Chat: createStackNavigator({ChatsScreen}),
   Development: createStackNavigator({DevelopmentScreen}),
   QRCode: createStackNavigator({QRCodeScreen}),
+  JoinTask: createStackNavigator({JoinTaskScreen}),
 }, {
   initialRouteName: 'HomeStack',
   drawerPosition: 'left',

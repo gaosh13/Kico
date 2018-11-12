@@ -322,7 +322,7 @@ export default class HomeScreen extends React.Component {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.taskContainer}
-            onPress={() => {this.props.navigation.navigate("JoinTask")}}>
+            onPress={() => {this.props.navigation.navigate("CreateTask")}}>
             <Ionicons name='ios-add' size={25} color="#000"/>
           </TouchableOpacity>
           <TouchableOpacity

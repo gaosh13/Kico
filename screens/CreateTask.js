@@ -1,14 +1,20 @@
 import React from 'react';
 import { ScrollView, FlatList, TouchableHighlight, StyleSheet, View, Text, Image, Button, TouchableOpacity, Dimensions } from 'react-native';
+import { Constants ,Svg } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
+import Touchable from 'react-native-platform-touchable';
+import ChangeScreen from './ChangeScreen.js';
 import Fire from '../components/Fire';
 import {generateCirclesRow} from '../components/KiVisual';
+import Canvas from 'react-native-canvas';
 import AsyncImageAnimated from '../components/AsyncImageAnimated';
 import GenericScreen from '../components/GenericScreen';
 import AwesomeButton from 'react-native-really-awesome-button';
-import QRCode from 'react-native-qrcode';
+
 
 const { width, height } = Dimensions.get("window");
+
+
 
 export default class CheckInScreen extends React.Component {
   static navigationOptions = {
@@ -19,86 +25,66 @@ export default class CheckInScreen extends React.Component {
     super(props);
     this.state = {
       pool: [],
-      where: '',
-      what: '',
-      when: '',
-      isGoing: false,
+      sum: 1,
+      loaded:false,
+      circles:[],
     };
+    // this.props.navigation.setParams({ jump: this._onPress });
+    //this.fetchdata();
   }
 
   async componentDidMount() {
     await this.fetchdata();
+   // await this.fetchVenueData();
   }
 
   async fetchdata() {
-    const task = this.props.navigation.getParam('task', '0');
-    // console.log("begin fetching");
-    // console.log("task", task);
-    Fire.shared.getTaskInfo(task).then( (taskInfo) => {
-      const {users:pool, where, what, when, isGoing} = taskInfo;
-      this.setState({pool, where, what, when, isGoing});
-    });
-  }  
-
-  drawKiView() {
-    if (this.state.pool.length){
-      return (
-        <View style={styles.kiContainer}>
-          {generateCirclesRow(this.state.pool)}          
-        </View>
-      )
-    } else{
-      return (
-        <View style={styles.kiContainer} />
-      )
-    }
-  }
-
-  _renderQRCode() {
-    if (this.state.isGoing) {
-      return (
-        <View style={{paddingTop: 20, paddingBottom: 20}}>
-          <QRCode
-            value={this.state.text}
-            size={200}
-            bgColor='black'
-            fgColor='white'/>
-        </View>
-      );
-    } else return null;
+    Fire.shared.getPlacePool(this.props.navigation.getParam('placeID', '0')).then( (Data) => {
+        return Promise.all(Data.map( (users, index) => {
+          return Fire.shared.readUserAvatar(users.uid).then( (uri) => {
+            if (uri) {
+              return {
+                uid: users.uid,
+                uri: uri,
+                value:users.value,
+                name: users.name,
+              };
+            } else {
+              console.log('URL fetching failed')
+                }
+          });
+        }))
+    }).then( (updatedData)=>{
+      if (updatedData) {
+        //console.log('marker PlayerX Data has been pulled', updatedData);
+        let checkinSum = updatedData.reduce((prev,next) => prev + next.value,0); 
+        this.setState({pool: updatedData, sum: checkinSum});
+      } else {
+        console.log('marker PlayerX Data fetch has failed');
+      }
+    })
   }
 
   render() {
-    const { getParam } = this.props.navigation;
-    const displayText = this.state.isGoing ? "Ungoing" : "Join";
-    const task = this.props.navigation.getParam('task', '0');
+    const {getParam} = this.props.navigation;
     return (
-      <ScrollView 
-        scrollEventThrottle={1}
-        showsHorizontalScrollIndicator={false}
-        snapToInterval={104/812*height}
-        decelerationRate='fast'>
+      <View style={{flex:1}}>
         <GenericScreen
-          source={getParam("uri")}
-          name={getParam("name")}
+          source={getParam("uri") }
+          name={getParam("name") }
           description={getParam("location")}>
-          <Text style={styles.numberText}> {this.state.pool.length} </Text>
-          <Text style={styles.descriptionText}> # of Attenders </Text>
-          {this.drawKiView()}
           <View style={styles.buttonContainer}>
-              {this._renderQRCode()}
               <AwesomeButton
-                // progress
+                progress
                 height={68/812*height}
                 backgroundColor="#FFFFFF"
                 borderRadius= {34/812*height}
                 onPress={(next) => {
-                  ((this.state.isGoing) ? Fire.shared.ungoingTask(task) : Fire.shared.joinTask(task)).then(()=>{
-                    this.fetchdata();
-                  });
+                  Fire.shared.startTasks(['3QcHJ8jc6WQYcAs82JN9E7z4a422'], {'where': '0', 'when': '0', 'what': '0'});
+                  this.props.navigation.pop();
                   next();
                 }}>
-                <Text style={styles.text}>{displayText}</Text>
+                <Text style={styles.text}>{"Create Task"}</Text>
               </AwesomeButton>
           </View>
         </GenericScreen>
@@ -107,7 +93,7 @@ export default class CheckInScreen extends React.Component {
           onPress={() => {this.props.navigation.navigate("Home")}}>
           <Ionicons name='ios-close' size={25} color="#000"/>
         </TouchableOpacity>
-      </ScrollView>
+      </View>
     );
   }
 }

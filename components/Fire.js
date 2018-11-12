@@ -24,7 +24,8 @@ class Fire extends React.Component {
     this.auth = firestore.collection('users');
     this.profile = firestore.collection('profiles');
     this.notification = firestore.collection('notification');
-    this.place = firestore.collection('place');
+    this.place = firestore.collection('places');
+    this.task = firestore.collection('tasks');
     console.log('Fire module has been called and initialized, user status:',firebase.auth().currentUser)
   }
 
@@ -251,6 +252,74 @@ class Fire extends React.Component {
     })
   }
 
+  startTasks = async (uids, param) => {
+    const data = {
+      users: [this.uid],
+      ...param,
+    };
+    let taskID = (await this.task.add(data)).id;
+    const baseNotification = {
+      type: 'taski',
+      uid2: this.uid,
+      task: taskID,
+      time: this.timestamp,
+    }
+    return await Promise.all( uids.map( (uid) => {
+        return this.notification.add({
+          uid1: uid,
+          ...baseNotification,
+        });
+      }).concat([this.profile.doc(this.uid).collection('tasks').doc(taskID).set({value: 0})])
+    );
+  }
+
+  joinTask = (taskID) => {
+    return this.task.doc(taskID).get().then( (doc) => {
+      if (doc.exists) {
+        return Promise.all([
+          doc.ref.update({
+            users: firebase.firestore.FieldValue.arrayUnion(this.uid),
+          }),
+          this.profile.doc(this.uid).collection('tasks').doc(taskID).set({value: 0}),
+        ]);
+      } else return null;
+    });
+  }
+
+  ungoingTask = (taskID) => {
+    return this.task.doc(taskID).get().then( (doc) => {
+      if (doc.exists) {
+        return Promise.all([
+          doc.ref.update({
+            users: firebase.firestore.FieldValue.arrayRemove(this.uid),
+          }),
+          this.profile.doc(this.uid).collection('tasks').doc(taskID).delete(),
+        ]);
+      } else return null;
+    });
+  }
+
+  getTaskInfo = async (taskID) => {
+    const doc = await this.task.doc(taskID).get();
+    if (!doc.exists) {
+      console.log("No such task");
+      return {}
+    }
+    let taskInfo = doc.data();
+    let isGoing = false;
+    taskInfo.users = await Promise.all( taskInfo.users.map( async (user) => {
+      const [name, uri] = await Promise.all([this.getName(user), this.readUserAvatar(user)]);
+      if (user == this.uid) isGoing = true;
+      return {
+        uid: user,
+        name,
+        uri,
+      }
+    }));
+    taskInfo.isGoing = isGoing;
+    return taskInfo;
+  }
+
   getPlaceInfo = async (placeID, default_param={}) => {
     // console.log("get Place Info placeID", placeID);
     let doc = await this.place.doc(placeID).get();
@@ -290,37 +359,7 @@ class Fire extends React.Component {
       }));
       return users;
     });
-  }
-
-  // mixPool = (placeID, default_param={}) => {
-  //   Promise.all([
-  //     this.getPlaceInfo(placeID, default_param).then( (data) => {
-  //       return (data && data.pool) ? data.pool : [];
-  //     }),
-  //     this.profile.doc(this.uid).get(),
-  //     this.profile.doc(this.uid).collection('friends').get().then( (data) => {
-  //       let friends = [];
-  //       data.forEach( (doc) => {friends.push(doc.id);} );
-  //       return friends;
-  //     }),
-  //   ]).then( ([place, profile, friends]) => {
-  //     if (profile.exists) {
-  //       const default_KI = 300;
-  //       let num = profile.get('ki') || default_KI;
-  //       if (isNaN(num)) num = default_KI;
-  //       profile.ref.update({ki: num-1});
-  //     }
-  //     Promise.all(place.map( async (element) => {
-  //       let {uid, value} = element;
-  //       if (friends.indexOf(uid) == -1) {
-  //         let v = await this.profile.doc(this.uid).collection('pool').doc(uid).get().then((doc) => {
-  //           doc.exists ? doc.ref.update({value: doc.get('value') + 1}) : doc.ref.set({value: 1});
-  //         });
-  //         // await this.profile.doc(this.uid).collection('pool').doc(uid).set({value: v+1});
-  //       }
-  //     }));
-  //   });
-  // }
+  }  
 
   isVisited = async (placeID) => {
     return await this.place.doc(placeID).collection('users').doc(this.uid).get().then( async (doc) => {
@@ -339,6 +378,7 @@ class Fire extends React.Component {
       let time = this.timestamp;
       this.profile.doc(this.uid).collection('places').doc(placeID).set({
         name: data.description,
+        uri: data.uri,
         time,
       });
       this.place.doc(placeID).collection('users').doc(this.uid).set({
@@ -350,6 +390,12 @@ class Fire extends React.Component {
 
   // development tootls:
   // for debug
+
+  transferAllImages = () => {
+    this.auth.get().then( (doc) => {
+      return Promise.all(this.profile);
+    })
+  }
 
   generateNotification = () => {
     let data = {
@@ -440,10 +486,10 @@ class Fire extends React.Component {
     return Math.floor(seconds) + " seconds";
   }
 
-  timeLimit = (date) => {
+  timeLimit = (date, time=3600) => {
     var seconds = Math.floor((this.timestamp.toDate() - date.toDate()) / 1000);
     // 1 day = 86400 seconds, 1 hour = 3600 seconds
-    return seconds < 3600;
+    return seconds < time;
   }
 
   get uid() {

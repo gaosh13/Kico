@@ -69,8 +69,7 @@ export default class NotificationScreen extends React.Component {
     } else if (item.type == 'taski') {
       return (
         <View style={styles.messageTextContainer}>
-          <Button title="Confirm" onPress={()=>{}} />
-          <Button title="Reject" onPress={()=>{}} />
+          <Text style={styles.messageText}>{item.name + " invite you to an event"}</Text>
         </View>
       );
     } else if (item.type == 'add1') {
@@ -92,17 +91,26 @@ export default class NotificationScreen extends React.Component {
     }
   }
 
+  _pressSingleItem = (item) => {
+    if (item.type == 'taski') {
+      // console.log("item.task", item.task);
+      this.props.navigation.navigate("JoinTaskScreen", {task: item.task});
+    }
+  }
+
   _renderListItem = ({item}) => {
     let displayText = 'Here comes a new message';
     // console.log("item.uri", item.uri);
     return (
-      <View style={styles.itemContainer}>
+      <TouchableOpacity
+        style={styles.itemContainer}
+        onPress={() => this._pressSingleItem(item)}>
         <View style={{flex: 0.25,
           // borderWidth: 1, borderColor: '#000'
         }}>
           <Image
             style={styles.userImage}
-            source={{uri: "https://lh3.googleusercontent.com/-14MN7hgJpXw/AAAAAAAAAAI/AAAAAAAAAXQ/jHyRSDt4-vs/photo.jpg"}}
+            source={{uri: item.uri}}
           />
         </View>
         <View style={{flex: 0.75, justifyContent: 'center',
@@ -111,7 +119,7 @@ export default class NotificationScreen extends React.Component {
           {this._renderSingleItem(item)}
           <Text style={styles.timestampText}>{item.time}</Text>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   }
 }
