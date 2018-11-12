@@ -24,6 +24,7 @@ import { REACT_APP_FOURSQUARE_ID, REACT_APP_FOURSQUARE_SECRET } from 'react-nati
 import AsyncImageAnimated from '../components/AsyncImageAnimated';
 import {generateRandomCircles} from '../components/KiVisual';
 import { BlurView, VibrancyView } from 'react-native-blur';
+import ActionButton from 'react-native-action-button';
 
 const { width, height } = Dimensions.get("window");
 
@@ -330,6 +331,11 @@ export default class HomeScreen extends React.Component {
             onPress={() => {this.props.navigation.openDrawer()}}>
             <Ionicons name='ios-menu' size={25} color="#000"/>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.createTaskContainer}
+            onPress={() => {this.props.navigation.navigate("CreateTask")}}>
+            <Ionicons name='ios-add' size={25} color="#000"/>
+          </TouchableOpacity>
           {this._renderList()}
       </View>
     );
@@ -420,6 +426,7 @@ export default class HomeScreen extends React.Component {
 }
 
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -453,6 +460,18 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 60,
     right: 100,
+    borderRadius: 30,
+    width: 30,
+    height: 30,
+    alignItems:'center',
+    borderWidth: 1,
+    borderColor: '#000',
+    backgroundColor: '#fff',
+  },
+  createTaskContainer:{
+    position: 'absolute',
+    top: 95,
+    right: 65,
     borderRadius: 30,
     width: 30,
     height: 30,

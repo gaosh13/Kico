@@ -82,6 +82,22 @@ class DrawerView extends Component {
         </TouchableHighlight>
 
         <TouchableHighlight
+          onPress={() => navigate('CreateTask')}
+          underlayColor="#CCC"
+          style={styles.menuTouchable}>
+          <View style={styles.navBar}>
+            <View style={styles.leftContainer}>
+              <Icon name={'eye'} size={30} color="#000"/>
+            </View>
+            <View style={styles.rightContainer}>
+              <Text style={styles.navTextStyle}>
+                Create Task
+              </Text>
+            </View>
+          </View>
+        </TouchableHighlight>
+
+        <TouchableHighlight
           onPress={() => navigate('Development')}
           underlayColor="#CCC"
           style={styles.menuTouchable}>

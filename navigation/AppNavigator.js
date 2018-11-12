@@ -21,6 +21,7 @@ import NotificationScreen from '../screens/NotificationScreen';
 import ChangeScreen from '../screens/ChangeScreen';
 import OtherProfileScreen from '../screens/OtherProfileScreen';
 import JoinTask from '../screens/JoinTask';
+import CreateTask from '../screens/CreateTask';
 
 import ReadyPage from '../screens/ReadyPage';
 import Login from '../screens/Login';
@@ -65,6 +66,7 @@ const PersonalDrawer = createDrawerNavigator({
   }, {
     initialRouteName: 'Home',
   }),
+  MakeTask: createStackNavigator({CreateTask}),
   Profile: createStackNavigator({ProfileScreen, Edit: EditScreen}),
   Chat: createStackNavigator({ChatsScreen}),
   Development: createStackNavigator({DevelopmentScreen}),
