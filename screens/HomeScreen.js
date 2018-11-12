@@ -24,6 +24,7 @@ import { REACT_APP_FOURSQUARE_ID, REACT_APP_FOURSQUARE_SECRET } from 'react-nati
 import AsyncImageAnimated from '../components/AsyncImageAnimated';
 import {generateRandomCircles} from '../components/KiVisual';
 import { BlurView, VibrancyView } from 'react-native-blur';
+import ActionButton from 'react-native-action-button';
 
 const { width, height } = Dimensions.get("window");
 
@@ -295,7 +296,7 @@ export default class HomeScreen extends React.Component {
                     animationStyle='fade'
                     >
                   </AsyncImageAnimated>  
-                  <LinearGradient colors={['rgba(0,0,0,0)','rgba(0,0,0,0.6)']} style={styles.blurView}/>
+                  <LinearGradient colors={['rgba(0,0,0,0)','rgba(0,0,0,1)']} style={styles.blurView}/>
                   <View style={styles.textContent} >
                     <Text numberOfLines={1} style={styles.cardtitle}>
                       {marker.name}
@@ -418,6 +419,7 @@ export default class HomeScreen extends React.Component {
     this.setState({notification: data});
   }
 }
+
 
 
 const styles = StyleSheet.create({
@@ -556,22 +558,22 @@ const styles = StyleSheet.create({
     bottom:0,
     left:0,
     width:'100%',
-    height:'40%',
+    height:83/812*height,
   },
   cardtitle: {
-    left:10,
-    top:20,
+    marginLeft:10,
+    marginTop:20,
     color:'white',
     textAlign: "left",
-    fontFamily :"kontakt",
-    fontSize: 18,
-    marginTop: 12,
+    fontFamily:"GSB",
+    fontSize: 24/812*height,
     fontWeight: "bold",
   },
   cardDescription: {
-    top:20,
-    left:10,
+    marginTop:0,
+    marginLeft:10,
     textAlign: "left", 
+    fontFamily:"GR",
     color:'#FFFFFF',
     fontSize: 14,
     opacity: 0.6

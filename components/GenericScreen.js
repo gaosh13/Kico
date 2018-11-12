@@ -83,6 +83,7 @@ const styles = StyleSheet.create({
     backgroundColor:'#FFFFFF',
     borderTopLeftRadius:10,
     borderTopRightRadius:10,
+
   },
   blurView: {
     marginTop:-275/812*height,
@@ -101,11 +102,13 @@ const styles = StyleSheet.create({
   	marginTop:24/812*height,
     color:'#FFFFFF',
     textAlign: "center",
+    fontFamily:"GR",
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight:'bold',
   },
   cardDescription: {
     marginTop:4/812*height,
+    fontFamily:"GR",
     textAlign: "center",
     color:'#FFFFFF',
     opacity:0.6,

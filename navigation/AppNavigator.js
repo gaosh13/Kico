@@ -29,6 +29,7 @@ import Login from '../screens/Login';
 import * as firebase from 'firebase';
 
 
+
 class AuthLoadingScreen extends React.Component {
   constructor(props) {
     super(props);

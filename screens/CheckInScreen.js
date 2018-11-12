@@ -93,7 +93,7 @@ console.log(this.state.pool)
                 });
                 next();
               }}>
-              <Text style={styles.text}>{displayText}</Text>
+              <Text style={{fontSize:15, fontFamily:'GR', fontWeight:'bold'}}>{displayText}</Text>
             </AwesomeButton>
           </View>
         </GenericScreen>
