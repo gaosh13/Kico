@@ -54,12 +54,17 @@ export default class CheckInScreen extends React.Component {
     }
   }
 
+  _generateQRCode() {
+    const task = this.props.navigation.getParam('task', '0');
+    return JSON.stringify({"uid": Fire.shared.uid, "task": task});
+  }
+
   _renderQRCode() {
     if (this.state.isGoing) {
       return (
         <View style={{paddingTop: 20, paddingBottom: 20}}>
           <QRCode
-            value={this.state.text}
+            value={this._generateQRCode()}
             size={200}
             bgColor='black'
             fgColor='white'/>

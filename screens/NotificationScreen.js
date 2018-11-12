@@ -95,6 +95,15 @@ export default class NotificationScreen extends React.Component {
     if (item.type == 'taski') {
       // console.log("item.task", item.task);
       this.props.navigation.navigate("JoinTaskScreen", {task: item.task});
+    } else if (item.type == 'add1') {
+      Alert.alert(
+        'Congratulations',
+        'You and ' + item.name + ' are friends now.',
+        // [
+        //   {text: 'No', onPress: () => console.warn('NO Pressed'), style: 'cancel'},
+        //   {text: 'Yes', onPress: () => {console.warn('YES Pressed'); Fire.shared.addFriend(item.uid2, "add2")} },
+        // ]
+      );
     }
   }
 

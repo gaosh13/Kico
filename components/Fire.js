@@ -180,6 +180,16 @@ class Fire extends React.Component {
     }
   }
 
+  getNameNAvatar = async (uid) => {
+    let doc = await this.profile.doc(uid).get();
+    if (!doc.exists) {
+      console.log('No user with this uid:', uid);
+      return {};
+    } else {
+      return {name: doc.get('name'), uri: doc.get('photoURL')};
+    }
+  }
+
   getNotification = async () => {
     let doc = await this.notification.where('uid1', '==', this.uid).get();
     let notificationData = [];
@@ -211,45 +221,36 @@ class Fire extends React.Component {
     if (this.uid) {
       const data = {
         name: param.name,
-        age: Number(param.age),
+        age: Number(param.age) || 0,
         gender: param.gender,
       };
       await this.profile.doc(this.uid).update(data);
     }
   }
 
-  addFriend = (uid, type='request') => {
+  addFriend = (uid, type='add1') => {
     const data = {
       type: type,
+      time: this.timestamp,
       uid1: uid,
       uid2: this.uid,
     };
     this.notification.add(data);
+    this.profile.doc(this.uid).collection('friends').doc(uid).set({tag: 'friend', nick: ''});
+    this.profile.doc(uid).collection('friends').doc(this.uid).set({tag: 'friend', nick: ''});
   }
 
   removeFriend = (uid, type='passive') => {
     if (type != 'passive') {
       const data = {
-        type: 'remove',
+        type: 'rm1',
+        time: this.timestamp,
         uid1: uid,
         uid2: this.uid,
       };
       this.notification.add(data);
     }
-    this.profile.doc(this.uid).collection('friends').doc(uid).get().then((doc) => {
-      if (doc.exists) doc.ref.delete();
-    })
-  }
-
-  confirmFriend = (uid, param) => {
-    const data = {
-      tag: param.tag || '',
-      nick: param.nick || '', 
-    };
-    this.profile.doc(this.uid).collection('friends').doc(uid).set(data);
-    this.profile.doc(this.uid).collection('pool').doc(uid).get().then((doc) => {
-      if (doc.exists) doc.ref.delete();
-    })
+    this.profile.doc(this.uid).collection('friends').doc(uid).delete();
   }
 
   startTasks = async (uids, param) => {
@@ -392,9 +393,12 @@ class Fire extends React.Component {
   // for debug
 
   transferAllImages = () => {
-    this.auth.get().then( (doc) => {
-      return Promise.all(this.profile);
-    })
+    this.auth.get().then( (snapshot) => {
+      return Promise.all( snapshot.docs.map( async (doc) => {
+        const {uid, photoURL} = doc.data();
+        return await this.profile.doc(uid).update({photoURL});
+      }));
+    }).then(()=>{console.log("successfully transfer all photoURL")});
   }
 
   generateNotification = () => {

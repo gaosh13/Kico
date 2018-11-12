@@ -1,14 +1,18 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { BarCodeScanner, Permissions } from 'expo';
+import Fire from '../components/Fire';
 
 export default class QRScanner extends React.Component {
   static navigationOptions = {
     title: 'QR scanner',
   };
-
-  state = {
-    hasCameraPermission: null,
+  constructor(){
+    super();
+    this.state = {
+      hasCameraPermission: null,
+    };
+    this.scanned = false;
   }
 
   async componentDidMount() {
@@ -37,14 +41,14 @@ export default class QRScanner extends React.Component {
 
   handleBarCodeScanned = ({ type, data }) => {
     if (type == 'org.iso.QRCode') {
-      console.log(data);
-      let result = JSON.parse(data);
-      if (result.value == 0) {
-        this.props.navigation.navigate('Profile');
-      } else if (result.value == 1) {
-        this.props.navigation.navigate('Chat');
-      } else {
-        this.props.navigation.navigate('Development');
+      if (!this.scanned) {
+        this.scanned = true;
+        const result = JSON.parse(data);
+        const {uid} = result;
+        if (uid) {
+          Fire.shared.addFriend(uid);
+          this.props.navigation.navigate('Congratulations', {uid});
+        } else this.scanned = false;
       }
     }
   }
