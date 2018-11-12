@@ -102,7 +102,7 @@ console.log(this.state.pool)
                 backgroundColor="#FFFFFF"
                 borderRadius= {34/812*height}
                 onPress={(next) => setTimeout(() => { next(console.log('finished')) }, 1000)}>
-                <Text style={styles.text}>{"Deposit Ki"}</Text>
+                <Text style={{fontSize:15, fontFamily:'GR', fontWeight:'bold'}}>{"Deposit Ki"}</Text>
               </AwesomeButton>
           </View>
         </GenericScreen>

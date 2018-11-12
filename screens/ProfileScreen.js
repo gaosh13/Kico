@@ -103,7 +103,7 @@ export default class ProfileScreen extends React.Component {
           <View style={styles.outerCircle}/>
           <View style={styles.innerCircle}/>
         </View>
-        <View>
+        <View style={{width:114}} >
           <Text style={styles.venueNameText_odd}> Suzzalo Library </Text>
           <Text style={styles.venueTimeText_odd}> 9/30/2018 </Text> 
         </View>
@@ -114,7 +114,7 @@ export default class ProfileScreen extends React.Component {
   drawNode_even(){
     return(
       <View style={{flexDirection:'row',justifyContent: 'space-evenly', height:104}}>
-        <View>
+        <View style={{width:114}}>
           <Text style={styles.venueNameText_even}> Suzzalo Library </Text>
           <Text style={styles.venueTimeText_even}> 9/30/2018 </Text> 
         </View>        
@@ -184,8 +184,8 @@ const styles = StyleSheet.create({
   kiLogText:{
     color:'black',
     textAlign: "left",
-    fontSize: 24,
-    fontWeight: "bold",
+    fontSize: 36,
+    fontFamily:'GSB',
     marginTop: 25/812*height,
     marginLeft: 25/812*height,
     marginBottom:25/812*height,
@@ -264,25 +264,27 @@ const styles = StyleSheet.create({
     fontSize:14,
     color:'rgb(7,43,79)',
     textAlign: "left",
+    fontFamily:"GSB",
     marginTop:34.5,
-    fontWeight:'bold',
   },
   venueTimeText_odd:{
     marginTop:5,
     marginBottom:34.5,
     fontSize:12,
+    fontFamily:"GR",
     color:'rgb(7,43,79)',
-    textAlign: "right"
+    textAlign: "left"
   },
   venueNameText_even:{
     fontSize:14,
+    fontFamily:"GSB",
     color:'rgb(7,43,79)',
-    textAlign: "left",
+    textAlign: "right",
     marginTop:34.5,
-    fontWeight:'bold',
   },
   venueTimeText_even:{
     marginTop:5,
+    fontFamily:"GR",
     marginBottom:34.5,
     fontSize:12,
     color:'rgb(7,43,79)',

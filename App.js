@@ -2,7 +2,6 @@ import React from 'react';
 import { Platform, StatusBar, StyleSheet, View } from 'react-native';
 import { AppLoading, Asset, Font, Icon } from 'expo';
 import AppNavigator from './navigation/AppNavigator';
-
 export default class App extends React.Component {
   state = {
     isLoadingComplete: false,
@@ -45,6 +44,9 @@ export default class App extends React.Component {
         'ailerons': require('./assets/fonts/Ailerons.otf'),
         'kontakt': require('./assets/fonts/Kontakt.ttf'),
         'mylodon-light': require('./assets/fonts/Mylodon-Light.otf'),
+        'GSB': require('./assets/fonts/gibsonSB.ttf'),
+        'GR': require('./assets/fonts/gibsonR.ttf'),
+        'GL': require('./assets/fonts/gibsonL.ttf'),
       }),
     ]);
   };
