@@ -1,125 +1,133 @@
-import React from 'react';
-import { ScrollView, FlatList, TouchableHighlight, StyleSheet, View, Text, Image, Button, TouchableOpacity, Dimensions } from 'react-native';
-import { Constants ,Svg } from 'expo';
-import { Ionicons } from '@expo/vector-icons';
-import Touchable from 'react-native-platform-touchable';
-import ChangeScreen from './ChangeScreen.js';
-import Fire from '../components/Fire';
-import {generateCirclesRow} from '../components/KiVisual';
-import Canvas from 'react-native-canvas';
-import AsyncImageAnimated from '../components/AsyncImageAnimated';
-import GenericScreen from '../components/GenericScreen';
-import AwesomeButton from 'react-native-really-awesome-button';
+import React from 'react'
+import {
+  ScrollView,
+  FlatList,
+  TouchableHighlight,
+  StyleSheet,
+  View,
+  Text,
+  Image,
+  Button,
+  TouchableOpacity,
+  Dimensions,
+} from 'react-native'
+import { Constants, Svg } from 'expo'
+import { Ionicons } from '@expo/vector-icons'
+import Touchable from 'react-native-platform-touchable'
+import ChangeScreen from './ChangeScreen.js'
+import Fire from '../components/Fire'
+import { generateCirclesRow } from '../components/KiVisual'
+import Canvas from 'react-native-canvas'
+import AsyncImageAnimated from '../components/AsyncImageAnimated'
+import GenericScreen from '../components/GenericScreen'
+import AwesomeButton from 'react-native-really-awesome-button'
 
-
-const { width, height } = Dimensions.get("window");
-
-
+const { width, height } = Dimensions.get('window')
 
 export default class CheckInScreen extends React.Component {
   static navigationOptions = {
     header: null,
-  };
+  }
 
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       pool: [],
       isVisited: true,
-      circles:[],
-    };
+      circles: [],
+    }
 
     // this.props.navigation.setParams({ jump: this._onPress });
     //this.fetchdata();
   }
 
   componentDidMount() {
-    this.fetchdata();
-   // await this.fetchVenueData();
+    this.fetchdata()
+    // await this.fetchVenueData();
   }
 
   fetchdata() {
-    const place = this.props.navigation.getParam('placeID', '0');
+    const place = this.props.navigation.getParam('placeID', '0')
     // console.log("begin fetching");
-    Promise.all([
-      Fire.shared.getPlacePool(place),
-      Fire.shared.isVisited(place),
-    ]).then( ([pool, isVisited])=>{
-      // console.log("changed", isVisited);
-      this.setState({pool, isVisited});
-    });
+    Promise.all([Fire.shared.getPlacePool(place), Fire.shared.isVisited(place)]).then(
+      ([pool, isVisited]) => {
+        this.setState({ pool, isVisited })
+      }
+    )
   }
 
-  drawKiView(){
-// follows this tutorial:
-// https://www.youtube.com/watch?v=XATr_jdh-44
-console.log(this.state.pool)
-    if (this.state.pool.length){
+  drawKiView() {
+    // follows this tutorial:
+    // https://www.youtube.com/watch?v=XATr_jdh-44
+    if (this.state.pool.length) {
       //console.log('ZZZZZZZZ',this.state.sum);
-      return (
-        <View style={styles.kiContainer}>
-          {generateCirclesRow(this.state.pool)}
-        </View>
-      )
+      return <View style={styles.kiContainer}>{generateCirclesRow(this.state.pool)}</View>
     } else {
-      return (
-        <View style={styles.kiContainer} />
-      )
+      return <View style={styles.kiContainer} />
     }
   }
 
   render() {
-    const { navigate, getParam, pop } = this.props.navigation;
-    const displayText = this.state.isVisited ? "Take back Ki" : "Deposit Ki";
-    const place = this.props.navigation.getParam('placeID', '0');
+    const { navigate, getParam, pop } = this.props.navigation
+    const displayText = this.state.isVisited ? 'Take back Ki' : 'Deposit Ki'
+    const place = this.props.navigation.getParam('placeID', '0')
     return (
-      <View style={{flex:1}}>
+      <View style={{ flex: 1 }}>
         <GenericScreen
-          source={getParam("uri") }
-          name={getParam("name") }
-          description={getParam("location")}>
+          source={getParam('uri')}
+          name={getParam('name')}
+          description={getParam('location')}
+        >
           <Text style={styles.numberText}> {this.state.pool.length} </Text>
-          <Text style={styles.descriptionText}> # of Ki </Text>   
+          <Text style={styles.descriptionText}> # of Ki </Text>
           {this.drawKiView()}
           <View style={styles.buttonContainer}>
             <AwesomeButton
               // progress
-              height={68/812*height}
+              height={(68 / 812) * height}
               backgroundColor="#FFFFFF"
-              borderRadius= {34/812*height}
-              onPress={(next) => {
-                ((this.state.isVisited) ? Fire.shared.checkout(place) : Fire.shared.checkin(place)).then(()=>{
-                  this.fetchdata();
-                });
-                next();
-              }}>
-              <Text style={{fontSize:15, fontFamily:'GR', fontWeight:'bold'}}>{displayText}</Text>
+              borderRadius={(34 / 812) * height}
+              onPress={next => {
+                ;(this.state.isVisited
+                  ? Fire.shared.checkout(place)
+                  : Fire.shared.checkin(place)
+                ).then(() => {
+                  this.fetchdata()
+                })
+                next()
+              }}
+            >
+              <Text style={{ fontSize: 15, fontFamily: 'GR', fontWeight: 'bold' }}>
+                {displayText}
+              </Text>
             </AwesomeButton>
           </View>
         </GenericScreen>
         <TouchableOpacity
           style={styles.closeButtonContainer}
-          onPress={() => {this.props.navigation.navigate("Home")}}>
-          <Ionicons name='ios-close' size={25} color="#000"/>
+          onPress={() => {
+            this.props.navigation.navigate('Home')
+          }}
+        >
+          <Ionicons name="ios-close" size={25} color="#000" />
         </TouchableOpacity>
       </View>
-    );
+    )
   }
 }
 
-
 const styles = StyleSheet.create({
   header: {
-    fontFamily :"kontakt",
+    fontFamily: 'kontakt',
     fontSize: 30,
-    color:"white",
-    textAlign: "center",
+    color: 'white',
+    textAlign: 'center',
     fontWeight: '900',
   },
   kiContainer: {
     width: width,
-    height: 91/812*height,
-    marginTop: 17/812*height, 
+    height: (91 / 812) * height,
+    marginTop: (17 / 812) * height,
   },
   container: {
     flex: 1,
@@ -135,18 +143,17 @@ const styles = StyleSheet.create({
   commentContainer: {
     marginBottom: 20,
     flexDirection: 'row',
-    justifyContent: 'space-evenly'
-
+    justifyContent: 'space-evenly',
   },
   commentNumber: {
-    fontFamily :"kontakt",
+    fontFamily: 'kontakt',
     fontSize: 15,
   },
   imagePropmtContainer: {
     marginBottom: 5,
   },
   imagePropmtText: {
-    fontFamily :"kontakt",
+    fontFamily: 'kontakt',
     fontSize: 15,
   },
   imageContainer: {
@@ -165,7 +172,7 @@ const styles = StyleSheet.create({
     borderColor: '#222',
   },
   cancelText: {
-    fontFamily :"kontakt",
+    fontFamily: 'kontakt',
     fontSize: 18,
     textAlign: 'center',
   },
@@ -182,10 +189,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#222',
   },
   confirmText: {
-    fontFamily :"kontakt",
+    fontFamily: 'kontakt',
     fontSize: 18,
     textAlign: 'center',
-    color: '#fff'
+    color: '#fff',
   },
   itemContainer: {
     flexDirection: 'row',
@@ -207,7 +214,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-    endPadding: {
+  endPadding: {
     paddingRight: 8,
   },
   titleCenter: {
@@ -220,17 +227,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   titleChangeText: {
-    fontFamily :"kontakt",
+    fontFamily: 'kontakt',
     fontSize: 10,
     color: 'blue',
   },
   titleText: {
-    fontFamily :"kontakt",
+    fontFamily: 'kontakt',
     fontSize: 18,
     fontWeight: 'bold',
   },
-  generalText:{
-    fontFamily :"kontakt",
+  generalText: {
+    fontFamily: 'kontakt',
   },
   closeButtonContainer: {
     position: 'absolute',
@@ -239,42 +246,41 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     width: 30,
     height: 30,
-    alignItems:'center',
+    alignItems: 'center',
     borderWidth: 0.5,
     borderColor: '#000',
-    backgroundColor:"#fff",
+    backgroundColor: '#fff',
     // backgroundColor: '#fff',
   },
-  buttonContainer:{
-    alignItems:'center',
-    marginTop:17/812*height,
-    borderRadius:34/812*height,
-    shadowOffset:{width:0,height:10},
+  buttonContainer: {
+    alignItems: 'center',
+    marginTop: (17 / 812) * height,
+    borderRadius: (34 / 812) * height,
+    shadowOffset: { width: 0, height: 10 },
     shadowRadius: 30,
-    shadowColor: "rgba(0,0,0,1)",
-    shadowOpacity:0.2,
-    paddingBottom:55
+    shadowColor: 'rgba(0,0,0,1)',
+    shadowOpacity: 0.2,
+    paddingBottom: 55,
   },
   textContent: {
-    position:"absolute",
-    alignItems:"center",
-    bottom:50/812*height,
-    height:100/812*height,
-    left:0,
-    width:'100%',
-    height:'25%',
+    position: 'absolute',
+    alignItems: 'center',
+    bottom: (50 / 812) * height,
+    height: (100 / 812) * height,
+    left: 0,
+    width: '100%',
+    height: '25%',
   },
-  numberText:{
-    fontSize:15,
-    color:'rgb(7,43,79)',
-    textAlign: "center",
-    marginTop:25,
+  numberText: {
+    fontSize: 15,
+    color: 'rgb(7,43,79)',
+    textAlign: 'center',
+    marginTop: 25,
   },
-  descriptionText:{
-    marginTop:4,
-    color:'rgb(7,43,79)',
-    opacity:0.5,
-    textAlign: "center"
-  }
-
-});
+  descriptionText: {
+    marginTop: 4,
+    color: 'rgb(7,43,79)',
+    opacity: 0.5,
+    textAlign: 'center',
+  },
+})

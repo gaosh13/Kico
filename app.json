@@ -17,15 +17,13 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.gix.playerX",
-        "config": {
-          "googleMapsApiKey": "AIzaSyBigZTNYwCKIDqyQI7WXoQU9s7fFIZE9fY"
-        }
-      },
+      "config": {
+        "googleMapsApiKey": "AIzaSyBigZTNYwCKIDqyQI7WXoQU9s7fFIZE9fY"
+      }
+    }
   }
 }

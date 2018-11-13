@@ -1,11 +1,20 @@
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { NavigationActions } from 'react-navigation';
-import { ScrollView, Text, View, StyleSheet, Button, TouchableHighlight, Image, FlatList } from 'react-native';
-import { Constants } from 'expo';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import * as firebase from 'firebase';
-import Fire from '../components/Fire';
+import PropTypes from 'prop-types'
+import React, { Component } from 'react'
+import { NavigationActions } from 'react-navigation'
+import {
+  ScrollView,
+  Text,
+  View,
+  StyleSheet,
+  Button,
+  TouchableHighlight,
+  Image,
+  FlatList,
+} from 'react-native'
+import { Constants } from 'expo'
+import Icon from 'react-native-vector-icons/FontAwesome'
+import * as firebase from 'firebase'
+import Fire from '../components/Fire'
 
 class DrawerView extends Component {
   constructor(props) {
@@ -13,36 +22,37 @@ class DrawerView extends Component {
     this.state = {
       name: 'Annie',
       photoUrl: '../assets/images/icon.png',
-    };
+    }
   }
 
   async componentDidMount() {
-    await this.fetchdata();
+    await this.fetchdata()
   }
 
-  async fetchdata(){
-    const uid = Fire.shared.uid;
-    let data = await Fire.shared.readInfo();
+  async fetchdata() {
+    const uid = Fire.shared.uid
+    let data = await Fire.shared.readInfo()
     if (data) {
-      const {name} = data;
-      this.setState({name: name});
+      const { name } = data
+      this.setState({ name: name })
     }
 
-    data = await Fire.shared.readAuth();
-    const {photoURL} = data;
-    this.setState({photoUrl: photoURL});
+    data = await Fire.shared.readAuth()
+    const { photoURL } = data
+    this.setState({ photoUrl: photoURL })
   }
 
-  render () {
-    const { navigate } = this.props.navigation;
-    const { manifest } = Constants;
+  render() {
+    const { navigate } = this.props.navigation
+    const { manifest } = Constants
 
     return (
       <View style={styles.container}>
         <TouchableHighlight
           onPress={() => navigate('Profile')}
           underlayColor="#CCC"
-          style={styles.firstTouchable}>
+          style={styles.firstTouchable}
+        >
           <View style={styles.profileContainer}>
             <View style={styles.profileImg}>
               <Image
@@ -55,29 +65,26 @@ class DrawerView extends Component {
             </View>
             <View style={styles.navBar}>
               <View style={styles.leftContainer}>
-                <Icon name={'gift'} size={30} color="#000"/>
+                <Icon name={'gift'} size={30} color="#000" />
               </View>
               <View style={styles.rightContainer}>
-                <Text style={styles.navTextStyle}>
-                  Profile
-                </Text>
+                <Text style={styles.navTextStyle}>Profile</Text>
               </View>
             </View>
           </View>
         </TouchableHighlight>
 
         <TouchableHighlight
-          onPress={() => navigate('Chat')}
+          onPress={() => navigate('Chats')}
           underlayColor="#CCC"
-          style={styles.menuTouchable}>
+          style={styles.menuTouchable}
+        >
           <View style={styles.navBar}>
             <View style={styles.leftContainer}>
-              <Icon name={'eye'} size={30} color="#000"/>
+              <Icon name={'eye'} size={30} color="#000" />
             </View>
             <View style={styles.rightContainer}>
-              <Text style={styles.navTextStyle}>
-                Chat
-              </Text>
+              <Text style={styles.navTextStyle}>Chat</Text>
             </View>
           </View>
         </TouchableHighlight>
@@ -85,15 +92,14 @@ class DrawerView extends Component {
         <TouchableHighlight
           onPress={() => navigate('JoinTask')}
           underlayColor="#CCC"
-          style={styles.menuTouchable}>
+          style={styles.menuTouchable}
+        >
           <View style={styles.navBar}>
             <View style={styles.leftContainer}>
-              <Icon name={'eye'} size={30} color="#000"/>
+              <Icon name={'eye'} size={30} color="#000" />
             </View>
             <View style={styles.rightContainer}>
-              <Text style={styles.navTextStyle}>
-                Join
-              </Text>
+              <Text style={styles.navTextStyle}>Join</Text>
             </View>
           </View>
         </TouchableHighlight>
@@ -101,15 +107,14 @@ class DrawerView extends Component {
         <TouchableHighlight
           onPress={() => navigate('Development')}
           underlayColor="#CCC"
-          style={styles.menuTouchable}>
+          style={styles.menuTouchable}
+        >
           <View style={styles.navBar}>
             <View style={styles.leftContainer}>
-              <Icon name={'gift'} size={30} color="#000"/>
+              <Icon name={'gift'} size={30} color="#000" />
             </View>
             <View style={styles.rightContainer}>
-              <Text style={styles.navTextStyle}>
-                Development
-              </Text>
+              <Text style={styles.navTextStyle}>Development</Text>
             </View>
           </View>
         </TouchableHighlight>
@@ -117,15 +122,14 @@ class DrawerView extends Component {
         <TouchableHighlight
           onPress={() => navigate('QRCode')}
           underlayColor="#CCC"
-          style={styles.menuTouchable}>
+          style={styles.menuTouchable}
+        >
           <View style={styles.navBar}>
             <View style={styles.leftContainer}>
-              <Icon name={'gift'} size={30} color="#000"/>
+              <Icon name={'gift'} size={30} color="#000" />
             </View>
             <View style={styles.rightContainer}>
-              <Text style={styles.navTextStyle}>
-                QRCode
-              </Text>
+              <Text style={styles.navTextStyle}>QRCode</Text>
             </View>
           </View>
         </TouchableHighlight>
@@ -133,15 +137,14 @@ class DrawerView extends Component {
         <TouchableHighlight
           onPress={() => navigate('Home')}
           underlayColor="#CCC"
-          style={styles.menuTouchable}>
+          style={styles.menuTouchable}
+        >
           <View style={styles.navBar}>
             <View style={styles.leftContainer}>
-              <Icon name={'rocket'} size={30} color="#000"/>
+              <Icon name={'rocket'} size={30} color="#000" />
             </View>
             <View style={styles.rightContainer}>
-              <Text style={styles.navTextStyle}>
-                Main
-              </Text>
+              <Text style={styles.navTextStyle}>Main</Text>
             </View>
           </View>
         </TouchableHighlight>
@@ -149,69 +152,65 @@ class DrawerView extends Component {
         <TouchableHighlight
           onPress={this.Logout}
           underlayColor="#CCC"
-          style={{position: 'absolute', bottom: 0}}>
-          <View style={{alignItems: 'center', justifyContent: 'center'}}>
-            <Text style={{color: 'red'}}>
-              Log out
-            </Text>
+          style={{ position: 'absolute', bottom: 0 }}
+        >
+          <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={{ color: 'red' }}>Log out</Text>
           </View>
         </TouchableHighlight>
       </View>
-    );
+    )
   }
 
-  Logout = async() => {
-    console.log('logging out');
-    await firebase.auth().signOut()
-    .then(function() {
-      console.log('successfully logged out')
-    }, function(error) {
-      console.error('Sign Out Error', error);
-    });
-    return (this.props.navigation.navigate('Pre')) ;
+  Logout = async () => {
+    console.log('logging out')
+    await firebase
+      .auth()
+      .signOut()
+      .then(
+        function() {
+          console.log('successfully logged out')
+        },
+        function(error) {
+          console.error('Sign Out Error', error)
+        }
+      )
+    return this.props.navigation.navigate('Pre')
   }
 
-  _renderItem = ({item}) => {
-    const {navigate} = this.props.navigation;
-    var { navigation, display, type = '', icon = 'rocket', args = {}} = item;
-    display = display || navigation;
+  _renderItem = ({ item }) => {
+    const { navigate } = this.props.navigation
+    var { navigation, display, type = '', icon = 'rocket', args = {} } = item
+    display = display || navigation
     return (
       <TouchableHighlight
         onPress={() => navigate(navigation, args)}
         underlayColor="#CCC"
-        style={styles.menuTouchable}>
+        style={styles.menuTouchable}
+      >
         <View style={styles.navBar}>
           <View style={styles.leftContainer}>
-            <Icon name={icon} size={30} color="#000"/>
+            <Icon name={icon} size={30} color="#000" />
           </View>
           <View style={styles.rightContainer}>
-            <Text style={styles.navTextStyle}>
-              {display}
-            </Text>
+            <Text style={styles.navTextStyle}>{display}</Text>
           </View>
         </View>
       </TouchableHighlight>
-    );
+    )
   }
 }
 
 const HeadThumbnail = ({ iconUrl }) => {
   if (!iconUrl) {
-    iconUrl =
-      'https://s3.amazonaws.com/exp-brand-assets/ExponentEmptyManifest_192.png';
+    iconUrl = 'https://s3.amazonaws.com/exp-brand-assets/ExponentEmptyManifest_192.png'
   }
-  return (
-    <Image
-      source={{ uri: iconUrl }}
-      style={{ width: 64, height: 64 }}
-      resizeMode="cover"
-    />
-  );
-};
+  return <Image source={{ uri: iconUrl }} style={{ width: 64, height: 64 }} resizeMode="cover" />
+}
 
 DrawerView.propTypes = {
   navigation: PropTypes.object,
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -220,7 +219,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   userImage: {
-    borderColor: "rgba(0,0,0,0.2)",
+    borderColor: 'rgba(0,0,0,0.2)',
     borderRadius: 45,
     borderWidth: 3,
     height: 90,
@@ -263,7 +262,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   navTextStyle: {
-    paddingTop:10,
+    paddingTop: 10,
     fontSize: 15,
   },
   footerContainer: {
@@ -272,8 +271,8 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
-  navTextStyle:{
-    fontFamily :"mylodon-light",
+  navTextStyle: {
+    fontFamily: 'mylodon-light',
   },
   profileContainer: {
     paddingTop: 50,
@@ -288,6 +287,6 @@ const styles = StyleSheet.create({
     // borderBottomWidth: StyleSheet.hairlineWidth,
     // borderBottomColor: '#EDEDED',
   },
-});
+})
 
-export default DrawerView;
+export default DrawerView
