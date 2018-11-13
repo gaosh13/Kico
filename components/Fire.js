@@ -350,7 +350,9 @@ class Fire extends React.Component {
         description: default_param.description || '',
         uri: default_param.uri || '',
       }
-      await this.place.doc(placeID).set(data);
+      if (default_param.description) {
+        await this.place.doc(placeID).set(data);
+      }
       return data;
     }
     return doc.data();

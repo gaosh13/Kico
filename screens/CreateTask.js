@@ -1,10 +1,10 @@
 import React from 'react';
-import { Alert, Text, TextInput, Image,StyleSheet, View,ScrollView,Dimensions,TouchableOpacity } from 'react-native';
+import { Alert, Text, TextInput, Image, StyleSheet, View, FlatList, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import AsyncImageAnimated from '../components/AsyncImageAnimated';
 import AwesomeButton from 'react-native-really-awesome-button';
 import DateTimePicker from 'react-native-modal-datetime-picker';
-import {generateCirclesRow} from '../components/KiVisual';
+import {generateMultiChoiceCirclesRow} from '../components/KiVisual';
 import Fire from '../components/Fire';
 
 const { width, height } = Dimensions.get("window");
@@ -25,8 +25,6 @@ export default class App extends React.Component {
 
     constructor(props) {
         super(props);
-
-        this.inputRefs = {};
 
         this.state = {
             isDateTimePickerVisible:false,
@@ -74,208 +72,204 @@ export default class App extends React.Component {
                     value: 'UW Starbucks: 4555 University Way NE, Seattle, WA 98105',
                 },
             ],
-            what: undefined,
+            whatIndex: undefined,
             selectedWhatBool:false,
+            selectedWhat: new Set(),
+            selectedWho: new Set(),
             whatItems: [
               {
                 activity: 'Coffee Break',
                 source:require('../assets/images/coffee.jpeg'),
-                opacity:0.5,
               },
               {
                 activity: 'WorkOut',
                 source:require('../assets/images/workout.jpg'),
-                opacity:0.5,
               },
               {
                 activity: 'Library',
                 source:require('../assets/images/library.jpg'),
-                opacity:0.5,
               },
               {
                 activity: 'Sightseeing',
                 source:require('../assets/images/sightseeing.jpg'),
-                opacity:0.5,
               },
             ],
         };
+
+        this.inputRefs = {};
     }
 
-    _showDateTimePicker = () => this.setState({ isDateTimePickerVisible: true });
+    _showDateTimePicker = () => this.setState({ isDateTimePickerVisible: true })
 
-    _hideDateTimePicker = () => this.setState({ isDateTimePickerVisible: false });
+    _hideDateTimePicker = () => this.setState({ isDateTimePickerVisible: false })
 
     _handleDatePicked = (date) => {
         console.log('A date has been picked: ', date);
-        this.setState({selectedDate:date})
+        this.setState({selectedDate: date})
         this._hideDateTimePicker();
-    };
+    }
 
-    // _handleActivity = (index) =>{
-    //     let {whatItems,selectedWhatBool} = this.state;
-    //     let selectedActivity = null;
-    //     //slight issue here, basically need to click twice on the first go
-    //     if (whatItems[index].opacity==0.5 && !selectedWhatBool) {
-    //         console.log('AAAAAAA')
-    //         whatItems[index].opacity = 1;
-    //         selectedWhatBool = true;
-    //         selectedActivity = whatItems[index].activity;
-    //     } else if (whatItems[index].opacity==1 && selectedWhatBool){
-    //         whatItems[index].opacity = 0.5;
-    //         selectedWhatBool = false;
-    //         selectedActivity = null;
-    //         console.log('BBBBBBB');
-    //     }        
-    //     this.setState({whatItems:whatItems,what:whatItems[index].activity,selectedWhatBool:selectedWhatBool},function(){
-    //     console.log('CCCCC',this.state.whatItems, '++++++', this.state.selectedWhatBool);
-    //     this.forceUpdate();});     
-    // }
+    _handleActivity = (index) => {
+      this.setState((state) => {
+        const selected = new Set(state.selectedWhat);
+        if (this.state.whatIndex != undefined) selected.delete(this.state.whatIndex);
+        selected.add(index);
+        return {selectedWhat: selected, whatIndex: index};
+      });
+    }
 
-     _handleActivity = (index) =>{
-        this.setState((prevState) => {
-           if (prevState.whatItems[index].opacity==0.5 && !prevState.selectedWhatBool) {
-            console.log('AAAAAAA')
-            prevState.whatItems[index].opacity = 1;
-            prevState.selectedWhatBool = true;
-            prevState.what = prevState.whatItems[index].activity;
-        } else if (prevState.whatItems[index].opacity==1 && prevState.selectedWhatBool){
-            prevState.whatItems[index].opacity = 0.5;
-            prevState.selectedWhatBool = false;
-            prevState.what = null;
-            console.log('BBBBBBB');
-        }
-        return {what:prevState.what,selectedWhatBool:prevState.selectedWhatBool,whatItems: prevState.whatItems}  
-        },function(){console.log('CCCCC',this.state.whatItems, '++++++', this.state.selectedWhatBool);})
-    }   
+    _handleInvite = (index) => {
+      this.setState((state) => {
+        const selected = new Set(state.selectedWho);
+        selected.has(index) ? selected.delete(index) : selected.add(index);
+        return {selectedWho: selected}
+      });
+    }
 
+    _renderActivities = ({item, index}) => (
+      <ActivityItem
+        item={item}
+        index={index}
+        onPressItem={this._handleActivity}
+        selected={this.state.selectedWhat.has(index)}
+      />
+    )
 
     render() {
-        const { getParam} = this.props.navigation;
-        console.log('ZZZZZ',this.state.whatItems, '++++++', this.state.selectedWhatBool)
-        return (
-          <ScrollView
-                bounces={false}>
-            <View style={styles.container}>
-                <Text style={styles.titleText}>Create Task</Text>
-
-                <Text style={styles.subTitleText}>Where?</Text>
-
-                <View style={{ paddingVertical: hRatio(12)}} />
-
-                <View style={{paddingHorizontal:20}}>
-                    <RNPickerSelect
-                        placeholder={{
-                            label: 'Select a location...',
-                            value: null,
-                        }}
-                        items={this.state.whereItems}
-                        onValueChange={(value) => {
-                            this.setState({
-                                where: value,
-                            });
-                        }}
-                        style={{ ...pickerSelectStyles }}
-                        value={this.state.where}
-                        ref={(el) => {
-                            this.inputRefs.picker = el;
-                        }}
-                    />
-                </View>
-
-                <Text style={styles.subTitleText}>What?</Text>
-
-                <ScrollView
-                    horizontal
-                    scrollEventThrottle={1}
-                    showsHorizontalScrollIndicator={false}
-                    snapToInterval={wRatio(200+12)}
-                    style={{
-                        paddingTop:hRatio(24),
-                        paddingBottom:hRatio(40),
-                        shadowOffset:{width:0,height:10},
-                        shadowRadius: wRatio(15),
-                        shadowColor: "rgb(0,0,0)",
-                        shadowOpacity:0.2,
-                    }}
-                    contentContainerStyle={{
-                        paddingLeft:wRatio(20),
-                        paddingRight:wRatio(20)
-                    }}
-                    decelerationRate='fast'>
-                    {this.state.whatItems.map((element, index) => (
-                        <TouchableOpacity
-                            key={index}
-                            onPress={() => this._handleActivity(index)}
-                            style={[styles.card,{opacity:element.opacity}]}>
-                            <Image
-                                style={{
-                                  width: wRatio(200),
-                                  height: hRatio(156),}}
-                                source={element.source}
-                                //placeholderColor='#cfd8dc'
-                                //animationStyle='fade'
-                              >
-                            </Image>
-                            <View style={styles.cardDescription}>
-                                <Text style={styles.cardText}> {element.activity}</Text>
-                            </View>
-                        </TouchableOpacity>     
-                    ))}
-                  </ScrollView>
-
-
-                <Text style={styles.subTitleTextWhen}>When?</Text>
-
-                <TouchableOpacity style={{alignItems:'center', marginTop:hRatio(24)}} onPress={this._showDateTimePicker}>
-                    {this.state.selectedDate ? (
-                        <View style={styles.timeContainer}>    
-                            <Text style={styles.timeText}>{this.state.selectedDate.toString().slice(0,21)}</Text>
-                        </View>
-                    ) : (
-                        <View style={styles.timeContainer}>
-                            <Text style={styles.timeText}>Select Date & Time</Text>
-                        </View>
-                    )} 
-                </TouchableOpacity>
-                
-                <DateTimePicker
-                  isVisible={this.state.isDateTimePickerVisible}
-                  onConfirm={this._handleDatePicked}
-                  onCancel={this._hideDateTimePicker}
-                  mode='datetime'
-                />
-
-                <Text style={styles.subTitleText}>Participants</Text>
-                
-                <View style={styles.kiContainer}>
-                    {/*console.log(this.state.whatItems)*/}
-                    {generateCirclesRow(getParam('pool'))}
-                </View>
-
-                <View style={styles.buttonContainer}>
-                
-                    <AwesomeButton
-                      height={68/812*height}
-                      backgroundColor="#FFFFFF"
-                      borderRadius= {34/812*height}
-                      onPress={(next) => {
-                        //Fire.shared.startTasks(['3QcHJ8jc6WQYcAs82JN9E7z4a422'], {'where': '0', 'when': '0', 'what': '0'});
-                        
-                        this.props.navigation.pop();
-                        next();
-                      }}>
-                      <Text style={styles.text}>{"Next"}</Text>
-                    </AwesomeButton>
-                </View>
-                <TouchableOpacity
-                    style={styles.closeButtonContainer}
-                    onPress={() => {this.props.navigation.navigate("Home")}}>
-                    <Image source={require('../assets/icons/back.png')} />
-                </TouchableOpacity>
+      const { getParam } = this.props.navigation;
+      return (
+        <ScrollView bounces={false}>
+          <View style={styles.container}>
+            <Text style={styles.titleText}>Create Task</Text>
+            <Text style={styles.subTitleText}>Where?</Text>
+            <View style={{ paddingVertical: hRatio(12)}} />
+            <View style={{paddingHorizontal:20}}>
+              <RNPickerSelect
+                placeholder={{
+                  label: 'Select a location...',
+                  value: null,
+                }}
+                items={this.state.whereItems}
+                onValueChange={(value) => {
+                  this.setState({
+                    where: value,
+                  });
+                }}
+                style={{ ...pickerSelectStyles }}
+                value={this.state.where}
+                ref={(el) => {
+                  this.inputRefs.picker = el;
+                }}
+              />
             </View>
-          </ScrollView>
-        );
+
+            <Text style={styles.subTitleText}>What?</Text>
+
+            <FlatList
+              horizontal
+              scrollEventThrottle={1}
+              showsHorizontalScrollIndicator={false}
+              snapToInterval={wRatio(200+12)}
+              style={{
+                paddingTop:hRatio(24),
+                paddingBottom:hRatio(40),
+                shadowOffset:{width:0,height:10},
+                shadowRadius: wRatio(15),
+                shadowColor: "rgb(0,0,0)",
+                shadowOpacity:0.2,
+              }}
+              contentContainerStyle={{
+                paddingLeft:wRatio(20),
+                paddingRight:wRatio(20)
+              }}
+              keyExtractor={(item, index) => ("notification" + index)}
+              data={this.state.whatItems}
+              // extraData={this.state}
+              renderItem={this._renderActivities}
+              decelerationRate='fast'/>
+
+            <Text style={styles.subTitleTextWhen}>When?</Text>
+
+            <TouchableOpacity style={{alignItems:'center', marginTop:hRatio(24)}} onPress={this._showDateTimePicker}>
+              { this.state.selectedDate ? (
+                <View style={styles.timeContainer}>    
+                  <Text style={styles.timeText}>{this.state.selectedDate.toString().slice(0,21)}</Text>
+                </View>
+              ) : (
+                <View style={styles.timeContainer}>
+                  <Text style={styles.timeText}>Select Date & Time</Text>
+                </View>
+              )} 
+            </TouchableOpacity>
+            
+            <DateTimePicker
+              isVisible={this.state.isDateTimePickerVisible}
+              onConfirm={this._handleDatePicked}
+              onCancel={this._hideDateTimePicker}
+              mode='datetime'
+            />
+
+            <Text style={styles.subTitleText}>Participants</Text>
+            
+            <View style={styles.kiContainer}>
+              {/*console.log(this.state.whatItems)*/}
+              {generateMultiChoiceCirclesRow(getParam('pool'), this._handleInvite, this.state.selectedWho)}
+            </View>
+
+            <View style={styles.buttonContainer}>
+              <AwesomeButton
+                height={68/812*height}
+                backgroundColor="#FFFFFF"
+                borderRadius= {34/812*height}
+                onPress={(next) => {
+                  const users = Array.from(this.state.selectedWho).map((userIndex) => getParam('pool')[userIndex].uid);
+                  console.log('what:', this.state.whatItems[this.state.whatIndex]);
+                  console.log('where:', this.state.where);
+                  console.log('when:', this.state.selectedDate, this.state.selectedDate instanceof Date);
+                  console.log('who:', users);
+                  //Fire.shared.startTasks(['3QcHJ8jc6WQYcAs82JN9E7z4a422'], {'where': '0', 'when': '0', 'what': '0'});
+                  this.props.navigation.pop();
+                  next();
+                }}>
+                <Text style={styles.text}>{"Next"}</Text>
+              </AwesomeButton>
+            </View>
+            <TouchableOpacity
+              style={styles.closeButtonContainer}
+              onPress={() => {this.props.navigation.navigate("Home")}}>
+              <Image source={require('../assets/icons/back.png')} />
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      );
     }
+}
+
+class ActivityItem extends React.PureComponent {
+  render() {
+    const item = this.props.item;
+    const opacity = this.props.selected ? 1.0 : 0.5;
+    const bgc = this.props.selected ? 'red' : 'blue';
+    // console.log("refresh", this.props.index, this.props.selected, opacity);
+    return (
+      <TouchableOpacity
+        onPress={() => this.props.onPressItem(this.props.index)}
+        style={styles.card}>
+        <View>
+          <Image
+            style={{
+              width: wRatio(200),
+              height: hRatio(156),
+              opacity}}
+            source={item.source}
+          />
+          <View style={styles.cardDescription}>
+            <Text style={styles.cardText}> {item.activity}</Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -325,13 +319,12 @@ const styles = StyleSheet.create({
         marginTop:hRatio(18),
         marginLeft:wRatio(18),
         marginBottom:hRatio(18),
-
     },
     kiContainer: {
         width: width,
         height: 91/812*height,
         marginTop: 17/812*height, 
-  },
+    },
     card:{
         borderRadius:15,
         marginHorizontal:wRatio(12),
@@ -370,7 +363,7 @@ const styles = StyleSheet.create({
         shadowColor: "rgba(0,0,0,1)",
         shadowOpacity:0.2,
         paddingBottom:hRatio(75)
-  },
+    },
 });
 
 const pickerSelectStyles = StyleSheet.create({

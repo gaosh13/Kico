@@ -3,7 +3,6 @@ import { ScrollView, FlatList, TouchableHighlight, StyleSheet, View, Text, Image
 import { Ionicons } from '@expo/vector-icons';
 import Fire from '../components/Fire';
 import {generateCirclesRow} from '../components/KiVisual';
-import AsyncImageAnimated from '../components/AsyncImageAnimated';
 import GenericScreen from '../components/GenericScreen';
 import AwesomeButton from 'react-native-really-awesome-button';
 import QRCode from 'react-native-qrcode';
