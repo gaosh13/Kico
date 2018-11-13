@@ -253,6 +253,7 @@ export default class App extends React.Component {
                 </View>
 
                 <View style={styles.buttonContainer}>
+                
                     <AwesomeButton
                       height={68/812*height}
                       backgroundColor="#FFFFFF"
@@ -266,6 +267,11 @@ export default class App extends React.Component {
                       <Text style={styles.text}>{"Next"}</Text>
                     </AwesomeButton>
                 </View>
+                <TouchableOpacity
+                    style={styles.closeButtonContainer}
+                    onPress={() => {this.props.navigation.navigate("Home")}}>
+                    <Image source={require('../assets/icons/back.png')} />
+                </TouchableOpacity>
             </View>
           </ScrollView>
         );
@@ -276,6 +282,20 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: '#fff',
         justifyContent: 'center',
+    },
+    closeButtonContainer: {
+        position: 'absolute',
+        top: 60,
+        left: 30,
+        borderRadius: 30,
+        width: 30,
+        height: 30,
+        alignItems:'center',
+        backgroundColor:"#fff",
+        shadowColor: "#000000",
+        shadowRadius: 15,
+        shadowOpacity: 0.2,
+        shadowOffset: { x: 0, y: 10 },
     },
     titleText:{
         marginTop:hRatio(121),

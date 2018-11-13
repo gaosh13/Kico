@@ -101,7 +101,7 @@ console.log(this.state.pool)
         <TouchableOpacity
           style={styles.closeButtonContainer}
           onPress={() => {this.props.navigation.navigate("Home")}}>
-          <Ionicons name='ios-close' size={25} color="#000"/>
+          <Image source={require('../assets/icons/close2.png')} />
         </TouchableOpacity>
       </View>
     );
@@ -241,10 +241,8 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     alignItems:'center',
-    borderWidth: 0.5,
-    borderColor: '#000',
     backgroundColor:"#fff",
-    // backgroundColor: '#fff',
+    opacity: .8,
   },
   buttonContainer:{
     alignItems:'center',
