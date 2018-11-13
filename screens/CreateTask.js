@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, Text, TextInput, StyleSheet, View,ScrollView,Dimensions } from 'react-native';
+import { Alert, Text, TextInput, StyleSheet, View,ScrollView,Dimensions,TouchableOpacity,Image } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import AsyncImageAnimated from '../components/AsyncImageAnimated';
 
@@ -207,8 +207,13 @@ export default class App extends React.Component {
                         Alert.alert('Success', 'Form submitted', [{ text: 'Okay', onPress: null }]);
                     }}
                 />
-            </View>
-          </ScrollView>
+                <TouchableOpacity
+                        style={styles.closeButtonContainer}
+                        onPress={() => {this.props.navigation.navigate("Home")}}>
+                        <Image source={require('../assets/icons/back.png')} />
+                    </TouchableOpacity>
+                </View>
+            </ScrollView>
         );
     }
 }
@@ -218,6 +223,20 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         justifyContent: 'center',
         paddingHorizontal: wRatio(20),
+    },
+    closeButtonContainer: {
+        position: 'absolute',
+        top: 60,
+        left: 30,
+        borderRadius: 30,
+        width: 30,
+        height: 30,
+        alignItems:'center',
+        backgroundColor:"#fff",
+        shadowColor: "#000000",
+        shadowRadius: 15,
+        shadowOpacity: 0.2,
+        shadowOffset: { x: 0, y: 10 },
     },
     titleText:{
         marginTop:hRatio(121),
