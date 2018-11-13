@@ -20,10 +20,14 @@ import CheckInScreen from '../screens/CheckInScreen';
 import NotificationScreen from '../screens/NotificationScreen';
 import ChangeScreen from '../screens/ChangeScreen';
 import OtherProfileScreen from '../screens/OtherProfileScreen';
+import JoinTaskScreen from '../screens/JoinTask';
+import CreateTaskScreen from '../screens/CreateTask';
+import Congratulations from '../screens/Congratulations.js';
 
 import ReadyPage from '../screens/ReadyPage';
 import Login from '../screens/Login';
 import * as firebase from 'firebase';
+
 
 
 class AuthLoadingScreen extends React.Component {
@@ -57,8 +61,10 @@ const PersonalDrawer = createDrawerNavigator({
     Home: HomeScreen,
     CheckIn: CheckInScreen,
     Notification: NotificationScreen,
-    ViewOther:OtherProfileScreen,
+    ViewOther: OtherProfileScreen,
     QRScanner,
+    CreateTask: CreateTaskScreen,
+    Congratulations,
   }, {
     initialRouteName: 'Home',
   }),
@@ -66,6 +72,7 @@ const PersonalDrawer = createDrawerNavigator({
   Chat: createStackNavigator({ChatsScreen}),
   Development: createStackNavigator({DevelopmentScreen}),
   QRCode: createStackNavigator({QRCodeScreen}),
+  JoinTask: createStackNavigator({JoinTaskScreen}),
 }, {
   initialRouteName: 'HomeStack',
   drawerPosition: 'left',

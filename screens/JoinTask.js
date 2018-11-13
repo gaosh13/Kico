@@ -1,20 +1,14 @@
 import React from 'react';
 import { ScrollView, FlatList, TouchableHighlight, StyleSheet, View, Text, Image, Button, TouchableOpacity, Dimensions } from 'react-native';
-import { Constants ,Svg } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
-import Touchable from 'react-native-platform-touchable';
-import ChangeScreen from './ChangeScreen.js';
 import Fire from '../components/Fire';
 import {generateCirclesRow} from '../components/KiVisual';
-import Canvas from 'react-native-canvas';
 import AsyncImageAnimated from '../components/AsyncImageAnimated';
 import GenericScreen from '../components/GenericScreen';
 import AwesomeButton from 'react-native-really-awesome-button';
-
+import QRCode from 'react-native-qrcode';
 
 const { width, height } = Dimensions.get("window");
-
-
 
 export default class CheckInScreen extends React.Component {
   static navigationOptions = {
@@ -25,76 +19,92 @@ export default class CheckInScreen extends React.Component {
     super(props);
     this.state = {
       pool: [],
-      isVisited: true,
-      circles:[],
+      where: '',
+      what: '',
+      when: '',
+      isGoing: false,
     };
-
-    // this.props.navigation.setParams({ jump: this._onPress });
-    //this.fetchdata();
   }
 
-  componentDidMount() {
-    this.fetchdata();
-   // await this.fetchVenueData();
+  async componentDidMount() {
+    await this.fetchdata();
   }
 
-  fetchdata() {
-    const place = this.props.navigation.getParam('placeID', '0');
+  async fetchdata() {
+    const task = this.props.navigation.getParam('task', '0');
     // console.log("begin fetching");
-    Promise.all([
-      Fire.shared.getPlacePool(place),
-      Fire.shared.isVisited(place),
-    ]).then( ([pool, isVisited])=>{
-      // console.log("changed", isVisited);
-      this.setState({pool, isVisited});
+    // console.log("task", task);
+    Fire.shared.getTaskInfo(task).then( (taskInfo) => {
+      const {users:pool, where, what, when, isGoing} = taskInfo;
+      this.setState({pool, where, what, when, isGoing});
     });
-  }
+  }  
 
-  drawKiView(){
-// follows this tutorial:
-// https://www.youtube.com/watch?v=XATr_jdh-44
-console.log(this.state.pool)
+  drawKiView() {
     if (this.state.pool.length){
-      //console.log('ZZZZZZZZ',this.state.sum);
       return (
         <View style={styles.kiContainer}>
-          {generateCirclesRow(this.state.pool)}
+          {generateCirclesRow(this.state.pool)}          
         </View>
       )
-    } else {
+    } else{
       return (
         <View style={styles.kiContainer} />
       )
     }
   }
 
+  _generateQRCode() {
+    const task = this.props.navigation.getParam('task', '0');
+    return JSON.stringify({"uid": Fire.shared.uid, "task": task});
+  }
+
+  _renderQRCode() {
+    if (this.state.isGoing) {
+      return (
+        <View style={{paddingTop: 20, paddingBottom: 20}}>
+          <QRCode
+            value={this._generateQRCode()}
+            size={200}
+            bgColor='black'
+            fgColor='white'/>
+        </View>
+      );
+    } else return null;
+  }
+
   render() {
-    const { navigate, getParam, pop } = this.props.navigation;
-    const displayText = this.state.isVisited ? "Take back Ki" : "Deposit Ki";
-    const place = this.props.navigation.getParam('placeID', '0');
+    const { getParam } = this.props.navigation;
+    const displayText = this.state.isGoing ? "Ungoing" : "Join";
+    const task = this.props.navigation.getParam('task', '0');
     return (
-      <View style={{flex:1}}>
+      <ScrollView
+        scrollEventThrottle={1}
+        showsHorizontalScrollIndicator={false}
+        snapToInterval={104/812*height}
+        decelerationRate='fast'>
         <GenericScreen
-          source={getParam("uri") }
-          name={getParam("name") }
+          source={getParam("uri")}
+          name={getParam("name")}
           description={getParam("location")}>
           <Text style={styles.numberText}> {this.state.pool.length} </Text>
-          <Text style={styles.descriptionText}> # of Ki </Text>   
+          <Text style={styles.descriptionText}> # of Attenders </Text>
           {this.drawKiView()}
           <View style={styles.buttonContainer}>
-            <AwesomeButton
-              // progress
-              height={68/812*height}
-              backgroundColor="#FFFFFF"
-              borderRadius= {34/812*height}
-              onPress={(next) => {
-                ((this.state.isVisited) ? Fire.shared.checkout(place) : Fire.shared.checkin(place)).then(()=>{
-                  this.fetchdata();
-                });
-                next();
-              }}>
-              <Text style={{fontSize:15, fontFamily:'GR', fontWeight:'bold'}}>{displayText}</Text>
-            </AwesomeButton>
+              {this._renderQRCode()}
+              <AwesomeButton
+                // progress
+                height={68/812*height}
+                backgroundColor="#FFFFFF"
+                borderRadius= {34/812*height}
+                onPress={(next) => {
+                  ((this.state.isGoing) ? Fire.shared.ungoingTask(task) : Fire.shared.joinTask(task)).then(()=>{
+                    this.fetchdata();
+                  });
+                  next();
+                }}>
+                <Text style={styles.text}>{displayText}</Text>
+              </AwesomeButton>
           </View>
         </GenericScreen>
         <TouchableOpacity
@@ -102,7 +112,7 @@ console.log(this.state.pool)
           onPress={() => {this.props.navigation.navigate("Home")}}>
           <Ionicons name='ios-close' size={25} color="#000"/>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
     );
   }
 }
@@ -151,6 +161,12 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     marginBottom: 20,
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 15,
+    marginBottom: 15,
   },
   cancelButton: {
     flex: 0.5,
@@ -246,7 +262,7 @@ const styles = StyleSheet.create({
     // backgroundColor: '#fff',
   },
   buttonContainer:{
-    alignItems:'center',
+    marginLeft:84/812*height,
     marginTop:17/812*height,
     borderRadius:34/812*height,
     shadowOffset:{width:0,height:10},
