@@ -18,6 +18,7 @@ export default class DevelopmentScreen extends React.Component {
         <Button title="delete all notification" onPress={()=>{Fire.shared.deleteAllNotification();}}/>
         <Button title="generate a notification" onPress={()=>{Fire.shared.generateNotification();}}/>
         <Button title="transfer photos" onPress={()=>{Fire.shared.transferAllImages();}}/>
+        <Button title="refresh personal pool" onPress={()=>{Fire.shared.getPersonalPool(0);}}/>
       </View>
     );
   }

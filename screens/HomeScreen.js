@@ -25,6 +25,7 @@ import AsyncImageAnimated from '../components/AsyncImageAnimated';
 import {generateRandomCircles} from '../components/KiVisual';
 import { BlurView, VibrancyView } from 'react-native-blur';
 import ActionButton from 'react-native-action-button';
+import DateTimePicker from 'react-native-modal-datetime-picker';
 
 const { width, height } = Dimensions.get("window");
 
@@ -323,7 +324,9 @@ export default class HomeScreen extends React.Component {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.taskContainer}
-            onPress={() => {this.props.navigation.navigate("CreateTask")}}>
+            onPress={() => {this.props.navigation.navigate("CreateTask",{
+                  pool:this.state.pool
+                })}}>
             <Ionicons name='ios-add' size={25} color="#000"/>
           </TouchableOpacity>
           <TouchableOpacity

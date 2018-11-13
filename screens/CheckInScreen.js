@@ -12,6 +12,7 @@ import GenericScreen from '../components/GenericScreen';
 import AwesomeButton from 'react-native-really-awesome-button';
 
 
+
 const { width, height } = Dimensions.get("window");
 
 
