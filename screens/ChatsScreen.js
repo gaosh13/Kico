@@ -68,7 +68,7 @@ export default class ChatsScreen extends React.Component {
         <TouchableOpacity
           style={styles.backButtonContainer}
           onPress={() => {this.props.navigation.openDrawer()}}>
-          <Ionicons name='ios-close' size={25} color="#000"/>
+          <Image source={require('../assets/icons/back.png')} />
         </TouchableOpacity>
       </View>
     );
@@ -179,8 +179,10 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     alignItems:'center',
-    borderWidth: 1.5,
-    borderColor: '#000',
+    shadowColor: "#000000",
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
     // backgroundColor: '#fff',
   },
 });

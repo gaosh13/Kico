@@ -314,27 +314,27 @@ export default class HomeScreen extends React.Component {
           <TouchableOpacity
             style={styles.notificationContainer}
             onPress={() => {this.props.navigation.navigate("Notification")}}>
-            <Ionicons name='ios-notifications-outline' size={25} color="#000"/>
+            <Image source={require('../assets/icons/notification.png')} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.scannerContainer}
             onPress={() => {this.props.navigation.navigate("QRScanner")}}>
-            <Ionicons name='ios-add' size={25} color="#000"/>
+            <Image source={require('../assets/icons/addTask.png')} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.taskContainer}
             onPress={() => {this.props.navigation.navigate("JoinTask")}}>
-            <Ionicons name='ios-add' size={25} color="#000"/>
+            <Image source={require('../assets/icons/addTask.png')} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.drawerContainer}
             onPress={() => {this.props.navigation.openDrawer()}}>
-            <Ionicons name='ios-menu' size={25} color="#000"/>
+            <Image source={require('../assets/icons/drawer.png')} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.createTaskContainer}
             onPress={() => {this.props.navigation.navigate("CreateTask")}}>
-            <Ionicons name='ios-add' size={25} color="#000"/>
+            <Image source={require('../assets/icons/addTask.png')} />
           </TouchableOpacity>
           {this._renderList()}
       </View>
@@ -440,9 +440,12 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     alignItems:'center',
-    borderWidth: 1,
-    borderColor: '#000',
     backgroundColor: '#fff',
+    shadowColor: "#000000",
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
+
   },
   scannerContainer: {
     position: 'absolute',
@@ -452,9 +455,11 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     alignItems:'center',
-    borderWidth: 1,
-    borderColor: '#000',
     backgroundColor: '#fff',
+    shadowColor: "#000000",
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
   },
   taskContainer:{
     position: 'absolute',
@@ -464,9 +469,11 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     alignItems:'center',
-    borderWidth: 1,
-    borderColor: '#000',
     backgroundColor: '#fff',
+    shadowColor: "#000000",
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
   },
   createTaskContainer:{
     position: 'absolute',
@@ -476,9 +483,11 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     alignItems:'center',
-    borderWidth: 1,
-    borderColor: '#000',
     backgroundColor: '#fff',
+    shadowColor: "#000000",
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
   },
   particlesContainer:{
     marginTop : height/8,
@@ -512,9 +521,11 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     alignItems:'center',
-    borderWidth: 1,
-    borderColor: '#000',
     backgroundColor: '#fff',
+    shadowColor: "#000000",
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
   },
   notificationList: {
     position: 'absolute',
