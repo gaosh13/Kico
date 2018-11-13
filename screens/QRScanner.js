@@ -43,6 +43,13 @@ export default class QRScanner extends React.Component {
     if (type == 'org.iso.QRCode') {
       if (!this.scanned) {
         this.scanned = true;
+        try {
+          var result = JSON.parse(data);
+        } catch(e) {
+          alert("Only scan the QRCode in the task screen");
+          this.scanned = false;
+          return;
+        }
         const result = JSON.parse(data);
         const {uid} = result;
         if (uid) {

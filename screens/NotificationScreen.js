@@ -91,6 +91,13 @@ export default class NotificationScreen extends React.Component {
     }
   }
 
+  _getImage(item) {
+    if (item.type == 'sys1')
+      return require("../assets/images/PlayerX_logo.png");
+    else
+      return {uri: item.uri};
+  }
+
   _pressSingleItem = (item) => {
     if (item.type == 'taski') {
       // console.log("item.task", item.task);
@@ -119,7 +126,7 @@ export default class NotificationScreen extends React.Component {
         }}>
           <Image
             style={styles.userImage}
-            source={{uri: item.uri}}
+            source={this._getImage(item)}
           />
         </View>
         <View style={{flex: 0.75, justifyContent: 'center',

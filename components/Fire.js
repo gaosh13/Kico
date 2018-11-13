@@ -110,11 +110,8 @@ class Fire extends React.Component {
       data.forEach( (doc) => {
         friends.push({uid: doc.id, name: doc.get('nick'), tag: doc.get('tag')})
       });
-      await Promise.all(friends.map( async (friend) => {
-        return Promise.all([
-          this.getName(friend.uid).then( (name) => {friend.name = name}),
-          this.readUserAvatar(friend.uid).then( (uri) => {friend.uri = uri}),
-        ]);
+      await Promise.all(friends.map( (friend) => {
+        return this.getNameNAvatar(friend.uid).then( (data) => Object.assign(friend, data) );
       }));
       return friends;
     });
@@ -143,11 +140,8 @@ class Fire extends React.Component {
       let items = Object.keys(counter).map((key) => ({uid: key, value: counter[key]}));
       items.sort((first, second) => (second.value - first.value));
       items = items.slice(0, 20);
-      await Promise.all(items.map( async (friend) => {
-        return Promise.all([
-          this.getName(friend.uid).then( (name) => {friend.name = name}),
-          this.readUserAvatar(friend.uid).then( (uri) => {friend.uri = uri}),
-        ]);
+      await Promise.all(items.map( (friend) => {
+        return this.getNameNAvatar(friend.uid).then( (data) => Object.assign(friend, data) );
       }));
       return items;
     });
@@ -161,12 +155,16 @@ class Fire extends React.Component {
   }
 
   getCheckedPlaces = async () => {
-    return await this.profile.doc(this.uid).collection('places').get().then( async (data) => {
-      let places = [];
-      data.forEach( (doc) => {
-        places.push(doc.data());
+    return await this.profile.doc(this.uid).collection('places').get().then( (data) => {
+      return data.docs.map( (doc) => {
+        const time = doc.get('time').toDate();
+        return {
+          name: doc.get('name'),
+          uri: doc.get('uri'),
+          time: (time.getMonth() + 1) + '/' + time.getDate() + '/' + time.getFullYear(),
+          id: doc.id,
+        }
       });
-      return places;
     });
   }
 
@@ -200,10 +198,7 @@ class Fire extends React.Component {
     });
     await Promise.all(notificationData.map( (notification) => {
       if (notification.uid2) {
-        return Promise.all([
-          this.getName(notification.uid2).then( (name) => {notification.name = name}),
-          this.readUserAvatar(notification.uid2).then( (uri) => {notification.uri = uri}),
-        ]);
+        return this.getNameNAvatar(notification.uid2).then( (data) => Object.assign(notification, data) );
       } else {
         notification.uri = '../assets/images/robot-dev.png';
         return 0;
@@ -308,17 +303,42 @@ class Fire extends React.Component {
     }
     let taskInfo = doc.data();
     let isGoing = false;
-    taskInfo.users = await Promise.all( taskInfo.users.map( async (user) => {
-      const [name, uri] = await Promise.all([this.getName(user), this.readUserAvatar(user)]);
-      if (user == this.uid) isGoing = true;
-      return {
-        uid: user,
-        name,
-        uri,
-      }
-    }));
+    [taskInfo.users, taskInfo.where] = await Promise.all([
+      Promise.all( taskInfo.users.map( async (user) => {
+        let {name, uri} = await this.getNameNAvatar(notification.uid2);
+        if (user == this.uid) isGoing = true;
+        return {
+          uid: user,
+          name,
+          uri,
+        }
+      })),
+      this.getPlaceInfo(taskInfo.where).then( (data) => {return {name: data.description, uri: data.uri}} ),
+    ]);
     taskInfo.isGoing = isGoing;
     return taskInfo;
+  }
+
+  getTaskList = async () => {
+    return await this.profile.doc(this.uid).collection('tasks').get().then( async (snapshot) => {
+      let taskList = snapshot.docs.map( (doc) => {id: doc.id} );
+      await Promise.all(taskList.map( (task) => {
+        return this.getTaskInfo(task.id).then( (data) => Object.assign(task, data) );
+      }));
+      return taskList;
+    });
+  }
+
+  deleteTask = async (taskID) => {
+    const doc = await this.task.doc(taskID).get();
+    if (!doc.exists) {
+      console.log("No such task");
+      return Promise.resolve({});
+    }
+    let taskUsers = doc.get('users') || [];
+    return await Promise.all( taskUsers.map( async (user) => {
+      return this.profile.doc(user).collection('tasks').doc(taskID).delete();
+    }).concat([doc.ref.delete()]));
   }
 
   getPlaceInfo = async (placeID, default_param={}) => {
@@ -352,11 +372,8 @@ class Fire extends React.Component {
   getPlacePool = async (placeID) => {
     return await this.place.doc(placeID).collection('users').get().then( async (data) => {
       let users = data.docs.map( (doc) => ({uid: doc.id, time: doc.get('time'), value: 0}));
-      await Promise.all(users.map( async (user) => {
-        return Promise.all([
-          this.getName(user.uid).then( (name) => {user.name = name}),
-          this.readUserAvatar(user.uid).then( (uri) => {user.uri = uri}),
-        ]);
+      await Promise.all(users.map( (user) => {
+        return this.getNameNAvatar(user.uid).then( (data) => Object.assign(user, data) );
       }));
       return users;
     });

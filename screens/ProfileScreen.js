@@ -55,75 +55,74 @@ export default class ProfileScreen extends React.Component {
   }
 
   async fetchdata(){
-    let data = await Fire.shared.readInfo();
-    let moredata = await Fire.shared.readAuth();
-    let frienddata = await Fire.shared.getFriends();
-    if (data && moredata && frienddata) {
-      const {name, gender, age, ki} = data;
-      const {photoURL} = moredata;
-      this.setState({name: name, gender: gender, friends: frienddata.length, age: age.toString(),ki: ki,photoUrl: photoURL});
+    let [data, frienddata, pool] = await Promise.all([Fire.shared.readInfo(), Fire.shared.getFriends(), Fire.shared.getCheckedPlaces()]);
+    if (data && frienddata) {
+      const {name, gender, age, ki, photoURL} = data;
+      console.log('pool', pool);
+      this.setState({
+        name: name,
+        gender: gender,
+        friends: frienddata.length,
+        age: age.toString(),
+        ki: ki,
+        photoUrl: photoURL,
+        pool: pool || [],
+      });
     }
   }
 
-  drawKiLog() {
-    return(
+  drawNode(){
+    return (
       <View>
         <View style={styles.kiLogContainer}>
           <Text style={styles.kiLogText}>Ki Log</Text>
         </View>
-        {this.drawNode_odd()}
-        {this.drawNode_even()}
-        {this.drawNode_odd()}
-        {this.drawNode_even()}
-        {this.drawNode_odd()}
-        {this.drawNode_even()}
-        {this.drawNode_odd()}
-        {this.drawNode_even()}
+        {this.drawNodeList()}
       </View>
-
-    )
+    );
   }
 
-  drawNode(){
-    for (var i = 0; i <= sum; i++) {
-      if (isOdd) {
-        this.drawNode_odd();
+  drawNodeList() {
+    return this.state.pool.map( (item, index) => {
+      if (index % 2 == 0) {
+        return this.drawNode_odd(item, index);
       } else {
-        this.drawNode_even();
+        return this.drawNode_even(item, index);
       }
-    }
+    });
   }
 
-  drawNode_odd(){
+  drawNode_odd(item, index){
+    console.log("item", item, index);
     return(
-      <View style={{flexDirection:'row',justifyContent: 'space-evenly', height:104}}>
-        <Image style = {styles.checkInImage} source={require('../assets/images/PlayerX_logo.png')}/>
+      <View key={"place"+index} style={{flexDirection:'row',justifyContent: 'space-evenly', height:104}}>
+        <Image style = {styles.checkInImage} source={{uri: item.uri}}/>
         <View style={{alignItems:'center'}}>
           <View style={styles.bar}/>
           <View style={styles.outerCircle}/>
           <View style={styles.innerCircle}/>
         </View>
         <View style={{width:114}} >
-          <Text style={styles.venueNameText_odd}> Suzzalo Library </Text>
-          <Text style={styles.venueTimeText_odd}> 9/30/2018 </Text> 
+          <Text style={styles.venueNameText_odd}>{item.name}</Text>
+          <Text style={styles.venueTimeText_odd}>{item.time}</Text> 
         </View>
       </View>
     )
   }
 
-  drawNode_even(){
+  drawNode_even(item, index){
     return(
-      <View style={{flexDirection:'row',justifyContent: 'space-evenly', height:104}}>
+      <View key={"place"+index} style={{flexDirection:'row',justifyContent: 'space-evenly', height:104}}>
         <View style={{width:114}}>
-          <Text style={styles.venueNameText_even}> Suzzalo Library </Text>
-          <Text style={styles.venueTimeText_even}> 9/30/2018 </Text> 
+          <Text style={styles.venueNameText_even}>{item.name}</Text>
+          <Text style={styles.venueTimeText_even}>{item.time}</Text> 
         </View>        
         <View style={{alignItems:'center'}}>
           <View style={styles.bar}/>
           <View style={styles.outerCircle}/>
           <View style={styles.innerCircle}/>
         </View>
-        <Image style = {styles.checkInImage} source={require('../assets/images/PlayerX_logo.png')}/>
+        <Image style = {styles.checkInImage} source={{uri: item.uri}}/>
       </View>
     )
   }
@@ -134,6 +133,7 @@ export default class ProfileScreen extends React.Component {
       scrollEventThrottle={1}
       showsHorizontalScrollIndicator={false}
       snapToInterval={104/812*height}
+      bounces={false}
       decelerationRate='fast'>
         <View>
           <GenericScreen
@@ -157,7 +157,7 @@ export default class ProfileScreen extends React.Component {
                 <Text style={styles.descriptionText}> # of CheckIns </Text> 
               </View>
             </View>
-            {this.drawKiLog()}  
+            {this.drawNode()}  
           </GenericScreen>
           <TouchableOpacity
             style={styles.closeButtonContainer}

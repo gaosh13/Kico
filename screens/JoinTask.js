@@ -78,7 +78,7 @@ export default class CheckInScreen extends React.Component {
     const displayText = this.state.isGoing ? "Ungoing" : "Join";
     const task = this.props.navigation.getParam('task', '0');
     return (
-      <ScrollView 
+      <ScrollView
         scrollEventThrottle={1}
         showsHorizontalScrollIndicator={false}
         snapToInterval={104/812*height}
