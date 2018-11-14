@@ -12,7 +12,7 @@ export default GoogleSignInButton = (props) => {
             onPress={props.onPress}>
             <View style={styles.buttonContainer}>
                 <Icon name={iconName} color="white" size={25} />
-                <Text style={styles.btnText}>Sign In with Google</Text>
+                <Text style={styles.btnText}>Log in with Google</Text>
             </View>
         </TouchableHighlight>
     )
@@ -37,7 +37,6 @@ const styles = StyleSheet.create(Object.assign({}, globalStyles, {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor,
-        marginTop:10,
         paddingVertical: 7,
         paddingHorizontal: 7,
         borderRadius: 5,
@@ -54,8 +53,8 @@ const styles = StyleSheet.create(Object.assign({}, globalStyles, {
         height: 48,
     },
     btnText: {
-        fontFamily :"mylodon-light",
-        fontSize: 18,
+        fontFamily :"GR",
+        fontSize: 14,
         color: '#FAFAFA',
         marginLeft: 10,
         marginTop: 2,

@@ -10,6 +10,7 @@ import {
   TextInput,
   Platform,
   Icon,
+  TouchableOpacity,
   ImageBackground,
   FlatList,
   Dimensions,
@@ -19,37 +20,31 @@ import {
   TabBar,
   TabViewPagerScroll,
   TabViewPagerPan,
-} from 'react-native-tab-view'
+} from 'react-native-tab-view';
+
+import { Ionicons } from '@expo/vector-icons';
 import Fire from '../components/Fire';
 import ButtonComponent, { CircleButton, RoundButton, RectangleButton } from 'react-native-button-component';
 import AwesomeButton from 'react-native-really-awesome-button';
+import AsyncImageAnimated from '../components/AsyncImageAnimated';
+import GenericScreen from '../components/GenericScreen';
 
-
-const Spacer = () => <View style={styles.spacer} />;
 const { width, height } = Dimensions.get("window");
 
 export default class ProfileScreen extends React.Component {
-  static navigationOptions = ( {navigation} ) => {
-    const { getParam } = navigation;
-    return {
-      headerTransparent: true,
-      headerStyle: {
-        backgroundColor: 'transparent',
-        borderBottomWidth: 0
-      },
-    }
-  }
+  static navigationOptions = {
+    header: null,
+  };
 
   constructor(props) {
     super(props);
     const { getParam } = this.props.navigation;
+    console.log(getParam('name'));
     this.state = {
       name: getParam('name','______'),
       gender: 'unknown',
       age: 'unknown',
-      friendsLoaded: false,
-      poolLoaded: false,
-      photoUrl: '../assets/images/icon.png',
+      photoUrl: getParam('uri'),
     };
   }
 
@@ -57,215 +52,100 @@ export default class ProfileScreen extends React.Component {
     await this.fetchdata();
   }
 
-  async fetchdata(){
-    let data = await Fire.shared.readInfo();
-    let moredata = await Fire.shared.readAuth();
-    if (data && moredata) {
+  async fetchdata(){ 	
+    const { getParam } = this.props.navigation;
+    let data = await Fire.shared.readUserInfo(getParam('uid'));
+    if (data) {
       const {name, gender, age} = data;
-      const {photoURL} = moredata;
-      this.setState({name: name, gender: gender, age: age.toString(),photoUrl: photoURL});
+      await this.setState({name: name, gender: gender, age: age.toString()},function(){console.log(this.state);});
     }
   }
 
-  renderHeader = () => {
-    return (
-        <ImageBackground
-          style={styles.headerBackgroundImage} 
-          source={require('../assets/images/giphy.gif')}
-        >
-          <View style={styles.headerColumn}>
-            <Spacer />
-            <Spacer />
-            <Spacer />
-            <Spacer />
-            <Image
-              style={styles.userImage}
-              source={{
-                uri: this.state.photoUrl,
-              }}
-            />
-            <Text style={styles.userNameText}>{this.state.name}</Text>
-            <View style={styles.centerRow}>
-              <View style={styles.transparentRow}>
-                <Text style={styles.userInfoText}>
-                  {`${this.state.age},  ${this.state.gender}`}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.centerRow}>
-              <View style={styles.transparentRow}>
-                <Text style={styles.userCityText}>
-                  Seattle, United States
-                </Text>
-              </View>
-            </View>
-            <Spacer />
-            <Spacer />
-	        <Spacer />
-	        <Spacer />
-	        <Spacer />
-            <Spacer />
-	        <AwesomeButton
-		       progress
-		       height={50}
-		       onPress={(next) => setTimeout(() => { next() }, 1000)}>
-		       <Text style={styles.text}>{"Initiate Ki Entanglement"}</Text>
-		     </AwesomeButton>
-          </View>
-        </ImageBackground>
-    )
-  }
-
   render() {
-    const username = this.state.name;
-    const gender = this.state.gender;
-    const age = this.state.age;
     const { getParam } = this.props.navigation;
     return (
-      <ScrollView style={styles.container}>
-        {this.renderHeader()}
-      </ScrollView>
+      <View style={{flex:1, backgroundColor:'#FFF',alignItems:'center'}}>
+        <View style={styles.textContent} >
+          <Text numberOfLines={1} style={styles.userNameText}>
+            {this.state.name}
+          </Text>
+          <Text numberOfLines={1} style={styles.userDescriptionText}>
+            {this.state.gender},{this.state.age}
+          </Text>
+        </View>
+        <Image style={styles.userImage} source={{uri:getParam('uri')}}/>
+        <View style={styles.buttonContainer}>
+            <AwesomeButton
+              progress
+              height={68/812*height}
+              backgroundColor="#FFFFFF"
+              borderRadius= {34/812*height}
+              onPress={(next) => setTimeout(() => { next(console.log('finished')) }, 1000)}>
+              <Text style={{fontSize:15, fontFamily:'GR', fontWeight:'bold'}}>{"Emo-nicate"}</Text>
+          </AwesomeButton>
+        </View>
+        <TouchableOpacity
+          style={styles.closeButtonContainer}
+          onPress={() => {this.props.navigation.navigate("Home")}}>
+          <Image source={require('../assets/icons/close.png')} />
+        </TouchableOpacity>
+      </View>
     );
   }
 }
 
 
 const styles = StyleSheet.create({
-  spacer: {
-    height: 20,
+  closeButtonContainer: {
+    position: 'absolute',
+    top: 60/812*height,
+    right: 30/812*height,
+    borderRadius: 30,
+    width: 30/812*height,
+    height: 30/812*height,
+    alignItems:'center',
+    backgroundColor:"#fff",
+    shadowOffset:{width:0,height:10},
+    shadowRadius: 30,
+    shadowColor: "rgba(0,0,0,1)",
+    shadowOpacity:0.2,
+    // backgroundColor: '#fff',
   },
-  text: {
-    fontFamily :"kontakt",
-    fontSize: 10,
-    color:"white",
-    textAlign: "center",
-    fontWeight: '100',
+  buttonContainer:{
+    marginTop:56/812*height,
+    marginBottom:55/812*height,
+    borderRadius:34/812*height,
+    shadowOffset:{width:0,height:10},
+    shadowRadius: 30,
+    shadowColor: "rgba(0,0,0,1)",
+    shadowOpacity:0.2,
   },
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  headerBackgroundImage: {
-  	flex:1,
-  	width: width, 
-  	height: height
-  },
-  headerContainer: {
-  },
-  headerColumn: {
-    backgroundColor: 'transparent',
-    ...Platform.select({
-      ios: {
-        alignItems: 'center',
-        elevation: 1,
-        marginTop: -1,
-      },
-      android: {
-        alignItems: 'center',
-      },
-    }),
-  },
-  centerRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
-  transparentRow: {
-    backgroundColor: 'transparent',
-  },
-  userInfoText: {
-    color: '#C5C5C5',
-    fontSize: 18,
-    fontWeight: '400',
-    textAlign: 'center',
-    paddingBottom: 5,
-  },
-  userCityText: {
-    color: '#A5A5A5',
-    fontSize: 15,
-    fontWeight: '600',
-    textAlign: 'center',
+  textContent: {
+    width:"82.934%",
+    marginTop:121/812*height,
   },
   userImage: {
-  	marginTop:100,
-    borderColor: '#01C89E',
-    borderRadius: 100,
-    borderWidth: 3,
-    height: 200,
-    marginBottom: 15,
-    width: 200,
+    borderRadius: 15,
+    height: 427/812*height,
+    width: 315/375*width,
+    shadowOffset:{width:0,height:10},
+    shadowRadius: 30,
+    shadowColor: "rgba(0,0,0,1)",
+    shadowOpacity:0.2,
+    marginTop:12,
+    resizeMode:'cover',
   },
   userNameText: {
-    color: '#FFF',
-    fontSize: 22,
-    fontWeight: 'bold',
-    paddingBottom: 8,
-    textAlign: 'center',
+    color:'rgb(7,43,79)',
+    textAlign: "left",
+    fontSize: 36/812*height,
+    fontWeight: "bold",
   },
-  tabBar: {
-    backgroundColor: '#EEE',
-  },
-  tabContainer: {
-    flex: 1,
-    marginBottom: 12,
-  },
-  tabLabelNumber: {
-    color: 'gray',
-    fontSize: 12.5,
-    textAlign: 'center',
-  },
-  tabLabelText: {
-    color: 'black',
-    fontSize: 22.5,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  indicatorTab: {
-    backgroundColor: 'transparent',
-  },
-  friendItemContainer: {
-    flexDirection: 'row',
-    marginLeft: 20,
-    marginTop: 15,
-    marginRight: 20,
-    borderWidth: 1,
-    borderRadius: 20,
-    borderColor: '#ccc',
-    paddingLeft: 15,
-    paddingRight: 15,
-    paddingTop: 5,
-    paddingBottom: 5,
-    justifyContent: 'space-between',
-  },
-  friendItemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  friendItemRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  optionsTitleText: {
-    fontFamily :"mylodon-light",
-    fontSize: 16,
-    marginLeft: 15,
-    marginTop: 9,
-    marginBottom: 12,
-  },
-  textEditor: {
-    marginLeft: 15,
-    marginTop: 9,
-    marginBottom: 12,
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-  },
-    particlesContainer:{
-    height: width,
-    width: width,
-  },
-    particle:{
-    height:10,
-    width:10,
-    opacity:0.2
+  userDescriptionText: {
+    marginTop:4/812*height,
+    textAlign: "left",
+    color:'rgb(7,43,79)',
+    opacity:0.6,
+    fontSize: 14/812*height,
   }
 });

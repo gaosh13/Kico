@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { createSwitchNavigator, createStackNavigator, createDrawerNavigator } from 'react-navigation';
-import { ScrollView, StyleSheet, Icon, View, Button, Text, Image, AsyncStorage,ImageBackground ,TouchableHighlight} from 'react-native';
+import { ScrollView, StyleSheet, Icon, View, Button, Text, Image, AsyncStorage,ImageBackground ,TouchableHighlight, Dimensions} from 'react-native';
 import Expo from 'expo';
 import GoogleSignInButton from '../components/GoogleSignInButton';
 import FacebookSignInButton from '../components/FacebookSignInButton';
@@ -12,16 +12,25 @@ import HomeScreen from '../screens/HomeScreen';
 import DrawerView from './DrawerView.js';
 import ProfileScreen from '../screens/ProfileScreen';
 import EditScreen from '../screens/EditScreen';
-import SettingsScreen from '../screens/SettingsScreen';
-import HelpScreen from '../screens/HelpScreen';
+import ChatsScreen from '../screens/ChatsScreen';
+import QRScanner from '../screens/QRScanner';
+import QRCodeScreen from '../screens/QRCodeScreen';
 import DevelopmentScreen from '../screens/DevelopmentScreen';
 import CheckInScreen from '../screens/CheckInScreen';
+import NotificationScreen from '../screens/NotificationScreen';
 import ChangeScreen from '../screens/ChangeScreen';
 import OtherProfileScreen from '../screens/OtherProfileScreen';
+import JoinTaskScreen from '../screens/JoinTask';
+import TaskListScreen from '../screens/TaskListScreen';
+import CreateTaskScreen from '../screens/CreateTask';
+import Congratulations from '../screens/Congratulations.js';
+import FriendListScreen from '../screens/FriendListScreen.js';
 
 import ReadyPage from '../screens/ReadyPage';
 import Login from '../screens/Login';
 import * as firebase from 'firebase';
+
+const { width, height } = Dimensions.get("window");
 
 
 class AuthLoadingScreen extends React.Component {
@@ -51,13 +60,26 @@ const PersonalDrawer = createDrawerNavigator({
   //     },
   //   }
   // }),
-  Home: createStackNavigator({HomeScreen, CheckIn: CheckInScreen, ViewOther:OtherProfileScreen}),
+  HomeStack: createStackNavigator({
+    Home: HomeScreen,
+    CheckIn: CheckInScreen,
+    Notification: NotificationScreen,
+    ViewOther: OtherProfileScreen,
+    QRScanner,
+    CreateTask: CreateTaskScreen,
+    Congrats:Congratulations,
+    InviteFriends:FriendListScreen,
+  }, {
+    initialRouteName: 'Home',
+  }),
   Profile: createStackNavigator({ProfileScreen, Edit: EditScreen}),
-  Settings: createStackNavigator({SettingsScreen}),
-  Help: createStackNavigator({HelpScreen}),
+  Chat: createStackNavigator({ChatsScreen}),
   Development: createStackNavigator({DevelopmentScreen}),
+  QRCode: createStackNavigator({QRCodeScreen}),
+  TaskListStack: createStackNavigator({TaskListScreen, JoinTaskScreen}),
 }, {
-  initialRouteName: 'Home',
+  initialRouteName: 'HomeStack',
+  drawerWidth: width,
   drawerPosition: 'left',
   contentComponent: DrawerView,
 });

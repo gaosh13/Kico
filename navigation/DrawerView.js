@@ -1,16 +1,28 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { NavigationActions } from 'react-navigation';
-import { ScrollView, Text, View, StyleSheet, Button, TouchableHighlight, Image, FlatList } from 'react-native';
+import { ScrollView, Text, View, StyleSheet, Button, TouchableHighlight, TouchableOpacity, Image, FlatList, Dimensions } from 'react-native';
 import { Constants } from 'expo';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import * as firebase from 'firebase';
 import Fire from '../components/Fire';
+
+const { width, height } = Dimensions.get("window");
+
+const hRatio = (value) => {
+  return value /812*height;
+}
+
+const wRatio = (value) => {
+  return value /375*width;
+}
+
 
 class DrawerView extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      name: 'Annie',
+      name: 'Jeremy',
       photoUrl: '../assets/images/icon.png',
     };
   }
@@ -37,61 +49,55 @@ class DrawerView extends Component {
     const { manifest } = Constants;
 
     return (
+      
       <View style={styles.container}>
-        <TouchableHighlight
-          onPress={() => navigate('Profile')}
-          underlayColor="#CCC"
-          style={styles.firstTouchable}>
-          <View style={styles.profileContainer}>
-            <View style={styles.profileImg}>
-              <Image
-                style={styles.userImage}
-                source={{
-                  uri: this.state.photoUrl,
-                }}
-              />
-              <Text style={styles.navTextStyle}>{this.state.name}</Text>
-            </View>
-            <View style={styles.navBar}>
-              <View style={styles.leftContainer}>
-                <Icon name={'gift'} size={30} color="#000"/>
-              </View>
-              <View style={styles.rightContainer}>
-                <Text style={styles.navTextStyle}>
-                  Profile
-                </Text>
-              </View>
-            </View>
-          </View>
-        </TouchableHighlight>
+
+        <View style={styles.space}>
+        </View>
 
         <TouchableHighlight
-          onPress={() => navigate('Settings')}
-          underlayColor="#CCC"
-          style={styles.menuTouchable}>
+        onPress={() => {navigate('Profile');this.props.navigation.closeDrawer();}}
+        underlayColor="#CCC"
+        style={styles.menuTouchable}>
           <View style={styles.navBar}>
             <View style={styles.leftContainer}>
-              <Icon name={'eye'} size={30} color="#000"/>
+              <Image style={{width:wRatio(72), height:wRatio(72)}} source={require('../assets/icons/profile.png')} />
             </View>
             <View style={styles.rightContainer}>
               <Text style={styles.navTextStyle}>
-                Settings
+                Human Profile
               </Text>
             </View>
           </View>
         </TouchableHighlight>
 
         <TouchableHighlight
-          onPress={() => navigate('Help')}
+          onPress={() => {navigate('Chat');this.props.navigation.closeDrawer();}}
           underlayColor="#CCC"
           style={styles.menuTouchable}>
           <View style={styles.navBar}>
             <View style={styles.leftContainer}>
-              <Icon name={'rocket'} size={30} color="#000"/>
+              <Image style={{width:wRatio(72), height:wRatio(72)}} source={require('../assets/icons/chat.png')} />
             </View>
             <View style={styles.rightContainer}>
               <Text style={styles.navTextStyle}>
-                Help
+                Ki Communication
+              </Text>
+            </View>
+          </View>
+        </TouchableHighlight>
+
+        <TouchableHighlight
+          onPress={() => {navigate('TaskListScreen');this.props.navigation.closeDrawer();}}
+          underlayColor="#CCC"
+          style={styles.menuTouchable}>
+          <View style={styles.navBar}>
+            <View style={styles.leftContainer}>
+              <Image style={{width:wRatio(72), height:wRatio(72)}} source={require('../assets/icons/task.png')} />
+            </View>
+            <View style={styles.rightContainer}>
+              <Text style={styles.navTextStyle}>
+                Missions
               </Text>
             </View>
           </View>
@@ -101,35 +107,42 @@ class DrawerView extends Component {
           onPress={() => navigate('Development')}
           underlayColor="#CCC"
           style={styles.menuTouchable}>
-          <View style={styles.navBar}>
-            <View style={styles.leftContainer}>
-              <Icon name={'gift'} size={30} color="#000"/>
-            </View>
-            <View style={styles.rightContainer}>
-              <Text style={styles.navTextStyle}>
-                Development
-              </Text>
-            </View>
+          <View style={{alignItems: 'center', justifyContent: 'center'}}>
+            <Text style={{color: 'blue'}}>
+              Development
+            </Text>
           </View>
         </TouchableHighlight>
 
         <TouchableHighlight
-          onPress={() => navigate('Home')}
+          onPress={this.Logout}
           underlayColor="#CCC"
           style={styles.menuTouchable}>
-          <View style={styles.navBar}>
-            <View style={styles.leftContainer}>
-              <Icon name={'rocket'} size={30} color="#000"/>
-            </View>
-            <View style={styles.rightContainer}>
-              <Text style={styles.navTextStyle}>
-                Map
-              </Text>
-            </View>
+          <View style={{alignItems: 'center', justifyContent: 'center'}}>
+            <Text style={{color: 'red'}}>
+              Log out
+            </Text>
           </View>
         </TouchableHighlight>
+
+        <TouchableOpacity
+          style={styles.closeButtonContainer}
+          onPress={() => {navigate('Home');this.props.navigation.closeDrawer();}}>
+          <Image source={require('../assets/icons/close.png')} />
+        </TouchableOpacity>
       </View>
     );
+  }
+
+  Logout = async() => {
+    console.log('logging out');
+    await firebase.auth().signOut()
+    .then(function() {
+      console.log('successfully logged out')
+    }, function(error) {
+      console.error('Sign Out Error', error);
+    });
+    return (this.props.navigation.navigate('Pre')) ;
   }
 
   _renderItem = ({item}) => {
@@ -177,11 +190,11 @@ DrawerView.propTypes = {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 15,
+    paddingTop: 10,
     backgroundColor: '#fff',
   },
   userImage: {
-    borderColor: '#01C89E',
+    borderColor: "rgba(0,0,0,0.2)",
     borderRadius: 45,
     borderWidth: 3,
     height: 90,
@@ -194,17 +207,17 @@ const styles = StyleSheet.create({
     marginTop: 9,
     marginBottom: 12,
   },
-  firstTouchable: {
-    backgroundColor: '#fff',
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    // borderBottomWidth: StyleSheet.hairlineWidth,
-    // borderBottomColor: '#000',
-  },
+  // firstTouchable: {
+  //   backgroundColor: '#fff',
+  //   paddingVertical: 10,
+  //   paddingHorizontal: 5,
+  //   // borderBottomWidth: StyleSheet.hairlineWidth,
+  //   // borderBottomColor: '#000',
+  // },
   menuTouchable: {
     backgroundColor: '#fff',
     paddingVertical: 10,
-    paddingHorizontal: 5,
+    paddingHorizontal: 10,
     // borderBottomWidth: StyleSheet.hairlineWidth,
     // borderBottomColor: '#EDEDED',
   },
@@ -224,17 +237,15 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   navTextStyle: {
-    paddingTop:10,
+    paddingTop: 10,
     fontSize: 15,
+    fontFamily: "GSB",
   },
   footerContainer: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-  },
-  navTextStyle:{
-    fontFamily :"mylodon-light",
   },
   profileContainer: {
     paddingTop: 50,
@@ -249,6 +260,23 @@ const styles = StyleSheet.create({
     // borderBottomWidth: StyleSheet.hairlineWidth,
     // borderBottomColor: '#EDEDED',
   },
+  closeButtonContainer: {
+    position: 'absolute',
+    top: 60,
+    left: 36,
+    borderRadius: 30,
+    width: 30,
+    height: 30,
+    alignItems:'center',
+    shadowColor: "#000000",
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
+    // backgroundColor: '#fff',
+  },
+  space: {
+    paddingTop: '45%',
+  }
 });
 
 export default DrawerView;

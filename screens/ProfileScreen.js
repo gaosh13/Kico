@@ -13,6 +13,7 @@ import {
   ImageBackground,
   FlatList,
   Dimensions,
+  TouchableOpacity,
 } from 'react-native';
 import {
   TabViewAnimated,
@@ -21,57 +22,31 @@ import {
   TabViewPagerPan,
 } from 'react-native-tab-view'
 import Fire from '../components/Fire';
+import { Ionicons } from '@expo/vector-icons';
 import KiVisual from '../components/KiVisual';
-import ButtonComponent, { CircleButton, RoundButton, RectangleButton } from 'react-native-button-component';
+import AwesomeButton from 'react-native-really-awesome-button';
+import GenericScreen from '../components/GenericScreen';
 
-
+const isOdd=require('is-odd')
 const { width, height } = Dimensions.get("window");
+const sum=7;
 
 export default class ProfileScreen extends React.Component {
-  static navigationOptions = ( {navigation} ) => {
-    const { getParam } = navigation;
-    return {
-      headerTransparent: true,
-      headerStyle: {
-        backgroundColor: 'transparent',
-        borderBottomWidth: 0
-      },
-      headerLeft: (
-        <Button
-          onPress={() => navigation.openDrawer()}
-          title="Menu"
-          color="#000"/>
-      ),
-      headerRight: (
-        <Button
-          onPress={() => navigation.navigate('Edit')}
-          title="Edit"
-          color="#000"/>
-      ),
-    }
-  }
+  static navigationOptions = {
+    header: null,
+  };
 
   constructor(props) {
     super(props);
     this.state = {
-      name: 'Annie',
-      gender: 'female',
+      name: 'Player',
+      gender: 'undefined',
       age: '18',
       ki: undefined,
       friendsLoaded: false,
-      poolLoaded: false,
-      profileLoaded: false,
       photoUrl: '../assets/images/icon.png',
       pool:[],
-      tabs: {
-        index: 0,
-        routes: [
-          { key: '1', title: 'Level', count: 2 },
-          { key: '2', title: 'Missions', count: 3 },
-          { key: '3', title: 'Friends', count: 3 },
-          { key: '4', title: 'Pool', count: 3 },
-        ],
-      },
+      friends:null,
     };
   }
 
@@ -80,420 +55,261 @@ export default class ProfileScreen extends React.Component {
   }
 
   async fetchdata(){
-    let data = await Fire.shared.readInfo();
-    let moredata = await Fire.shared.readAuth();
-    if (data && moredata) {
-      const {name, gender, age} = data;
-      const {photoURL} = moredata;
-      this.setState({name: name, gender: gender, age: age.toString(),photoUrl: photoURL});
+    let [data, frienddata, pool] = await Promise.all([Fire.shared.readInfo(), Fire.shared.getFriends(), Fire.shared.getCheckedPlaces()]);
+    if (data && frienddata) {
+      const {name, gender, age, ki, photoURL} = data;
+      console.log('pool', pool);
+      this.setState({
+        name: name,
+        gender: gender,
+        friends: frienddata.length,
+        age: age.toString(),
+        ki: ki,
+        photoUrl: photoURL,
+        pool: pool || [],
+      });
     }
   }
 
-  renderHeader = () => {
-    const avatarBackground = "https://orig00.deviantart.net/dcd7/f/2014/027/2/0/mountain_background_by_pukahuna-d73zlo5.png";
-
+  drawNode(){
     return (
-      <View style={styles.headerContainer}>
-        <ImageBackground
-          style={styles.headerBackgroundImage}
-          blurRadius={10}
-          source={{
-            uri: avatarBackground,
-          }}
-        >
-          <View style={styles.headerColumn}>
-            <Image
-              style={styles.userImage}
-              source={{
-                uri: this.state.photoUrl,
-              }}
-            />
-            <Text style={styles.userNameText}>{this.state.name}</Text>
-            <View style={styles.centerRow}>
-              <View style={styles.transparentRow}>
-                <Text style={styles.userInfoText}>
-                  {`${this.state.age},  ${this.state.gender}`}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.centerRow}>
-              <View style={styles.transparentRow}>
-                <Text style={styles.userCityText}>
-                  Seattle, United States
-                </Text>
-              </View>
-            </View>
-          </View>
-        </ImageBackground>
+      <View>
+        <View style={styles.kiLogContainer}>
+          <Text style={styles.kiLogText}>Ki Log</Text>
+        </View>
+        {this.drawNodeList()}
       </View>
-    )
+    );
   }
 
-  _handleIndexChange = (index) => {
-    this.setState({
-      tabs: {
-        ...this.state.tabs,
-        index,
-      },
-    })
-  }
-
-  _renderHeader = props => {
+  drawNodeList() {
     return (
-      <TabBar
-        {...props}
-        indicatorStyle={styles.indicatorTab}
-        renderLabel={this._renderLabel(props)}
-        pressOpacity={0.8}
-        style={styles.tabBar}
-      />
-    )
-  }
-
-  async fetchFriends(){
-    let data = await Fire.shared.getFriends();
-    if (data) {
-      this.state.tabs.routes[2].count = data.length;
-      this.setState({friends: data});
-    }
-  }
-
-  async fetchPool() {
-    Fire.shared.getPersonalPool().then( (Data) => {
-        this.state.tabs.routes[3].count = Data.length;
-        return Promise.all(Data.map( (users, index) => {
-          return Fire.shared.readUserAvatar(users.uid).then( (uri) => {
-            if (uri) {
-              return {
-                uid: users.uid,
-                uri: uri,
-                value:users.value,
-                name: users.name,
-              };
-            } else {
-              console.log('URL fetching failed')
-                }
-          });
-        }))
-    }).then( (updatedData)=>{
-      if (updatedData) {
-        console.log('personalpool Data has been pulled', updatedData);
-        let checkinSum = updatedData.reduce((prev,next) => prev + next.value,0); 
-        this.setState({pool: updatedData, sum: checkinSum});
-      }else{
-        console.log('personalpool Data fetch has failed');
+      this.state.pool.map( (item, index) => {
+      if (index % 2 == 0) {
+        return this.drawNode_odd(item, index);
+      } else {
+        return this.drawNode_even(item, index);
       }
-    })      
-  }
-
-  async fetchProfile() {
-    let data = await Fire.shared.readInfo();
-    this.setState({ki: data.ki || 100});
-  }
-
-  _renderFriends() {
-    let { navigation } = this.props;
-    
-    return (
-      <FlatList
-        data={this.state.friends}
-        keyExtractor={this._friendExtractor}
-        renderItem={this._renderFriendItem}
-      />
-    );
-  }
-
-  _renderPool() {
-    let { navigation } = this.props;
-    return (
-      <View>
-          <View style={styles.particlesContainer}>
-            {this.drawKiView()}
-          </View>
-
-        <FlatList
-          data={this.state.pool}
-          keyExtractor={this._poolExtractor}
-          renderItem={this._renderPoolItem}
-        />
-      </View>
-    );
-  }
-
-  drawKiView() {
-// follows this tutorial:
-// https://www.youtube.com/watch?v=XATr_jdh-44
-    if (this.state.pool.length){
-      // let friendSum = this.state.pool.reduce((prev,next) => prev + next.value,0);
-      return (
-        <View style={styles.kiContainer}>
-          {KiVisual.shared.generateCircles(this.state.pool,this.state.sum)}      
-        </View>
-      );
-    }else{
-      console.log('wait....');
-      return (
-        <View style={styles.kiContainer} />
-      );
-    }
-  }
-
-  _friendExtractor = (item, index) => {return "friend" + index}
-
-  _renderFriendItem = ({item}) => {
-    return (      
-      <View style={styles.friendItemContainer}>
-        <View style={styles.friendItemLeft}>
-          <Image
-            source={require("../assets/images/robot-dev.png")}
-            style={{ width: 30, height: 30 }}
-            resizeMode="cover"
-          />
-          <Text style={{fontSize: 18}}>{item.name}</Text>
-        </View>
-        <View style={styles.friendItemRight}>
-          <Text style={{fontSize: 18, color: 'blue'}}>{item.tag}</Text>
-          <Button title="Remove" onPress={() => {this._removeFriend(item.uid); this.setState({friendsLoaded: false});}}/>
-        </View>
-      </View>
-    );
-  }
-
-  _removeFriend = async (uid) => {
-    await Fire.shared.removeFriend(uid, 'active');
-  }
-
-  _poolExtractor = (item, index) => {return "pool" + index}
-
-  _renderPoolItem = ({item}) => {
-    return (
-        <View style={styles.friendItemContainer}>
-          <View style={styles.friendItemLeft}>
-            <Image
-              source={require("../assets/images/robot-dev.png")}
-              style={{ width: 30, height: 30 }}
-              resizeMode="cover"
-            />
-            <Text style={{fontSize: 18}}>{item.name}</Text>
-          </View>
-          <View style={styles.friendItemRight}>
-            <Text style={{fontSize: 18, color: 'blue'}}>{item.value.toString()}</Text>
-            <Button title="Add" onPress={() => {this._addFriend(item.uid)}}/>
-          </View>
-        </View>
-    );
-  }
-
-  _addFriend = async (uid) => {
-    await Fire.shared.addFriend(uid);
-  }
-
-  _renderScene = ({ route: { key } }) => {
-    switch (key) {
-      case '1':
-        if (!this.state.personalLoaded) {
-          this.fetchProfile().then((token) => {this.setState({personalLoaded: true})});
-          return <View><Text>Loading...</Text></View>;
-        } else {
-          return <View><Text>Remaining Ki: {this.state.ki}</Text></View>
-        }
-      case '3':
-        if (!this.state.friendsLoaded) {
-          this.fetchFriends().then((token) => {this.setState({friendsLoaded: true})});
-          return <View><Text>Loading...</Text></View>;
-        } else {
-          return this._renderFriends();
-        }
-      case '4':
-        if (!this.state.poolLoaded) {
-          this.fetchPool().then((token) => {this.setState({poolLoaded: true})});
-          return <View><Text>Loading...</Text></View>;
-        } else {
-          return this._renderPool();
-        }
-      default:
-        return <View />
-    }
-  }
-
-  _renderLabel = props => ({ route, index }) => {
-    const inputRange = props.navigationState.routes.map((x, i) => i)
-    const outputRange = inputRange.map(
-      inputIndex => (inputIndex === index ? 'black' : 'gray')
-    )
-    const color = props.position.interpolate({
-      inputRange,
-      outputRange,
     })
+    )
+  }
 
-    return (
-      <View>
-        <Animated.Text style={[styles.tabLabelNumber, { color }]}>
-          {route.title}
-        </Animated.Text>
-        <Animated.Text style={[styles.tabLabelText, { color }]}>
-          {route.count}
-        </Animated.Text>
+  drawNode_odd(item, index){
+    console.log("item", item, index);
+    return(
+      <View key={"place"+index} style={{flexDirection:'row',justifyContent: 'space-evenly', height:104}}>
+        <Image style = {styles.checkInImage} source={{uri: item.uri}}/>
+        <View style={{alignItems:'center'}}>
+          <View style={styles.bar}/>
+          <View style={styles.outerCircle}/>
+          <View style={styles.innerCircle}/>
+        </View>
+        <View style={{width:114}} >
+          <Text style={styles.venueNameText_odd}>{item.name}</Text>
+          <Text style={styles.venueTimeText_odd}>{item.time}</Text> 
+        </View>
       </View>
     )
   }
 
-  _renderPager = props => {
-    return Platform.OS === 'ios' ? (
-      <TabViewPagerScroll {...props} />
-    ) : (
-      <TabViewPagerPan {...props} />
+  drawNode_even(item, index){
+    return(
+      <View key={"place"+index} style={{flexDirection:'row',justifyContent: 'space-evenly', height:104}}>
+        <View style={{width:114}}>
+          <Text style={styles.venueNameText_even}>{item.name}</Text>
+          <Text style={styles.venueTimeText_even}>{item.time}</Text> 
+        </View>        
+        <View style={{alignItems:'center'}}>
+          <View style={styles.bar}/>
+          <View style={styles.outerCircle}/>
+          <View style={styles.innerCircle}/>
+        </View>
+        <Image style = {styles.checkInImage} source={{uri: item.uri}}/>
+      </View>
     )
   }
 
   render() {
-    const username = this.state.name;
-    const gender = this.state.gender;
-    const age = this.state.age;
-    const { getParam } = this.props.navigation;
     return (
-      <ScrollView style={styles.container}>
-        {this.renderHeader()}
-        <TabViewAnimated
-          style={styles.tabContainer}
-          navigationState={this.state.tabs}
-          renderScene={this._renderScene}
-          renderPager={this._renderPager}
-          renderHeader={this._renderHeader}
-          onIndexChange={this._handleIndexChange}
-        />
+      <ScrollView 
+      scrollEventThrottle={1}
+      showsHorizontalScrollIndicator={false}
+      snapToInterval={104/812*height}
+      bounces={false}
+      decelerationRate='fast'>
+        <View>
+          <GenericScreen
+            source={this.state.photoUrl}
+            name={this.state.name}
+            description={this.state.gender}
+            note={this.state.age}
+            friends={this.state.friends}
+            ki={this.state.ki}>
+            <View style={{flexDirection:'row',justifyContent: 'space-evenly'}}>
+              <View>
+                <Text style={styles.numberText}> {this.state.friends} </Text>
+                <Text style={styles.descriptionText}> # of Friends </Text> 
+              </View>
+              <View>
+                <Text style={styles.numberText}> {this.state.ki}/300 </Text>
+                <Text style={styles.descriptionText}> # of Ki Left</Text> 
+              </View>
+              <View>
+                <Text style={styles.numberText}> 25 </Text>
+                <Text style={styles.descriptionText}> # of CheckIns </Text> 
+              </View>
+            </View>
+            {this.drawNode()} 
+            <View
+              style={styles.bottomImage}>
+              <Image source={require('../assets/images/bottom.png')}/>
+            </View>
+          </GenericScreen>
+          <TouchableOpacity
+            style={styles.closeButtonContainer}
+            onPress={() => {this.props.navigation.openDrawer()}}>
+            <Image source={require('../assets/icons/back.png')} />
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     );
   }
 }
 
+
+// opacity: 0.2;
+// background: #0B9AF5;
+// background: #0B9AF5;
+
+// background: #0B9AF5;
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  headerBackgroundImage: {
-    paddingBottom: 20,
-    paddingTop: 35,
-  },
-  kiContainer: {
-    width: width-30,
-    height: width-30, 
-  },
-  headerContainer: {},
-  headerColumn: {
-    backgroundColor: 'transparent',
-    ...Platform.select({
-      ios: {
-        alignItems: 'center',
-        elevation: 1,
-        marginTop: -1,
-      },
-      android: {
-        alignItems: 'center',
-      },
-    }),
-  },
-  centerRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
-  transparentRow: {
-    backgroundColor: 'transparent',
-  },
-  userInfoText: {
-    color: '#C5C5C5',
-    fontSize: 18,
-    fontWeight: '400',
-    textAlign: 'center',
-    paddingBottom: 5,
-  },
-  userCityText: {
-    color: '#A5A5A5',
-    fontSize: 15,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  userImage: {
-    borderColor: '#01C89E',
-    borderRadius: 85,
-    borderWidth: 3,
-    height: 170,
-    marginBottom: 15,
-    width: 170,
-  },
-  userNameText: {
-    color: '#FFF',
-    fontSize: 22,
-    fontWeight: 'bold',
-    paddingBottom: 8,
-    textAlign: 'center',
-  },
-  tabBar: {
-    backgroundColor: '#EEE',
-  },
-  tabContainer: {
-    flex: 1,
-    marginBottom: 12,
-  },
-  tabLabelNumber: {
-    color: 'gray',
-    fontSize: 12.5,
-    textAlign: 'center',
-  },
-  tabLabelText: {
-    color: 'black',
-    fontSize: 22.5,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  indicatorTab: {
-    backgroundColor: 'transparent',
-  },
-  friendItemContainer: {
-    flexDirection: 'row',
-    marginLeft: 20,
-    marginTop: 15,
-    marginRight: 20,
-    borderWidth: 1,
-    borderRadius: 20,
-    borderColor: '#ccc',
-    paddingLeft: 15,
-    paddingRight: 15,
-    paddingTop: 5,
-    paddingBottom: 5,
-    justifyContent: 'space-between',
-  },
-  friendItemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  friendItemRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  optionsTitleText: {
-    fontFamily :"mylodon-light",
-    fontSize: 16,
-    marginLeft: 15,
-    marginTop: 9,
-    marginBottom: 12,
-  },
-  textEditor: {
-    marginLeft: 15,
-    marginTop: 9,
-    marginBottom: 12,
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-  },
-    particlesContainer:{
-    height: width,
+  kiLogContainer:{
     width: width,
   },
-    particle:{
-    height:10,
-    width:10,
-    opacity:0.2
+  kiLogText:{
+    color:'black',
+    textAlign: "left",
+    fontSize: 36,
+    fontFamily:'GSB',
+    marginTop: 25/812*height,
+    marginLeft: 25/812*height,
+    marginBottom:25/812*height,
+  },
+  closeButtonContainer: {
+    position: 'absolute',
+    top: 60,
+    left: 30,
+    borderRadius: 30,
+    width: 30,
+    height: 30,
+    alignItems:'center',
+    backgroundColor:"#fff",
+    shadowColor: "#000000",
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
+    // backgroundColor: '#fff',
+  },
+  bar:{
+    width:8,
+    height:104,
+    backgroundColor:'#EEEEEE',
+  },
+  outerCircle:{
+    width:18,
+    height:18,
+    borderRadius:9,
+    backgroundColor:'#0B9AF5',
+    opacity:0.2,
+    position:'absolute',
+    top:43,
+  },
+  innerCircle:{
+    width:14,
+    height:14,
+    borderRadius:7,
+    backgroundColor:'#0B9AF5',
+    position:'absolute',
+    top:45,
+  },
+  buttonContainer:{
+    position:"absolute",
+    left:84/812*height,
+    bottom:55/812*height,
+    borderRadius:34/812*height,
+    shadowOffset:{width:0,height:10},
+    shadowRadius: 30,
+    shadowColor: "rgba(0,0,0,1)",
+    shadowOpacity:0.2,
+  },
+  textContent: {
+    position:"absolute",
+    alignItems:"center",
+    bottom:50/812*height,
+    height:100/812*height,
+    left:0,
+    width:'100%',
+    height:'25%',
+  },
+  numberText:{
+    fontSize:15,
+    color:'rgb(7,43,79)',
+    textAlign: "center",
+    marginTop:25,
+  },
+  checkInImage:{
+    height:68,
+    width:114,
+    borderRadius:15,
+    shadowOffset:{width:0,height:10},
+    shadowRadius: 10,
+    shadowColor: "rgb(0,0,0)",
+    shadowOpacity:0.2,
+    marginVertical:18
+  },
+  venueNameText_odd:{
+    fontSize:14,
+    color:'rgb(7,43,79)',
+    textAlign: "left",
+    fontFamily:"GSB",
+    marginTop:34.5,
+  },
+  venueTimeText_odd:{
+    marginTop:5,
+    marginBottom:34.5,
+    fontSize:12,
+    fontFamily:"GR",
+    color:'rgb(7,43,79)',
+    textAlign: "left"
+  },
+  venueNameText_even:{
+    fontSize:14,
+    fontFamily:"GSB",
+    color:'rgb(7,43,79)',
+    textAlign: "right",
+    marginTop:34.5,
+  },
+  venueTimeText_even:{
+    marginTop:5,
+    fontFamily:"GR",
+    marginBottom:34.5,
+    fontSize:12,
+    color:'rgb(7,43,79)',
+    textAlign: "right"
+  },
+  descriptionText:{
+    marginTop:4,
+    color:'rgb(7,43,79)',
+    opacity:0.5,
+    textAlign: "center",
+  },
+  kiContainer: {
+    width: width,
+    position:"absolute",
+    bottom: 140/812*height, 
+  },
+  bottomImage:{
+    marginTop:25,
   }
 });

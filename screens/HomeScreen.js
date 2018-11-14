@@ -12,19 +12,24 @@ import {
   FlatList,
   AppRegistry,
   Button,
+  ImageBackground,
 } from 'react-native';
-import { WebBrowser,Constants,Location,Permissions } from 'expo';
+import { WebBrowser,Constants,Location,Permissions,LinearGradient } from 'expo';
 import Touchable from 'react-native-platform-touchable';
 import { MonoText } from '../components/StyledText';
 import { MapView, MapContainer } from "expo";
 import { Ionicons } from '@expo/vector-icons';
 import Fire from '../components/Fire';
 import { REACT_APP_FOURSQUARE_ID, REACT_APP_FOURSQUARE_SECRET } from 'react-native-dotenv'
-import AsyncImageAnimated from 'react-native-async-image-animated';
+import AsyncImageAnimated from '../components/AsyncImageAnimated';
+import {RandomCircles} from '../components/KiVisual';
+import { BlurView, VibrancyView } from 'react-native-blur';
+import ActionButton from 'react-native-action-button';
+import DateTimePicker from 'react-native-modal-datetime-picker';
 
 const { width, height } = Dimensions.get("window");
 
-const CARD_HEIGHT = height / 3;
+const CARD_HEIGHT = 212/812*height;
 const CARD_WIDTH = width / 1.1;
 
 //https://codedaily.io/tutorials/9/Build-a-Map-with-Custom-Animated-Markers-and-Region-Focus-when-Content-is-Scrolled-in-React-Native
@@ -43,18 +48,19 @@ export default class HomeScreen extends React.Component {
     this.state = {
       location:{coords:{latitude:0,longitude:0}},
       errorMessage: null,
-      showNotification: false,
+      showOption: false,
       notification: [],
+      pool:[],
       markers:[],
       loaded: false,
     };
     this.index = 0;
     this.loadingMarkers = false;
-    this.animation = new Animated.Value(0);
-    this.somefunction();
+    this.animation = new Animated.Value(0);   
   }
 
   componentDidMount() {
+    this.somefunction();
     this.mountState = true;
   }
 
@@ -72,27 +78,8 @@ export default class HomeScreen extends React.Component {
         errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
       });
     } else {
-      // We should detect when scrolling has stopped then animate
-      // We should just debounce the event listener here
-      this.animation.addListener(({ value }) => {
-        let index = Math.floor(value / CARD_WIDTH +0.3); // animate 30% away from landing on the next item
-        if (index >= this.state.markers.length) {
-          index = this.state.markers.length - 1;
-        }
-        if (index <= 0) {
-          index = 0;
-        }
-
-        clearTimeout(this.regionTimeout);
-        this.regionTimeout = setTimeout(() => {
-          if (this.index !== index) {
-            this.index = index;
-            const { coordinate } = this.state.markers[index];
-          }
-        }, 10);
-      });
-
       this._getLocationAsync();
+      this.fetchPool();
     }
   }
 
@@ -116,14 +103,10 @@ export default class HomeScreen extends React.Component {
       longitudeDelta: 0.002,
     };
     if (!this.mountState) return;
-    this.setState({location, region});
     let v0 = new Date().getTime();
     if (!this.loadingMarkers) {
       this.loadingMarkers = true;
       this.fetchMarkerData(location).then( (markers) => {
-        this.setState({
-          markers: markers.map((marker)=>{return {id: marker.id, name: marker.name, location: marker.location}})
-        });
         return Promise.all(markers.map( (marker, index) => {
           return Fire.shared.getPlaceURI(marker.id, marker).then( (uri) => {
             if (uri) {
@@ -135,12 +118,16 @@ export default class HomeScreen extends React.Component {
               }
             } else {
               return this.fetchMarkerPhoto(marker.id).then( (url) => {
-                if (url) Fire.shared.addPlaceURI(marker.id, url);
-                return {
-                  id: marker.id,
-                  uri: url,
-                  name: marker.name,
-                  location: marker.location,
+                if (url) {
+                  Fire.shared.addPlaceURI(marker.id, url);
+                  return {
+                    id: marker.id,
+                    uri: url,
+                    name: marker.name,
+                    location: marker.location,
+                  }
+                }else{
+                  return null;
                 }
               });
             }
@@ -148,34 +135,38 @@ export default class HomeScreen extends React.Component {
         }));
       }).then( (markersInfo) => {
         if (this.mountState)
-          this.setState({markers:markersInfo});
+          this.setState({location,region,markers:markersInfo.filter((obj)=>obj)});
         this.loadingMarkers = false;
         console.log('total promise time', new Date().getTime() - v0);
       })
     }
+  }
 
-    // let markers = await this.fetchMarkerData(location);
-    // let markersInfo = [];
-    // for (let index = 0; index < markers.length; ++index) {
-    //   marker = markers[index];
-    //   let uri = await Fire.shared.getPlaceURI(marker.id, marker);
-    //   if (!uri) {
-    //     let url = await this.fetchMarkerPhoto(marker.id);
-    //     marker.uri=url;
-    //     Fire.shared.addPlaceURI(marker.id, url);
-    //   } else {
-    //     marker.uri=uri;
-    //   }
-    //   markersInfo.push({
-    //     id: marker.id,
-    //     uri: marker.uri,
-    //     name: marker.name,
-    //     location: marker.location,
-    //   });
-    //   console.log('marker', marker.uri, marker.name);
-    // }
-    // this.setState({location,region,markers:markersInfo});
-    // console.log('total promise time', new Date().getTime() - v0);
+  async fetchPool() {
+    Fire.shared.getPersonalPool().then( (Data) => {
+        return Promise.all(Data.map( (users, index) => {
+          return Fire.shared.readUserAvatar(users.uid).then( (uri) => {
+            if (uri) {
+              return {
+                uid: users.uid,
+                uri: uri,
+                value:users.value,
+                name: users.name,
+              };
+            } else {
+              console.log('URL fetching failed')
+                }
+          });
+        }))
+    }).then( (updatedData)=>{
+      if (updatedData) {
+        console.log('personalpool Data has been pulled', updatedData);
+        let checkinSum = updatedData.reduce((prev,next) => prev + next.value,0); 
+        this.setState({pool: updatedData, sum: checkinSum});
+      }else{
+        console.log('personalpool Data fetch has failed');
+      }
+    })      
   }
 
   fetchMarkerData = async (location) => {
@@ -188,8 +179,9 @@ export default class HomeScreen extends React.Component {
       let response = await fetch(fetchurl);
       let data = await response.json();
       return data.response.venues
-      // the following code is for recommended search, research search in fetchurl with recommended return data.response.groups[0].items      
+      // the following code is for recommended search, research search in fetchurl with recommended return data.response.groups[0].items
     }catch(err){
+      console.log('Marker Data Fetching Failed');
       if (this.mountState) this.setState({
           errorMessage: err,
       });
@@ -205,251 +197,136 @@ export default class HomeScreen extends React.Component {
       return data.response.venue.bestPhoto.prefix + "original" + data.response.venue.bestPhoto.suffix
       // the following code is for recommended search, research search in fetchurl with recommended return data.response.groups[0].items      
     }catch(err){
+      console.log('Marker Photo Failed');
       if (this.mountState) this.setState({
           errorMessage: err,
       });
     }
   }
 
-  render() {
-    let text = 'Waiting..';
-    if (this.state.errorMessage) {
-      text = this.state.errorMessage;
-    } else if (this.state.location) {
-      text = JSON.stringify(this.state.location);
+  drawKiView() {
+// follows this tutorial:
+// https://www.youtube.com/watch?v=XATr_jdh-44
+    if (this.mountState){
+      // let friendSum = this.state.pool.reduce((prev,next) => prev + next.value,0);
+      return (
+        <View style={styles.kiContainer}>
+          <RandomCircles pool={this.state.pool} navigation={this.props.navigation}/>
+        </View>
+      );
+    }else{
+      // console.log('wait....');
+      return (
+        <View style={styles.kiContainer} />
+      );
     }
+  }
 
-    const interpolations = this.state.markers.map((marker, index) => {
-      const inputRange = [
-        (index - 1) * CARD_WIDTH,
-        index * CARD_WIDTH,
-        ((index + 1) * CARD_WIDTH),
-      ];
-      const translate = this.animation.interpolate({
-        inputRange,
-        outputRange: [0, 1, 0],
-        extrapolate: "clamp",
-      });
-      const scale = this.animation.interpolate({
-        inputRange,
-        outputRange: [1, 2, 1],
-        extrapolate: "clamp",
-      });
-      const opacity = this.animation.interpolate({
-        inputRange,
-        outputRange: [0.35, 1, 0.35],
-        extrapolate: "clamp",
-      });
-      return { scale, opacity };
-    });
-
+  render() {
     let stationaryurl = 'https://s3.amazonaws.com/exp-brand-assets/ExponentEmptyManifest_192.png';
-
     return (
       <View style={styles.container}>
-        <MapView
-          style={styles.container}
-          provider="google"
-          ref={ref => { this.map = ref; if (ref) ref.animateToViewingAngle(90,0.1)}}
-          showsUserLocation={true}
-          //onRegionChange={this.onRegionChange.bind(this)}
-          //onUserLocationChange ={changed => this.setUserLocation(changed.nativeEvent.coordinate)}
-          //onUserLocationChange ={changed => console.log(changed.nativeEvent)}
-          //followsUserLocation={true}
-          zoomEnabled={false}
-          rotateEnabled={true}
-          scrollEnabled={false}
-          pitchEnabled={true}
-          customMapStyle = {mapStyle}
-          region={this.state.region}
-          //onPress={()=>this.animateToRandomViewingAngle()}
-        >
-          {this.state.markers.map((marker, index) => {
-            const scaleStyle = {
-              transform: ([
-                  {
-                    scale: interpolations[index].scale,
-                   // translateY: interpolations[index].translate,
-                },
-              ]),
-            };
-            const translateStyle = {
-              transform: [
-                  {
-                    translateY: interpolations[index].translate,
-                },
-              ],
-            };
-            const opacityStyle = {
-              opacity: interpolations[index].opacity,
-            };
-            const coords = {
-                latitude: marker.location.lat,
-                longitude: marker.location.lng,
-            };
-            const metadata = `Status: ${marker.id}`;
-            
-            return (
-              <MapView.Marker key={index} coordinate={coords}>
-                <Animated.Image
-                  style={[styles.markerWrap, opacityStyle, scaleStyle]}
-                  resizeMode={'cover'}
-                  source={require('../assets/images/humanPin.png')}/>
-              </MapView.Marker>
-            );
-          })}
-        </MapView>
-        <Animated.ScrollView
-          horizontal
-          scrollEventThrottle={1}
-          showsHorizontalScrollIndicator={false}
-          snapToInterval={CARD_WIDTH}
-          onScroll={Animated.event(
-            [
-              {
-                nativeEvent: {
-                  contentOffset: {
-                    x: this.animation,
-                  },
-                },
-              },
-            ],
-            { useNativeDriver: true }
-          )}
-          style={styles.scrollView}
-          contentContainerStyle={styles.endPadding}
-        >
-          {this.state.markers.map((marker, index) => (
-            <TouchableOpacity key={index} onPress={
-              () => this.props.navigation.navigate("CheckIn", {
-                uri: marker.uri,
-                name: marker.name,
-                placeID: marker.id,
-              })
-            }>
-              <View style={styles.card}>
-                <View style={styles.textContent}>
-                  <Text numberOfLines={1} style={styles.cardtitle}>
-                    {marker.name}
-                  </Text>
-                  <Text numberOfLines={1} style={styles.cardDescription}>
-                    {marker.location.formattedAddress.slice(0,-1)}
-                  </Text>
+          <View style={styles.particlesContainer}>
+              {this.drawKiView()}
+          </View>
+          <ScrollView
+            horizontal
+            scrollEventThrottle={1}
+            showsHorizontalScrollIndicator={false}
+            snapToInterval={CARD_WIDTH+5}
+            style={styles.scrollView}
+            contentContainerStyle={styles.endPadding}
+            decelerationRate='fast'
+          >
+            {this.state.markers.map((marker, index) => (
+
+              <TouchableOpacity key={index} onPress={
+                () => this.props.navigation.navigate("CheckIn", {
+                  uri: marker.uri,
+                  name: marker.name,
+                  placeID: marker.id,
+                  location:marker.location.formattedAddress.slice(0,-1)
+                })
+              }>
+
+                <View style={styles.card}>
+                  <AsyncImageAnimated
+                    style={styles.cardImage}
+                    source={{
+                      uri: marker.uri
+                    }}
+                    placeholderColor='#cfd8dc'
+                    animationStyle='fade'
+                    >
+                  </AsyncImageAnimated>  
+                  <LinearGradient colors={['rgba(0,0,0,0)','rgba(0,0,0,1)']} style={styles.blurView}/>
+                  <View style={styles.textContent} >
+                    <Text numberOfLines={1} style={styles.cardtitle}>
+                      {marker.name}
+                    </Text>
+                    <Text numberOfLines={1} style={styles.cardDescription}>
+                      {marker.location.formattedAddress.slice(0,-1)}
+                    </Text>
+                  </View>
+                  <View style={styles.handle}/> 
                 </View>
-                <AsyncImageAnimated
-                  style={styles.cardImage}
-                  source={{
-                    uri: marker.uri
-                  }}
-                  placeholderColor='#cfd8dc'/>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </Animated.ScrollView>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
 
-        <TouchableOpacity
-          style={styles.notificationContainer}
-          onPress={this._showNotification}>
-          <Ionicons name='ios-notifications-outline' size={25} color="#000"/>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.drawerContainer}
-          onPress={() => {this.props.navigation.openDrawer()}}>
-          <Ionicons name='ios-menu' size={25} color="#000"/>
-        </TouchableOpacity>
-        {this._renderList()}
+          <TouchableOpacity
+            style={styles.notificationContainer}
+            onPress={() => {this.props.navigation.navigate("Notification")}}>
+            <Image source={require('../assets/icons/notification.png')} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.showOptionContainer}
+            onPress={() => {this.setState({showOption: !this.state.showOption})}}>
+            <Image source={this.state.showOption ? require( '../assets/icons/close.png') : require('../assets/icons/addTask.png')} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.drawerContainer}
+            onPress={() => {this.props.navigation.openDrawer()}}>
+            <Image source={require('../assets/icons/drawer.png')} />
+          </TouchableOpacity>
+          {this._renderOption()}
       </View>
     );
   }
 
-  _showNotification = async() => {
-    let newState = {showNotification: !this.state.showNotification};
-    if (!this.state.showNotification) {
-      let data = await Fire.shared.getNotification();
-      console.log("notification", data);
-      newState.notification = data;
-    }
-    this.setState(newState);
-  }
-
-  _renderList() {
-    if (this.state.showNotification) {
+  _renderOption() {
+    if (this.state.showOption) {
       return (
-        <FlatList
-          style={styles.notificationList}
-          data={this.state.notification}
-          keyExtractor={this._keyExtractor}
-          renderItem={this._renderItem}>
-        </FlatList>
+        <ImageBackground style={styles.optionContainer}>
+        {/* <ImageBackground style={styles.optionContainer} source={require('../assets/icons/optionContainer.png')}> */}
+          <View style={{/*borderWidth: 1, borderColor: 'blue'*/}}>
+            <TouchableOpacity
+              style={{paddingVertical: 10}}
+              onPress={() => {this.props.navigation.navigate("CreateTask",{
+                pool:this.state.pool
+              })}}>
+              <Text style={styles.optionText}>Create Task</Text>
+            </TouchableOpacity>
+            <View style={{borderBottomWidth: 1, borderBottomColor: '#ccc', height: 1}}></View>
+            <TouchableOpacity
+              style={{paddingVertical: 10}}
+              onPress={() => {this.props.navigation.navigate("QRScanner")}}>
+              <Text style={styles.optionText}>Scan QR Code</Text>
+            </TouchableOpacity>
+          </View>
+        </ImageBackground>
       );
-    } else {
-      return null;
-    }
+    } else return null;
   }
 
-  _keyExtractor = (item, index) => {return "notification" + index}
-
-  _renderItem = ({item}) => {
-    let displayText = '';
-    if (item.type == 'confirm') {
-      displayText = `${item.name} is now your friend`;
-    } else if (item.type == 'request') {
-      displayText = `${item.name} wants to be your friend`;
-    } else if (item.type == 'remove') {
-      displayText = `${item.name} is no longer your friend`;
-    }
-    return (
-      <View style={styles.itemContainer}>
-        <View style={styles.flexRowContainer}>
-          <Ionicons name='ios-information-circle' size={25} color="blue"/>
-          <Text style={{marginLeft: 15, fontSize: 18}}>{displayText}</Text>
-        </View>
-        {
-          item.type == 'request' ? (
-            <View style={styles.flexRowContainer}>
-              <Button title="Confirm" onPress={()=>{this._confirmFriend(item.uid); this._removeNotification(item.id);}} />
-              <Button title="Reject" onPress={()=>{this._removeNotification(item.id)}} />
-            </View>
-          )
-          : item.type == 'confirm' ?
-          (
-            <View style={styles.flexRowContainer}>
-              <Button title="Got it" onPress={()=>{this._confirmFriend(item.uid, 'confirm'); this._removeNotification(item.id)}} />
-            </View>
-          )
-          : item.type == 'remove' ?
-          (
-            <View style={styles.flexRowContainer}>
-              <Button title="So sad" onPress={()=>{this._removeFriend(item.uid); this._removeNotification(item.id)}} />
-            </View>
-          )
-          : (null)
-        }
-      </View>
-    );
-  }
-
-  _confirmFriend = (uid, type='request') => {
-    Fire.shared.confirmFriend(uid, {tag: 'friend'});
-    if (type == 'request')
-      Fire.shared.addFriend(uid, 'confirm');
-  }
-
-  _removeFriend = (uid) => {
-    Fire.shared.removeFriend(uid, 'passive');
-  }
-
-  _removeNotification = async (id) => {
-    await Fire.shared.removeNotification(id);
-    let data = await Fire.shared.getNotification();
-    this.setState({notification: data});
-  }
 }
+
 
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor:'white'
   },
   notificationContainer: {
     position: 'absolute',
@@ -459,9 +336,72 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     alignItems:'center',
-    borderWidth: 1,
-    borderColor: '#000',
     backgroundColor: '#fff',
+    shadowColor: "#000000",
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
+  },
+  showOptionContainer: {
+    position: 'absolute',
+    top: 60,
+    right: 80,
+    borderRadius: 30,
+    width: 30,
+    height: 30,
+    alignItems:'center',
+    backgroundColor: '#fff',
+    shadowColor: "#000000",
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
+  },
+  optionContainer:{
+    position: 'absolute',
+    top: 110,
+    right: 30,
+    width: 160,
+    height: 90,
+    borderRadius: 10,
+    // borderWidth: 1,
+    // borderRadius: 10,
+    justifyContent: 'flex-end',
+    paddingHorizontal: 5,
+    backgroundColor: '#fff',
+    shadowColor: "#000000",
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
+  },
+  optionText: {
+    textAlign: 'center',
+    fontSize: 18,
+    color: '#313254',
+    fontWeight: 'bold',
+    fontFamily: 'GSB',
+  },
+  createTaskContainer:{
+    position: 'absolute',
+    top: 95,
+    right: 65,
+    borderRadius: 30,
+    width: 30,
+    height: 30,
+    alignItems:'center',
+    backgroundColor: '#fff',
+    shadowColor: "#000000",
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
+  },
+  particlesContainer:{
+    marginTop : height/8,
+    height: height*2/3,
+    width: width,
+  },
+  kiContainer: {
+    width: width,
+    height: (1-212/height)*height+20, 
   },
   itemContainer: {
     marginBottom: 15,
@@ -486,18 +426,11 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     alignItems:'center',
-    borderWidth: 1,
-    borderColor: '#000',
     backgroundColor: '#fff',
-  },
-  notificationList: {
-    position: 'absolute',
-    top: 100,
-    marginLeft: '10%',
-    marginRight: '10%',
-    width: '80%',
-    backgroundColor: '#ffffffa0',
-    padding: 10,
+    shadowColor: "#000000",
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
   },
   scrollView: {
     position: "absolute",
@@ -507,330 +440,74 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
   },
   endPadding: {
-    paddingRight: width - CARD_WIDTH,
+    paddingLeft: (width - CARD_WIDTH)/2,
+    paddingRight: (width - CARD_WIDTH)/2,
   },
   card: {
-    padding: 1,
+    alignItems: 'center',
     elevation: 2,
     backgroundColor: "#FFF",
-    marginHorizontal: 5,
-    shadowColor: "#000",
-    shadowRadius: 5,
-    shadowOpacity: 0.3,
-    shadowOffset: { x: 2, y: -2 },
+    marginHorizontal: 2.5,
+    borderTopLeftRadius:5,
+    borderTopRightRadius:5,
+    shadowColor: "#000000",
+    shadowRadius: 1.5,
+    shadowOpacity: 0.1,
+    shadowOffset: { x: 1, y: 1 },
     height: CARD_HEIGHT,
     width: CARD_WIDTH,
     overflow: "hidden",
   },
   cardImage: {
-    flex: 3,
-    width: "100%",
-    height: "100%",
-    alignSelf: "center",
+    width: CARD_WIDTH,
+    height: CARD_HEIGHT,
+  },
+  handle:{
+    position:"absolute",
+    top:12,
+    backgroundColor:"#D8D8D8",
+    borderRadius:2,
+    width:40,
+    height:4,
+  },
+  blurView: {
+    position:"absolute",
+    bottom:0,
+    left:0,
+    width:'100%',
+    height:'50%',
   },
   textContent: {
-    flex: 1,
+    position:"absolute",
+    bottom:0,
+    left:0,
+    width:'100%',
+    height:83/812*height,
   },
   cardtitle: {
-    textAlign: "center",
-    fontFamily :"kontakt",
-    fontSize: 12,
-    marginTop: 12,
+    marginLeft:10,
+    marginTop:20,
+    color:'white',
+    textAlign: "left",
+    fontFamily:"GSB",
+    fontSize: 22/812*height,
     fontWeight: "bold",
   },
   cardDescription: {
-    textAlign: "center",   
-    fontFamily :"mylodon-light",
-    fontSize: 12,
-    color: "#444",
+    marginTop:0,
+    marginLeft:10,
+    textAlign: "left", 
+    fontFamily:"GR",
+    color:'#FFFFFF',
+    fontSize: 14,
+    opacity: 0.6
   },
   markerWrap: {
     resizeMode:"cover",
-  }
+  },
+  headerBackgroundImage: {
+    flex:1,
+    width: width, 
+    height: height
+  },
 });
-
-AppRegistry.registerComponent("mapfocus", () => screens);
-
-mapStyle =[
-  {
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#1d2c4d"
-      }
-    ]
-  },
-  {
-    "elementType": "labels",
-    "stylers": [
-      {
-        "visibility": "off"
-      }
-    ]
-  },
-  {
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#8ec3b9"
-      }
-    ]
-  },
-  {
-    "elementType": "labels.text.stroke",
-    "stylers": [
-      {
-        "color": "#1a3646"
-      }
-    ]
-  },
-  {
-    "featureType": "administrative",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "visibility": "off"
-      }
-    ]
-  },
-  {
-    "featureType": "administrative.country",
-    "elementType": "geometry.stroke",
-    "stylers": [
-      {
-        "color": "#4b6878"
-      }
-    ]
-  },
-  {
-    "featureType": "administrative.land_parcel",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#64779e"
-      }
-    ]
-  },
-  {
-    "featureType": "administrative.neighborhood",
-    "stylers": [
-      {
-        "visibility": "off"
-      }
-    ]
-  },
-  {
-    "featureType": "administrative.province",
-    "elementType": "geometry.stroke",
-    "stylers": [
-      {
-        "color": "#4b6878"
-      }
-    ]
-  },
-  {
-    "featureType": "landscape.man_made",
-    "elementType": "geometry.stroke",
-    "stylers": [
-      {
-        "color": "#334e87"
-      }
-    ]
-  },
-  {
-    "featureType": "landscape.natural",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#023e58"
-      }
-    ]
-  },
-  {
-    "featureType": "poi",
-    "stylers": [
-      {
-        "visibility": "off"
-      }
-    ]
-  },
-  {
-    "featureType": "poi",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#283d6a"
-      }
-    ]
-  },
-  {
-    "featureType": "poi",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#6f9ba5"
-      }
-    ]
-  },
-  {
-    "featureType": "poi",
-    "elementType": "labels.text.stroke",
-    "stylers": [
-      {
-        "color": "#1d2c4d"
-      }
-    ]
-  },
-  {
-    "featureType": "poi.park",
-    "elementType": "geometry.fill",
-    "stylers": [
-      {
-        "color": "#023e58"
-      }
-    ]
-  },
-  {
-    "featureType": "poi.park",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#3C7680"
-      }
-    ]
-  },
-  {
-    "featureType": "road",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#304a7d"
-      }
-    ]
-  },
-  {
-    "featureType": "road",
-    "elementType": "labels.icon",
-    "stylers": [
-      {
-        "visibility": "off"
-      }
-    ]
-  },
-  {
-    "featureType": "road",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#98a5be"
-      }
-    ]
-  },
-  {
-    "featureType": "road",
-    "elementType": "labels.text.stroke",
-    "stylers": [
-      {
-        "color": "#1d2c4d"
-      }
-    ]
-  },
-  {
-    "featureType": "road.highway",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#2c6675"
-      }
-    ]
-  },
-  {
-    "featureType": "road.highway",
-    "elementType": "geometry.stroke",
-    "stylers": [
-      {
-        "color": "#255763"
-      }
-    ]
-  },
-  {
-    "featureType": "road.highway",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#b0d5ce"
-      }
-    ]
-  },
-  {
-    "featureType": "road.highway",
-    "elementType": "labels.text.stroke",
-    "stylers": [
-      {
-        "color": "#023e58"
-      }
-    ]
-  },
-  {
-    "featureType": "transit",
-    "stylers": [
-      {
-        "visibility": "off"
-      }
-    ]
-  },
-  {
-    "featureType": "transit",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#98a5be"
-      }
-    ]
-  },
-  {
-    "featureType": "transit",
-    "elementType": "labels.text.stroke",
-    "stylers": [
-      {
-        "color": "#1d2c4d"
-      }
-    ]
-  },
-  {
-    "featureType": "transit.line",
-    "elementType": "geometry.fill",
-    "stylers": [
-      {
-        "color": "#283d6a"
-      }
-    ]
-  },
-  {
-    "featureType": "transit.station",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#3a4762"
-      }
-    ]
-  },
-  {
-    "featureType": "water",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#0e1626"
-      }
-    ]
-  },
-  {
-    "featureType": "water",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#4e6d70"
-      }
-    ]
-  }
-]

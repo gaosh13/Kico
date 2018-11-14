@@ -5,211 +5,107 @@ import { Ionicons } from '@expo/vector-icons';
 import Touchable from 'react-native-platform-touchable';
 import ChangeScreen from './ChangeScreen.js';
 import Fire from '../components/Fire';
-import KiVisual from '../components/KiVisual';
+import {generateCirclesRow} from '../components/KiVisual';
 import Canvas from 'react-native-canvas';
-import AsyncImageAnimated from 'react-native-async-image-animated';
+import AsyncImageAnimated from '../components/AsyncImageAnimated';
+import GenericScreen from '../components/GenericScreen';
+import AwesomeButton from 'react-native-really-awesome-button';
+
+
+
 const { width, height } = Dimensions.get("window");
 
 
 
 export default class CheckInScreen extends React.Component {
-  static navigationOptions = ( {navigation} ) => {
-    const { getParam } = navigation; 
-    return {
-      headerTitle: (
-        <View style={styles.titleCenter}>
-          <Text style={styles.titleText}>
-            {getParam('name', 'Steven Ballmar Building')}
-          </Text>
-          {/*
-          <TouchableOpacity style={styles.titleButton} onPress={getParam('jump', ()=>{})}>
-            <Text style={styles.titleChangeText}>
-              Change location
-            </Text>
-          </TouchableOpacity>
-          */}
-        </View>
-      ),
-    }
+  static navigationOptions = {
+    header: null,
   };
 
   constructor(props) {
     super(props);
     this.state = {
       pool: [],
-      sum: 1,
-      loaded:false,
+      isVisited: true,
       circles:[],
     };
+
     // this.props.navigation.setParams({ jump: this._onPress });
     //this.fetchdata();
   }
 
-  async componentDidMount() {
-    await this.fetchdata();
+  componentDidMount() {
+    this.fetchdata();
    // await this.fetchVenueData();
   }
 
-  async fetchdata() {
-    Fire.shared.getPlacePool(this.props.navigation.getParam('placeID', '0')).then( (Data) => {
-        return Promise.all(Data.map( (users, index) => {
-          return Fire.shared.readUserAvatar(users.uid).then( (uri) => {
-            if (uri) {
-              return {
-                uid: users.uid,
-                uri: uri,
-                value:users.value,
-                name: users.name,
-              };
-            } else {
-              console.log('URL fetching failed')
-                }
-          });
-        }))
-    }).then( (updatedData)=>{
-      if (updatedData) {
-        //console.log('marker PlayerX Data has been pulled', updatedData);
-        let checkinSum = updatedData.reduce((prev,next) => prev + next.value,0); 
-        this.setState({pool: updatedData, sum: checkinSum});
-      }else{
-        console.log('marker PlayerX Data fetch has failed');
-      }
-    })      
-  }  
+  fetchdata() {
+    const place = this.props.navigation.getParam('placeID', '0');
+    // console.log("begin fetching");
+    Promise.all([
+      Fire.shared.getPlacePool(place),
+      Fire.shared.isVisited(place),
+    ]).then( ([pool, isVisited])=>{
+      // console.log("changed", isVisited);
+      this.setState({pool, isVisited});
+    });
+  }
 
   drawKiView(){
 // follows this tutorial:
 // https://www.youtube.com/watch?v=XATr_jdh-44
+// console.log(this.state.pool)
     if (this.state.pool.length){
-      console.log('ZZZZZZZZ',this.state.sum);
+      //console.log('ZZZZZZZZ',this.state.sum);
       return (
         <View style={styles.kiContainer}>
-          {KiVisual.shared.generateCircles(this.state.pool,this.state.sum)}
-          
+          {generateCirclesRow(this.state.pool)}
         </View>
-        )
-    }else{
-      console.log('wait....');
+      )
+    } else {
       return (
         <View style={styles.kiContainer} />
-        )
+      )
     }
   }
 
   render() {
     const { navigate, getParam, pop } = this.props.navigation;
-    const likes = 31, comments = 2;
+    const displayText = this.state.isVisited ? "Take back Ki" : "Deposit Ki";
+    const place = this.props.navigation.getParam('placeID', '0');
     return (
-      <ScrollView style={styles.container}>
-
-        {this.drawKiView()}
-
-        <View style={styles.buttonsContainer}>
-          <TouchableOpacity
-            onPress={() => pop()}
-            style={styles.cancelButton}>
-            <Text style={styles.cancelText}>Cancel</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {this._collect(); this._put(); pop();}}
-            style={styles.confirmButton}>
-            <Text style={styles.confirmText}>Check In</Text>
-          </TouchableOpacity>
-        </View>
-
-        { !this.state.description ? null:        
-          (<View style={styles.descriptionContainer}>
-            <Text style = {styles.generalText}>
-              Suzzallo Library is the central library of the University of Washington in Seattle,
-              and perhaps the most recognizable building on campus.
-            </Text>
-          </View>)
-        }  
-
-        <View style={styles.commentContainer}>
-          <Ionicons name='ios-heart' size={20} color="#000"/>
-          <Text style={styles.commentNumber}>&nbsp;{likes}&nbsp;&nbsp;&nbsp;</Text>
-          <Ionicons name='ios-chatbubbles' size={20} color="#000"/>
-          <Text style={styles.commentNumber}>&nbsp;{comments}</Text>
-        </View>
-        
-        <View style={styles.imagePropmtContainer}>
-          <Text style={styles.imagePropmtText}>
-            Album of {getParam('name', 'Steven Ballmar Building')}
-          </Text>
-        </View>
-        
-        <View style={styles.imageContainer} contentContainerStyle={styles.endPadding}>
-          <ScrollView horizontal={true}>
-            {this.ImageSlide()}
-            {this.ImageSlide()}
-            {this.ImageSlide()}
-          </ScrollView>
-        </View>
-       
-        <FlatList
-          data={this.state.pool}
-          keyExtractor={this._keyExtractor}
-          renderItem={this._renderPool}
-          style={styles.container}>
-        </FlatList>
-      </ScrollView>
-    );
-  }
-
-  ImageSlide = (w,h) => {
-    const { manifest } = Constants;
-    const iconUrl = manifest.iconUrl;
-    w = Number(w) || 128;
-    h = Number(h) || 128;
-    return (
-      <Image
-        source={{ uri: this.props.navigation.getParam("uri", iconUrl) }}
-        style={{ width: w, height: h , marginLeft:5}}
-        resizeMode="cover"
-      />
-    )
-  }
-
-  _keyExtractor = (item, index) => {return "pool" + index.toString()}
-
-  _renderPool = ({item}) => {
-    return (
-      <View style={styles.itemContainer}>
-        <View style={styles.itemLeft}>
-          <Image
-            source={require("../assets/images/robot-dev.png")}
-            style={{ width: 30, height: 30 }}
-            resizeMode="cover"
-          />
-          <Text style={{fontSize: 18}}>{item.name}</Text>
-        </View>
-
-        <View style={styles.itemRight}>
-          <Text style={{fontSize: 18, color: 'blue'}}>{item.value ? item.value.toString() : 0}</Text>
-          {/* <Button title="Add Friend" onPress={() => {this.addFriend(item.uid)}}/> */}
-        </View>
+      <View style={{flex:1}}>
+        <GenericScreen
+          source={getParam("uri") }
+          name={getParam("name") }
+          description={getParam("location")}>
+          <Text style={styles.numberText}> {this.state.pool.length} </Text>
+          <Text style={styles.descriptionText}> # of Ki </Text>   
+          {this.drawKiView()}
+          <View style={styles.buttonContainer}>
+            <AwesomeButton
+              // progress
+              height={68/812*height}
+              backgroundColor="#FFFFFF"
+              borderRadius= {34/812*height}
+              onPress={(next) => {
+                ((this.state.isVisited) ? Fire.shared.checkout(place) : Fire.shared.checkin(place)).then(()=>{
+                  this.fetchdata();
+                });
+                next();
+              }}>
+              <Text style={{fontSize:15, fontFamily:'GR', fontWeight:'bold'}}>{displayText}</Text>
+            </AwesomeButton>
+          </View>
+        </GenericScreen>
+        <TouchableOpacity
+          style={styles.closeButtonContainer}
+          onPress={() => {this.props.navigation.navigate("Home")}}>
+          <Image source={require('../assets/icons/close.png')} />
+        </TouchableOpacity>
       </View>
     );
   }
-
-  _collect = () => {
-    const { getParam } = this.props.navigation;
-    Fire.shared.mixPool(getParam('placeID', '0'), {description: getParam('name', '0')});
-  }
-
-  _put = () => {
-    const { getParam } = this.props.navigation;
-    Fire.shared.updateVisit(getParam('placeID', '0'), {description: getParam('name', '0')});
-  }
-
-  // _onPress = () => {
-  //   this.props.navigation.navigate('Change', {callback: this.returnData.bind(this)});
-  // }
-
-  // returnData = (args) => {
-  //   this.props.navigation.setParams({ name: args.Location });
-  // }
 }
 
 
@@ -222,8 +118,9 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
   kiContainer: {
-    width: width-30,
-    height: width-30, 
+    width: width,
+    height: 91/812*height,
+    marginTop: 17/812*height, 
   },
   container: {
     flex: 1,
@@ -255,12 +152,6 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     marginBottom: 20,
-  },
-  buttonsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 15,
-    marginBottom: 15,
   },
   cancelButton: {
     flex: 0.5,
@@ -342,5 +233,47 @@ const styles = StyleSheet.create({
   generalText:{
     fontFamily :"kontakt",
   },
+  closeButtonContainer: {
+    position: 'absolute',
+    top: 60,
+    right: 30,
+    borderRadius: 30,
+    width: 30,
+    height: 30,
+    alignItems:'center',
+    backgroundColor:"#fff",
+    opacity: .8,
+  },
+  buttonContainer:{
+    alignItems:'center',
+    marginTop:17/812*height,
+    borderRadius:34/812*height,
+    shadowOffset:{width:0,height:10},
+    shadowRadius: 30,
+    shadowColor: "rgba(0,0,0,1)",
+    shadowOpacity:0.2,
+    paddingBottom:55
+  },
+  textContent: {
+    position:"absolute",
+    alignItems:"center",
+    bottom:50/812*height,
+    height:100/812*height,
+    left:0,
+    width:'100%',
+    height:'25%',
+  },
+  numberText:{
+    fontSize:15,
+    color:'rgb(7,43,79)',
+    textAlign: "center",
+    marginTop:25,
+  },
+  descriptionText:{
+    marginTop:4,
+    color:'rgb(7,43,79)',
+    opacity:0.5,
+    textAlign: "center"
+  }
 
 });
