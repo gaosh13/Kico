@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { createSwitchNavigator, createStackNavigator, createDrawerNavigator } from 'react-navigation';
-import { ScrollView, StyleSheet, Icon, View, Button, Text, Image, AsyncStorage,ImageBackground ,TouchableHighlight} from 'react-native';
+import { ScrollView, StyleSheet, Icon, View, Button, Text, Image, AsyncStorage,ImageBackground ,TouchableHighlight, Dimensions} from 'react-native';
 import Expo from 'expo';
 import GoogleSignInButton from '../components/GoogleSignInButton';
 import FacebookSignInButton from '../components/FacebookSignInButton';
@@ -29,6 +29,7 @@ import ReadyPage from '../screens/ReadyPage';
 import Login from '../screens/Login';
 import * as firebase from 'firebase';
 
+const { width, height } = Dimensions.get("window");
 
 
 class AuthLoadingScreen extends React.Component {
@@ -76,6 +77,7 @@ const PersonalDrawer = createDrawerNavigator({
   TaskListStack: createStackNavigator({TaskListScreen, JoinTaskScreen}),
 }, {
   initialRouteName: 'HomeStack',
+  drawerWidth: width,
   drawerPosition: 'left',
   contentComponent: DrawerView,
 });

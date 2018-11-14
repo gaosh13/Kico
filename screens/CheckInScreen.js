@@ -101,7 +101,7 @@ console.log(this.state.pool)
         <TouchableOpacity
           style={styles.closeButtonContainer}
           onPress={() => {this.props.navigation.navigate("Home")}}>
-          <Image source={require('../assets/icons/close2.png')} />
+          <Image source={require('../assets/icons/close.png')} />
         </TouchableOpacity>
       </View>
     );
