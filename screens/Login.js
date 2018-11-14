@@ -112,8 +112,8 @@ export default class Login extends React.Component {
 const LoginPage = (props) => {
   return (
     <View>
-      <Text style={styles.header}>WELCOME PLAYER {"\n"}</Text>
-      <Text style={styles.header}>Please Sign In {"\n"}</Text>
+      <Text style={styles.header}>WELCOME{"\n"}</Text>
+      <Text style={styles.h3}>You are about to enter a world without the surveillance of Malexa. The future of humans is now in your hands{"\n"}</Text>
       <View style={{marginTop:75}} />
       <FaceBookSignInButton
       onPress={async() => await props.FsignIn()} />
@@ -133,14 +133,19 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   header: {
-    fontFamily :"kontakt",
-    fontSize: 30,
+    fontFamily :"GSB",
+    fontSize: 40,
     color:"white",
     textAlign: "center",
-    fontWeight: '900',
+  },
+  h3: {
+    fontFamily :"GR",
+    fontSize: 14,
+    color:"white",
+    textAlign: "center",
   },
   back: {
-    fontFamily :"kontakt",
+    fontFamily :"GR",
     fontSize: 10,
     color:"white",
     textAlign: "center",

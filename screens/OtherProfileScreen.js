@@ -87,7 +87,7 @@ export default class ProfileScreen extends React.Component {
         <TouchableOpacity
           style={styles.closeButtonContainer}
           onPress={() => {this.props.navigation.navigate("Home")}}>
-          <Ionicons name='ios-close' size={25} color="#000"/>
+          <Image source={require('../assets/icons/close.png')} />
         </TouchableOpacity>
       </View>
     );
@@ -104,13 +104,11 @@ const styles = StyleSheet.create({
     width: 30/812*height,
     height: 30/812*height,
     alignItems:'center',
-    borderWidth: 0.5,
-    borderColor: '#000',
     backgroundColor:"#fff",
     shadowOffset:{width:0,height:10},
-    shadowRadius: 10,
+    shadowRadius: 30,
     shadowColor: "rgba(0,0,0,1)",
-    shadowOpacity:0.1,
+    shadowOpacity:0.2,
     // backgroundColor: '#fff',
   },
   buttonContainer:{
@@ -130,10 +128,10 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     height: 427/812*height,
     width: 315/375*width,
-    shadowOffset:{width:0,height:20},
-    shadowRadius: 10,
+    shadowOffset:{width:0,height:10},
+    shadowRadius: 30,
     shadowColor: "rgba(0,0,0,1)",
-    shadowOpacity:0.4,
+    shadowOpacity:0.2,
     marginTop:12,
     resizeMode:'cover',
   },

@@ -49,9 +49,14 @@ class DrawerView extends Component {
     const { manifest } = Constants;
 
     return (
+      
       <View style={styles.container}>
+
+        <View style={styles.space}>
+        </View>
+
         <TouchableHighlight
-        onPress={() => navigate('Profile')}
+        onPress={() => {navigate('Profile');this.props.navigation.closeDrawer();}}
         underlayColor="#CCC"
         style={styles.menuTouchable}>
           <View style={styles.navBar}>
@@ -67,7 +72,7 @@ class DrawerView extends Component {
         </TouchableHighlight>
 
         <TouchableHighlight
-          onPress={() => navigate('Chat')}
+          onPress={() => {navigate('Chat');this.props.navigation.closeDrawer();}}
           underlayColor="#CCC"
           style={styles.menuTouchable}>
           <View style={styles.navBar}>
@@ -83,16 +88,16 @@ class DrawerView extends Component {
         </TouchableHighlight>
 
         <TouchableHighlight
-          onPress={() => navigate('TaskListScreen')}
+          onPress={() => {navigate('TaskListScreen');this.props.navigation.closeDrawer();}}
           underlayColor="#CCC"
           style={styles.menuTouchable}>
           <View style={styles.navBar}>
             <View style={styles.leftContainer}>
-              <Icon name={'eye'} size={30} color="#000"/>
+              <Image style={{width:wRatio(72), height:wRatio(72)}} source={require('../assets/icons/task.png')} />
             </View>
             <View style={styles.rightContainer}>
               <Text style={styles.navTextStyle}>
-                TaskList
+                Missions
               </Text>
             </View>
           </View>
@@ -102,49 +107,12 @@ class DrawerView extends Component {
           onPress={() => navigate('Development')}
           underlayColor="#CCC"
           style={styles.menuTouchable}>
-          <View style={styles.navBar}>
-            <View style={styles.leftContainer}>
-              <Icon name={'gift'} size={30} color="#000"/>
-            </View>
-            <View style={styles.rightContainer}>
-              <Text style={styles.navTextStyle}>
-                Development
-              </Text>
-            </View>
+          <View style={{alignItems: 'center', justifyContent: 'center'}}>
+            <Text style={{color: 'blue'}}>
+            Development
+            </Text>
           </View>
         </TouchableHighlight>
-
-        <TouchableHighlight
-          onPress={() => navigate('QRCode')}
-          underlayColor="#CCC"
-          style={styles.menuTouchable}>
-          <View style={styles.navBar}>
-            <View style={styles.leftContainer}>
-              <Icon name={'gift'} size={30} color="#000"/>
-            </View>
-            <View style={styles.rightContainer}>
-              <Text style={styles.navTextStyle}>
-                QRCode
-              </Text>
-            </View>
-          </View>
-        </TouchableHighlight>
-
-        {/* <TouchableHighlight
-          onPress={() => navigate('Home')}
-          underlayColor="#CCC"
-          style={styles.menuTouchable}>
-          <View style={styles.navBar}>
-            <View style={styles.leftContainer}>
-              <Icon name={'rocket'} size={30} color="#000"/>
-            </View>
-            <View style={styles.rightContainer}>
-              <Text style={styles.navTextStyle}>
-                Main
-              </Text>
-            </View>
-          </View>
-        </TouchableHighlight> */}
 
         <TouchableHighlight
           onPress={this.Logout}
@@ -269,17 +237,15 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   navTextStyle: {
-    paddingTop:10,
+    paddingTop: 10,
     fontSize: 15,
+    fontFamily: "GSB",
   },
   footerContainer: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-  },
-  navTextStyle:{
-    fontFamily :"GR",
   },
   profileContainer: {
     paddingTop: 50,
@@ -308,6 +274,9 @@ const styles = StyleSheet.create({
     shadowOffset: { x: 0, y: 10 },
     // backgroundColor: '#fff',
   },
+  space: {
+    paddingTop: '45%',
+  }
 });
 
 export default DrawerView;

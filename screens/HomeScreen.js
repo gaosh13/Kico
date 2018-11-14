@@ -282,12 +282,7 @@ export default class HomeScreen extends React.Component {
           <TouchableOpacity
             style={styles.showOptionContainer}
             onPress={() => {this.setState({showOption: !this.state.showOption})}}>
-            <Image source={this.state.showOption ? require( '../assets/icons/close2.png') : require('../assets/icons/addTask.png')} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.congratsContainer}
-            onPress={() => {this.props.navigation.navigate("Congrats")}}>
-            <Image source={require('../assets/icons/drawer.png')} />
+            <Image source={this.state.showOption ? require( '../assets/icons/close.png') : require('../assets/icons/addTask.png')} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.drawerContainer}
@@ -302,7 +297,8 @@ export default class HomeScreen extends React.Component {
   _renderOption() {
     if (this.state.showOption) {
       return (
-        <ImageBackground style={styles.optionContainer} source={require('../assets/images/PlayerX_logo.png')}>
+        <ImageBackground style={styles.optionContainer}>
+        {/* <ImageBackground style={styles.optionContainer} source={require('../assets/icons/optionContainer.png')}> */}
           <View style={{/*borderWidth: 1, borderColor: 'blue'*/}}>
             <TouchableOpacity
               style={{paddingVertical: 10}}
@@ -360,26 +356,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { x: 0, y: 10 },
   },
-  congratsContainer:{
-    position: 'absolute',
-    top: 100,
-    right: 100,
-    borderRadius: 30,
-    width: 30,
-    height: 30,
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    shadowColor: "#000000",
-    shadowRadius: 15,
-    shadowOpacity: 0.2,
-    shadowOffset: { x: 0, y: 10 },
-  },
   optionContainer:{
     position: 'absolute',
     top: 110,
     right: 30,
     width: 160,
     height: 90,
+    borderRadius: 10,
     // borderWidth: 1,
     // borderRadius: 10,
     justifyContent: 'flex-end',
@@ -507,7 +490,7 @@ const styles = StyleSheet.create({
     color:'white',
     textAlign: "left",
     fontFamily:"GSB",
-    fontSize: 24/812*height,
+    fontSize: 22/812*height,
     fontWeight: "bold",
   },
   cardDescription: {

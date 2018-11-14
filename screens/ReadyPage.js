@@ -50,17 +50,17 @@ export default class ReadyPage extends React.Component{
       <ImageBackground style={{width: '100%', height: '100%'}} source={require('../assets/images/load.gif')}>
       <View style={styles.container}>
           <Text style={styles.header}>Player </Text>
-          <Text style={styles.back}>{"\n"}</Text>
+          <Text style={styles.h3}>{"\n"}</Text>
           <Text style={styles.header}>{this.state.name}</Text>
-          <Text style={styles.back}>{"\n"}</Text>
+          <Text style={styles.h3}>{"\n"}</Text>
           <Image style={styles.image} source={{ uri: this.state.photoUrl }}/>
-          <Text style={styles.back}>{"\n"}</Text>
+          <Text style={styles.h3}>{"\n"}</Text>
           <AwesomeButtonRick type="primary" progress={true} height={50} onPress={() => this.props.navigation.navigate('PersonalDrawer')}>
-            <Text style={styles.back}>{"Synchronize to Game"}</Text>
+            <Text style={styles.h3}>{"Synchronize to Game"}</Text>
           </AwesomeButtonRick>
-          <Text style={styles.back}>{"\n"}</Text>       
+          <Text style={styles.h3}>{"\n"}</Text>       
           <AwesomeButtonRick type="secondary" height={50} onPress={() => this.Logout(this.props)}>
-            <Text style={styles.back}>{"Switch Account"}</Text>
+            <Text style={styles.h3}>{"Switch Account"}</Text>
           </AwesomeButtonRick> 
       </View>
       </ImageBackground>
@@ -76,15 +76,15 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   header: {
-    fontFamily :"kontakt",
+    fontFamily :"GSB",
     fontSize: 30,
     color:"white",
     textAlign: "center",
     fontWeight: '300',
   },
-  back: {
-    fontFamily :"kontakt",
-    fontSize: 10,
+  h3: {
+    fontFamily :"GR",
+    fontSize: 14,
     color:"white",
     textAlign: "center",
     fontWeight: '100',

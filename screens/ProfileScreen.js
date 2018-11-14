@@ -159,7 +159,11 @@ export default class ProfileScreen extends React.Component {
                 <Text style={styles.descriptionText}> # of CheckIns </Text> 
               </View>
             </View>
-            {this.drawNode()}  
+            {this.drawNode()} 
+            <View
+              style={styles.bottomImage}>
+              <Image source={require('../assets/images/bottom.png')}/>
+            </View>
           </GenericScreen>
           <TouchableOpacity
             style={styles.closeButtonContainer}
@@ -305,4 +309,7 @@ const styles = StyleSheet.create({
     position:"absolute",
     bottom: 140/812*height, 
   },
+  bottomImage:{
+    marginTop:25,
+  }
 });

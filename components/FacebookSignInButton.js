@@ -11,7 +11,7 @@ export default FaceBookSignInButton = (props) => {
             onPress={props.onPress}>
             <View style={styles.buttonContainer}>
                 <Icon name={iconName} color="white" size={25} />
-                <Text style={styles.btnText}>Sign In with Facebook</Text>
+                <Text style={styles.btnText}>Log in with Facebook</Text>
             </View>
         </TouchableHighlight>
     )
@@ -51,8 +51,8 @@ const styles = StyleSheet.create(Object.assign({}, globalStyles, {
         height: 48,
     },
     btnText: {
-        fontFamily :"mylodon-light",
-        fontSize: 18,
+        fontFamily :"GR",
+        fontSize: 14,
         color: '#FAFAFA',
         marginLeft: 10,
         marginTop: 2,
