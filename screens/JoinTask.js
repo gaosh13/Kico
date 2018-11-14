@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, FlatList, TouchableHighlight, StyleSheet, View, Text, Image, Button, TouchableOpacity, Dimensions } from 'react-native';
+import { ScrollView, FlatList, TouchableHighlight, StyleSheet, View, Text, Image, Button, TouchableOpacity, Dimensions, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Fire from '../components/Fire';
 import {generateCirclesRow} from '../components/KiVisual';
@@ -57,6 +57,7 @@ export default class CheckInScreen extends React.Component {
   }
 
   get _taskID() {
+    // console.log('taskID', this.props.navigation.getParam('task', {}).id || this.props.navigation.getParam('taskID', '0'));
     return this.props.navigation.getParam('task', {}).id || this.props.navigation.getParam('taskID', '0');
   }
 
@@ -117,8 +118,32 @@ export default class CheckInScreen extends React.Component {
           onPress={() => {this.props.navigation.navigate("TaskListScreen")}}>
           <Image source={require('../assets/icons/close.png')} />
         </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.deleteButtonContainer}
+          onPress={() => {this._removeTask(this._taskID)}}>
+          <Image source={require('../assets/icons/remove.png')} />
+        </TouchableOpacity>
       </ScrollView>
     );
+  }
+
+  _removeTask(task) {
+    new Promise((resolve, reject) => {
+      Alert.alert(
+        'Warning',
+        'You really wants to delete this task? Others will not see it anymore. You should know what you are doing.',
+        [
+          {text: 'YES', onPress: ()=> {resolve("YES")},},
+          {text: 'NO', onPress: ()=> {reject("NO")}, style: 'cancel'}
+        ],
+        { cancelable: false },
+      );
+    }).then((ret)=>{
+      console.log("promise", ret, task);
+      return Fire.shared.deleteTask(task).then(this.props.navigation.navigate("TaskListScreen"));
+    }, (ret)=>{
+      console.log("promise cancelled", ret);
+    });
   }
 }
 
@@ -158,10 +183,24 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     alignItems:'center',
-    borderWidth: 0.5,
+    // borderWidth: 0.5,
     borderColor: '#000',
     backgroundColor:"#fff",
     // backgroundColor: '#fff',
+  },
+  deleteButtonContainer:{
+    position: 'absolute',
+    top: 100,
+    right: 30,
+    borderRadius: 30,
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    shadowColor: "#000000",
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
   },
   buttonContainer:{
     // marginLeft:84/812*height,

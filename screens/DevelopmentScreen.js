@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, StyleSheet, View, Text, Image, Button } from 'react-native';
+import { ScrollView, StyleSheet, View, Text, Image, Button, Alert } from 'react-native';
 import { WebBrowser, Constants } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
 import Touchable from 'react-native-platform-touchable';
@@ -55,6 +55,7 @@ export default class DevelopmentScreen extends React.Component {
     
 
   render() {
+    Alert.alert("Tips", "Be careful in this developper's page");
     return (
       <View style={styles.container}>
         <Button title="delete my pool" onPress={()=>{Fire.shared.deleteMyPool();}}/>

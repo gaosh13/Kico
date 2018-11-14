@@ -238,7 +238,7 @@ export default class App extends React.Component {
                   // console.log('when:', this.state.selectedDate);
                   // console.log('who:', users);
                   // console.log('IDK', Fire.shared.toTimeStamp(this.state.selectedDate));
-                  if (this.whatIndex != undefined && this.state.whatItems[this.state.whatIndex] && this.state.where && this.state.selectedDate && users){
+                  if (this.state.whatIndex != undefined && this.state.whatItems[this.state.whatIndex] && this.state.where && this.state.selectedDate && users){
                     const www = {
                       what: this.state.whatItems[this.state.whatIndex].activity,
                       where: this.state.where,

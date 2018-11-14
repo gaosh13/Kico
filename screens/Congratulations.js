@@ -76,7 +76,7 @@ export default class Congratulations extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <View style={{marginTop:hRatio(258),alignItems:'center'}}>
+        <View style={{marginTop:hRatio(258),alignItems:'center',flex:1}}>
           <AsyncImageAnimated
             style={styles.userImage}
             source={{
@@ -84,9 +84,9 @@ export default class Congratulations extends React.Component {
             }}
             placeholderColor='transparent'
             animationStyle='fade'/>
+          <Text style={styles.titleText}>Congratulations!</Text>
+          {this.textOption()}
         </View>
-        <Text style={styles.titleText}>Congratulations!</Text>
-         {this.textOption()}
         <View style={styles.buttonContainer}>
          <AwesomeButton
             // progress
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
     opacity:0.6
   },
   buttonContainer:{
-    marginTop:hRatio(154),
+    marginBottom:hRatio(50),
     alignItems:'center',
     borderRadius:34/812*height,
     shadowOffset:{width:0,height:10},
