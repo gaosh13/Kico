@@ -33,54 +33,54 @@ export default class App extends React.Component {
             whereItems: [
                 {
                     label: 'Global Innovation Exchange',
-                    value: '12280 NE District Way, Bellevue, WA 98005',
-                    id:'59bb267a805e3f59823645a3'
+                    // value: '12280 NE District Way, Bellevue, WA 98005',
+                    value:'59bb267a805e3f59823645a3'
                 },
                 {
                     label: 'Odegaard library',
-                    value: '4060 George Washington Lane Northeast, Seattle, WA 98195',
-                    id:'4a99e654f964a520063120e3'
+                    // value: '4060 George Washington Lane Northeast, Seattle, WA 98195',
+                    value:'4a99e654f964a520063120e3'
 
                 },
                 {
                     label: 'Husky Union Building',
-                    value: '4001 E Stevens Way NE, Seattle, WA 98195',
-                    id:'441eb908f964a5207c311fe3'
+                    // value: '4001 E Stevens Way NE, Seattle, WA 98195',
+                    value:'441eb908f964a5207c311fe3'
                 },
                 {
                     label: 'IMA',
-                    value: '3924 Montlake Blvd NE, Seattle, WA 98195',
-                    id:'4ad7da23f964a520710f21e3'
+                    // value: '3924 Montlake Blvd NE, Seattle, WA 98195',
+                    value:'4ad7da23f964a520710f21e3'
                 },
                 {
                     label: 'Starbucks @ Bellevue',
-                    value: '10214 NE 8th St Bellevue WA 98004',
-                    id:'52869068498e3289da673edf'
+                    // value: '10214 NE 8th St Bellevue WA 98004',
+                    value:'52869068498e3289da673edf'
                 },
                 {
                     label: 'Starbucks Reserve @ Pike',
-                    value: '1912 Pike Pl Seattle WA 98101',
-                    id:'58ad168cd8e55956ea9db67e'
+                    // value: '1912 Pike Pl Seattle WA 98101',
+                    value:'58ad168cd8e55956ea9db67e'
                 },
                 {
                     label: 'Space Needle',
-                    value: '400 Broad St, Seattle, WA 98109',
-                    id:'416dc180f964a5209b1d1fe3'
+                    // value: '400 Broad St, Seattle, WA 98109',
+                    value:'416dc180f964a5209b1d1fe3'
                 },
                 {
                     label: 'Gas work Park',
-                    value: '2101 N Northlake Way, Seattle, WA 98103',
-                    id:'430bb880f964a5203a271fe3'
+                    // value: '2101 N Northlake Way, Seattle, WA 98103',
+                    value:'430bb880f964a5203a271fe3'
                 },
                 {
                     label: 'LA Fitness Bellevue',
-                    value: '550 106th Ave NE #215 Bellevue WA 98004',
-                    id:'49cac644f964a520de581fe3'
+                    // value: '550 106th Ave NE #215 Bellevue WA 98004',
+                    value:'49cac644f964a520de581fe3'
                 },
                 {
                     label: 'Starbucks @ UW',
-                    value: '4147 University Way NE Seattle WA 98105',
-                    id:'4470775ef964a52093331fe3'
+                    // value: '4147 University Way NE Seattle WA 98105',
+                    value:'4470775ef964a52093331fe3'
                 }],
             whatIndex: undefined,
             selectedWhatBool:false,
@@ -233,13 +233,19 @@ export default class App extends React.Component {
                 borderRadius= {34/812*height}
                 onPress={(next) => {
                   const users = Array.from(this.state.selectedWho).map((userIndex) => getParam('pool')[userIndex].uid);
-                  console.log('what:', this.state.whatItems[this.state.whatIndex]);
+                  console.log('what:', this.state.whatItems[this.state.whatIndex].activity);
                   console.log('where:', this.state.where);
-                  console.log('when:', this.state.selectedDate, this.state.selectedDate instanceof Date);
+                  console.log('when:', this.state.selectedDate);
                   console.log('who:', users);
+                  // console.log('IDK', Fire.shared.toTimeStamp(this.state.selectedDate));
                   if (this.state.whatItems[this.state.whatIndex] && this.state.where && this.state.selectedDate && users){
                     // Fire.shared.startTasks(['3QcHJ8jc6WQYcAs82JN9E7z4a422'], {'where': '0', 'when': '0', 'what': '0'});
-                    this.props.navigation.pop();
+                    this.props.navigation.navigate('Congrats',{
+                      what: this.state.whatItems[this.state.whatIndex].activity,
+                      where: this.state.where,
+                      when: this.state.selectedDate,
+                      who:users,
+                    });
                   }else{
                     Alert.alert(
                       'Player Attention',

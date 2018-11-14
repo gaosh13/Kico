@@ -515,6 +515,10 @@ class Fire extends React.Component {
     return seconds < time;
   }
 
+  toTimeStamp = (date) =>{
+    return firebase.firestore.Timestamp(date);
+  }
+
   get uid() {
     return (firebase.auth().currentUser || {}).uid;
   }

@@ -316,6 +316,11 @@ export default class HomeScreen extends React.Component {
             <Image source={require('../assets/icons/addTask.png')} />
           </TouchableOpacity>
           <TouchableOpacity
+            style={styles.congratsContainer}
+            onPress={() => {this.props.navigation.navigate("Congrats")}}>
+            <Image source={require('../assets/icons/drawer.png')} />
+          </TouchableOpacity>
+          <TouchableOpacity
             style={styles.drawerContainer}
             onPress={() => {this.props.navigation.openDrawer()}}>
             <Image source={require('../assets/icons/drawer.png')} />
@@ -448,6 +453,20 @@ const styles = StyleSheet.create({
   taskContainer:{
     position: 'absolute',
     top: 60,
+    right: 100,
+    borderRadius: 30,
+    width: 30,
+    height: 30,
+    alignItems:'center',
+    backgroundColor: '#fff',
+    shadowColor: "#000000",
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
+  },
+  congratsContainer:{
+    position: 'absolute',
+    top: 100,
     right: 100,
     borderRadius: 30,
     width: 30,
