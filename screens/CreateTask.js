@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, Text, TextInput, Image, StyleSheet, View, FlatList, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
+import { Alert, Text, TextInput, Image, StyleSheet, View, FlatList, ScrollView, Dimensions, TouchableOpacity} from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import AsyncImageAnimated from '../components/AsyncImageAnimated';
 import AwesomeButton from 'react-native-really-awesome-button';
@@ -237,8 +237,18 @@ export default class App extends React.Component {
                   console.log('where:', this.state.where);
                   console.log('when:', this.state.selectedDate, this.state.selectedDate instanceof Date);
                   console.log('who:', users);
-                  // Fire.shared.startTasks(['3QcHJ8jc6WQYcAs82JN9E7z4a422'], {'where': '0', 'when': '0', 'what': '0'});
-                  this.props.navigation.pop();
+                  if (this.state.whatItems[this.state.whatIndex] && this.state.where && this.state.selectedDate && users){
+                    // Fire.shared.startTasks(['3QcHJ8jc6WQYcAs82JN9E7z4a422'], {'where': '0', 'when': '0', 'what': '0'});
+                    this.props.navigation.pop();
+                  }else{
+                    Alert.alert(
+                      'Player Attention',
+                      'one of the required fields is missing',
+                      [
+                        {text: 'OK', onPress: () => console.log('OK Pressed')},
+                      ],
+                    )
+                  }          
                   next();
                 }}>
                 <Text style={styles.text}>{"Next"}</Text>

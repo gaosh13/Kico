@@ -231,11 +231,11 @@ export default class HomeScreen extends React.Component {
   drawKiView() {
 // follows this tutorial:
 // https://www.youtube.com/watch?v=XATr_jdh-44
-    if (this.state.pool.length && this.mountState){
+    if (this.mountState){
       // let friendSum = this.state.pool.reduce((prev,next) => prev + next.value,0);
       return (
         <View style={styles.kiContainer}>
-          {generateRandomCircles(this.state.pool,this.state.sum,this.props.navigation)}      
+          {generateRandomCircles(this.state.pool,this.props.navigation)}      
         </View>
       );
     }else{

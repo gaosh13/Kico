@@ -7,8 +7,9 @@ const { width, height } = Dimensions.get("window");
 const area = width*height
 
 
-export function generateRandomCircles(pool,sum,navigation) {  
+export function generateRandomCircles(pool,navigation) {  
   var NumCircles = pool.length ;
+  console.log(pool,pool.length)
   var values = pool.sort((a,b)=>{return b.value-a.value})
   var counter = 0;
   var savedCirclesCounter = 0;
@@ -115,12 +116,12 @@ function clickBox(circles,navigation){
 }
 
 
-  function getImage(uri) {
-    if (uri)
-      return {uri: uri};
-    else
-      return require('../assets/images/AI.jpeg');
-  }
+function getImage(uri) {
+  if (uri)
+    return {uri: uri};
+  else
+    return require('../assets/images/AI.jpeg');
+}
 
 export function generateCirclesRow(pool) {
   //this needs to be changed w.r.t. time not array value
@@ -194,7 +195,7 @@ export function generateMultiChoiceCirclesRow(pool, onPressItem, picked) {
       }}
       decelerationRate='fast'>
       {pool.map((element, index) => (
-        <TouchableOpacity key={index} onPress={() => onPressItem(index)}>
+        <TouchableOpacity key={index} onPress={ () =>{ if (element.uid) onPressItem(index)} }>
           <AsyncImageAnimated
             style={{
               marginHorizontal: 4,
@@ -206,9 +207,7 @@ export function generateMultiChoiceCirclesRow(pool, onPressItem, picked) {
               shadowRadius: 5,
               shadowColor: "rgba(0,0,0,1)",
               shadowOpacity:0.2}}
-            source={{
-              uri: element.uri
-            }}
+            source={getImage(element.uri)}
             placeholderColor='#cfd8dc'
             animationStyle='fade'
             >
