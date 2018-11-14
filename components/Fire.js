@@ -117,9 +117,9 @@ class Fire extends React.Component {
     });
   }
 
-  getPersonalPool = async () => {
+  getPersonalPool = async (refresh_time=3600) => {
     let time = (await this.profile.doc(this.uid).get()).get('time');
-    if (time && this.timeLimit(time)) {
+    if (time && this.timeLimit(time, refresh_time)) {
       return (await this.profile.doc(this.uid).collection('pool').doc('0').get()).get('data');
     }
     let rid = (data) => {return data.docs.map( (doc) => doc.id )}
@@ -350,7 +350,9 @@ class Fire extends React.Component {
         description: default_param.description || '',
         uri: default_param.uri || '',
       }
-      await this.place.doc(placeID).set(data);
+      if (default_param.description) {
+        await this.place.doc(placeID).set(data);
+      }
       return data;
     }
     return doc.data();
