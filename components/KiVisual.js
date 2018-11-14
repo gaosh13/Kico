@@ -4,15 +4,24 @@ import AsyncImageAnimated from '../components/AsyncImageAnimated';
 
 const { width, height } = Dimensions.get("window");
 
+const area = width*height
+
+
 export function generateRandomCircles(pool,sum,navigation) {  
   var NumCircles = pool.length ;
-
   var values = pool.sort((a,b)=>{return b.value-a.value})
   var counter = 0;
   var savedCirclesCounter = 0;
   //maximum number of bubbles to be tested
   var protection = NumCircles * 100;
   var overlapping = false;
+
+  while(NumCircles<15){
+    pool.push({uid:null,name:'AI',source:require('../assets/images/AI.jpeg'),value:1});
+    NumCircles ++;
+  }
+
+  let newSum = pool.reduce((prev,next) => prev + next.value,0); 
 
   circles=[];
 
@@ -22,8 +31,8 @@ export function generateRandomCircles(pool,sum,navigation) {
     var randomX = Math.round(50+Math.random() * (width-80));
     var randomY = Math.round(50+Math.random() * (500/812*height-80));
     //perhaps better algorithm here
-    var size = 15 + pool[savedCirclesCounter].value/sum* (width-15)/2;
-    var opacity = 0.5 + 0.5 * (Math.max(0,5 - savedCirclesCounter)/5);  
+    var size = Math.sqrt(Math.pow(pool[savedCirclesCounter].value/newSum,2)*(area));
+    var opacity = 0.2 + 0.8 * (Math.max(0,8 - savedCirclesCounter)/8);  
     var uri = pool[savedCirclesCounter].uri;
     var name = pool[savedCirclesCounter].name;
     var uid = pool[savedCirclesCounter].uid;
@@ -37,7 +46,7 @@ export function generateRandomCircles(pool,sum,navigation) {
       var existing = circles[i];
       var d = Math.hypot(randomX-existing.xPos,randomY-existing.yPos);
       //fixed 12 pixel seperation
-      if (d < size + existing.width + 12) {
+      if (d < size + existing.width + 6) {
         // They are overlapping
         overlapping = true;
         // do not add to array
@@ -46,7 +55,13 @@ export function generateRandomCircles(pool,sum,navigation) {
     } 
     // add valid circles to array
     if (!overlapping) {
-      var circle = {width:size, xPos:randomX, yPos:randomY,opacity:opacity,uri:uri,uid:uid,name:name};
+      if (uri){
+        var circle = {width:size, xPos:randomX, yPos:randomY,opacity:opacity,source:{uri:uri},uid:uid,name:name};
+      }
+      else{
+        var circle = {width:size, xPos:randomX, yPos:randomY,opacity:opacity,source:pool[savedCirclesCounter].source,uid:uid,name:name};
+      }
+
       savedCirclesCounter++;
       circles.push(circle);      
     }   
@@ -63,11 +78,14 @@ function clickBox(circles,navigation){
       <TouchableOpacity
         key={index}
         onPress={
-          () => navigation.navigate("ViewOther", {
-            uri: element.uri,
-            name: element.name,
-            uid: element.uid,
-          })
+          () =>{ 
+          if (element.uid){
+            navigation.navigate("ViewOther", {
+              uri: element.source.uri,
+              name: element.name,
+              uid: element.uid,
+            })}
+          }
         }
         style={{    
           position:'absolute',
@@ -87,11 +105,8 @@ function clickBox(circles,navigation){
             height: element.width*2, 
             borderRadius: element.width,
             opacity:element.opacity,
-
           }}
-          source={{
-            uri: element.uri
-          }}
+          source={element.source}
           placeholderColor='purple'
           animationStyle='fade'/>
       </TouchableOpacity>
@@ -100,9 +115,28 @@ function clickBox(circles,navigation){
 }
 
 
+  function getImage(uri) {
+    if (uri)
+      return {uri: uri};
+    else
+      return require('../assets/images/AI.jpeg');
+  }
+
 export function generateCirclesRow(pool) {
   //this needs to be changed w.r.t. time not array value
   //var values = pool.sort((a,b)=>{return b.value-a.value})
+
+  console.log(pool);
+
+  let NumCircles = pool.length;
+
+
+  while(NumCircles<15){
+    pool.push({uid:null,name:'AI',source:require('../assets/images/AI.jpeg'),value:1});
+    NumCircles ++;
+  }
+
+  let newSum = pool.reduce((prev,next) => prev + next.value,0); 
 
   return (
     <ScrollView
@@ -132,9 +166,7 @@ export function generateCirclesRow(pool) {
             shadowRadius: 5,
             shadowColor: "rgba(0,0,0,1)",
             shadowOpacity:0.2}}
-          source={{
-            uri: element.uri
-          }}
+          source={getImage(element.uri)}
           placeholderColor='#cfd8dc'
           animationStyle='fade'
           >

@@ -32,46 +32,56 @@ export default class App extends React.Component {
             where: undefined,
             whereItems: [
                 {
-                    label: 'GIX',
-                    value: 'GIX: 12280 NE District Way, Bellevue, WA 98005',
+                    label: 'Global Innovation Exchange',
+                    value: '12280 NE District Way, Bellevue, WA 98005',
+                    id:'59bb267a805e3f59823645a3'
                 },
                 {
-                    label: 'Ode',
-                    value: 'Ode: 4060 George Washington Lane Northeast, Seattle, WA 98195',
+                    label: 'Odegaard library',
+                    value: '4060 George Washington Lane Northeast, Seattle, WA 98195',
+                    id:'4a99e654f964a520063120e3'
+
                 },
                 {
-                    label: 'HUB',
-                    value: 'HUB: 4001 E Stevens Way NE, Seattle, WA 98195',
+                    label: 'Husky Union Building',
+                    value: '4001 E Stevens Way NE, Seattle, WA 98195',
+                    id:'441eb908f964a5207c311fe3'
                 },
                 {
                     label: 'IMA',
-                    value: 'IMA: 3924 Montlake Blvd NE, Seattle, WA 98195',
+                    value: '3924 Montlake Blvd NE, Seattle, WA 98195',
+                    id:'4ad7da23f964a520710f21e3'
                 },
                 {
-                    label: 'Bellevue Starbucks',
-                    value: 'Bellevue Starbucks: 10214 NE 8th St, Bellevue, WA 98004',
+                    label: 'Starbucks @ Bellevue',
+                    value: '10214 NE 8th St Bellevue WA 98004',
+                    id:'52869068498e3289da673edf'
                 },
                 {
-                    label: 'Pike Starbucks',
-                    value: 'Pike Starbucks: 1912 Pike Pl, Seattle, WA 98101',
+                    label: 'Starbucks Reserve @ Pike',
+                    value: '1912 Pike Pl Seattle WA 98101',
+                    id:'58ad168cd8e55956ea9db67e'
                 },
                 {
                     label: 'Space Needle',
-                    value: 'Space Needle: 400 Broad St, Seattle, WA 98109',
+                    value: '400 Broad St, Seattle, WA 98109',
+                    id:'416dc180f964a5209b1d1fe3'
                 },
                 {
                     label: 'Gas work Park',
-                    value: 'Gas work Park: 2101 N Northlake Way, Seattle, WA 98103',
+                    value: '2101 N Northlake Way, Seattle, WA 98103',
+                    id:'430bb880f964a5203a271fe3'
                 },
                 {
                     label: 'LA Fitness Bellevue',
-                    value: 'LA Fitness Bellevue: 550 106th Ave NE #215, Bellevue, WA 98004',
+                    value: '550 106th Ave NE #215 Bellevue WA 98004',
+                    id:'49cac644f964a520de581fe3'
                 },
                 {
-                    label: 'UW Starbucks',
-                    value: 'UW Starbucks: 4555 University Way NE, Seattle, WA 98105',
-                },
-            ],
+                    label: 'Starbucks @ UW',
+                    value: '4147 University Way NE Seattle WA 98105',
+                    id:'4470775ef964a52093331fe3'
+                }],
             whatIndex: undefined,
             selectedWhatBool:false,
             selectedWhat: new Set(),
@@ -227,7 +237,7 @@ export default class App extends React.Component {
                   console.log('where:', this.state.where);
                   console.log('when:', this.state.selectedDate, this.state.selectedDate instanceof Date);
                   console.log('who:', users);
-                  //Fire.shared.startTasks(['3QcHJ8jc6WQYcAs82JN9E7z4a422'], {'where': '0', 'when': '0', 'what': '0'});
+                  // Fire.shared.startTasks(['3QcHJ8jc6WQYcAs82JN9E7z4a422'], {'where': '0', 'when': '0', 'what': '0'});
                   this.props.navigation.pop();
                   next();
                 }}>

@@ -78,26 +78,6 @@ export default class HomeScreen extends React.Component {
         errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
       });
     } else {
-      // We should detect when scrolling has stopped then animate
-      // We should just debounce the event listener here
-      this.animation.addListener(({ value }) => {
-        let index = Math.floor(value / CARD_WIDTH +0.3); // animate 30% away from landing on the next item
-        if (index >= this.state.markers.length) {
-          index = this.state.markers.length - 1;
-        }
-        if (index <= 0) {
-          index = 0;
-        }
-
-        clearTimeout(this.regionTimeout);
-        this.regionTimeout = setTimeout(() => {
-          if (this.index !== index) {
-            this.index = index;
-            const { coordinate } = this.state.markers[index];
-          }
-        }, 10);
-      });
-
       this._getLocationAsync();
       this.fetchPool();
     }
@@ -138,12 +118,16 @@ export default class HomeScreen extends React.Component {
               }
             } else {
               return this.fetchMarkerPhoto(marker.id).then( (url) => {
-                if (url) Fire.shared.addPlaceURI(marker.id, url);
-                return {
-                  id: marker.id,
-                  uri: url,
-                  name: marker.name,
-                  location: marker.location,
+                if (url) {
+                  Fire.shared.addPlaceURI(marker.id, url);
+                  return {
+                    id: marker.id,
+                    uri: url,
+                    name: marker.name,
+                    location: marker.location,
+                  }
+                }else{
+                  return null;
                 }
               });
             }
@@ -151,7 +135,7 @@ export default class HomeScreen extends React.Component {
         }));
       }).then( (markersInfo) => {
         if (this.mountState)
-          this.setState({location,region,markers:markersInfo});
+          this.setState({location,region,markers:markersInfo.filter((obj)=>obj)});
         this.loadingMarkers = false;
         console.log('total promise time', new Date().getTime() - v0);
       })
@@ -221,6 +205,7 @@ export default class HomeScreen extends React.Component {
       return data.response.venues
       // the following code is for recommended search, research search in fetchurl with recommended return data.response.groups[0].items      
     }catch(err){
+      console.log('Marker Data Fetching Failed');
       if (this.mountState) this.setState({
           errorMessage: err,
       });
@@ -236,6 +221,7 @@ export default class HomeScreen extends React.Component {
       return data.response.venue.bestPhoto.prefix + "original" + data.response.venue.bestPhoto.suffix
       // the following code is for recommended search, research search in fetchurl with recommended return data.response.groups[0].items      
     }catch(err){
+      console.log('Marker Photo Failed');
       if (this.mountState) this.setState({
           errorMessage: err,
       });
