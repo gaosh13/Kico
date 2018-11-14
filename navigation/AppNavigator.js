@@ -64,7 +64,7 @@ const PersonalDrawer = createDrawerNavigator({
     ViewOther: OtherProfileScreen,
     QRScanner,
     CreateTask: CreateTaskScreen,
-    Congratulations,
+    Congrats:Congratulations,
   }, {
     initialRouteName: 'Home',
   }),

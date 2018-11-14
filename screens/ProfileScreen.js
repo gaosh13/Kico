@@ -83,13 +83,15 @@ export default class ProfileScreen extends React.Component {
   }
 
   drawNodeList() {
-    return this.state.pool.map( (item, index) => {
+    return (
+      this.state.pool.map( (item, index) => {
       if (index % 2 == 0) {
         return this.drawNode_odd(item, index);
       } else {
         return this.drawNode_even(item, index);
       }
-    });
+    })
+    )
   }
 
   drawNode_odd(item, index){
