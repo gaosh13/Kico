@@ -51,7 +51,7 @@ export default class NotificationScreen extends React.Component {
         <TouchableOpacity
           style={styles.closeButtonContainer}
           onPress={() => {this.props.navigation.navigate("Home")}}>
-          <Ionicons name='ios-close' size={25} color="#000"/>
+          <Image source={require('../assets/icons/close.png')} />
         </TouchableOpacity>
       </View>
     );
@@ -193,8 +193,10 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     alignItems:'center',
-    borderWidth: 1.5,
-    borderColor: '#000',
+    shadowColor: "#000000",
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
     // backgroundColor: '#fff',
   },
 });

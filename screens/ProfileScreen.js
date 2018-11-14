@@ -161,7 +161,7 @@ export default class ProfileScreen extends React.Component {
           </GenericScreen>
           <TouchableOpacity
             style={styles.closeButtonContainer}
-            onPress={() => {this.props.navigation.navigate("Home")}}>
+            onPress={() => {this.props.navigation.openDrawer()}}>
             <Image source={require('../assets/icons/back.png')} />
           </TouchableOpacity>
         </View>
