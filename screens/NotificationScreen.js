@@ -18,12 +18,12 @@ export default class NotificationScreen extends React.Component {
     };
     Fire.shared.getNotification().then((data) => {
       if (this.mountState && data.length) {
-        // this.setState({notification: data});
-        let dataArray = [];
-        for (let i = 0; i < 10; ++i) {
-          dataArray.push(data[i % data.length]);
-        }
-        this.setState({notification: dataArray});
+        this.setState({notification: data});
+        // let dataArray = [];
+        // for (let i = 0; i < 10; ++i) {
+        //   dataArray.push(data[i % data.length]);
+        // }
+        // this.setState({notification: dataArray});
       }
     });
   }

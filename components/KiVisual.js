@@ -9,7 +9,7 @@ const area = width*height
 
 export function generateRandomCircles(pool,navigation) {  
   var NumCircles = pool.length ;
-  console.log(pool,pool.length)
+  // console.log(pool,pool.length)
   var values = pool.sort((a,b)=>{return b.value-a.value})
   var counter = 0;
   var savedCirclesCounter = 0;

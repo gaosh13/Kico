@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Alert } from 'react-native';
 import { BarCodeScanner, Permissions } from 'expo';
 import Fire from '../components/Fire';
 
@@ -46,17 +46,35 @@ export default class QRScanner extends React.Component {
         try {
           var result = JSON.parse(data);
         } catch(e) {
-          alert("Only scan the QRCode in the task screen");
-          this.scanned = false;
+          new Promise((resolve) => {
+            Alert.alert(
+              'Tips',
+              'Only scan the QRCode in the task screen',
+              [{text: 'OK', onPress: ()=> {resolve("YES")},},],
+              { cancelable: false },
+            );
+          }).then(()=>{this.scanned = false});
           return;
         }
         const result = JSON.parse(data);
         const {uid} = result;
         if (uid) {
-          Fire.shared.addFriend(uid);
-          this.props.navigation.navigate('Congratulations', {uid});
+          Fire.shared.addFriend(uid).then(
+            ()=>{this.props.navigation.navigate('Congratulations', {uid})},
+            ()=>{
+              new Promise((resolve) => {
+                Alert.alert(
+                  'WoW',
+                  'You find an old friend',
+                  [{text: 'OK', onPress: ()=> {resolve("YES")},},],
+                  { cancelable: false },
+                );
+              }).then(()=>{this.scanned = false});
+            }
+          );
         } else this.scanned = false;
       }
     }
   }
 }
+

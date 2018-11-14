@@ -233,12 +233,12 @@ export default class App extends React.Component {
                 borderRadius= {34/812*height}
                 onPress={(next) => {
                   const users = Array.from(this.state.selectedWho).map((userIndex) => getParam('pool')[userIndex].uid);
-                  console.log('what:', this.state.whatItems[this.state.whatIndex].activity);
-                  console.log('where:', this.state.where);
-                  console.log('when:', this.state.selectedDate);
-                  console.log('who:', users);
+                  // console.log('what:', this.state.whatItems[this.state.whatIndex].activity);
+                  // console.log('where:', this.state.where);
+                  // console.log('when:', this.state.selectedDate);
+                  // console.log('who:', users);
                   // console.log('IDK', Fire.shared.toTimeStamp(this.state.selectedDate));
-                  if (this.state.whatItems[this.state.whatIndex] && this.state.where && this.state.selectedDate && users){
+                  if (this.whatIndex != undefined && this.state.whatItems[this.state.whatIndex] && this.state.where && this.state.selectedDate && users){
                     const www = {
                       what: this.state.whatItems[this.state.whatIndex].activity,
                       where: this.state.where,

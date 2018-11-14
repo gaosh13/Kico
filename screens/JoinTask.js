@@ -18,7 +18,7 @@ export default class CheckInScreen extends React.Component {
     super(props);
     this.state = {
       pool: [],
-      where: '',
+      where: {},
       what: '',
       when: '',
       isGoing: false,
@@ -88,9 +88,10 @@ export default class CheckInScreen extends React.Component {
         snapToInterval={104/812*height}
         decelerationRate='fast'>
         <GenericScreen
-          source={getParam("uri")}
-          name={getParam("name")}
-          description={getParam("location")}>
+          source={this.state.where.uri || undefined}
+          name={this.state.what}
+          description={this.state.where.name || ''}
+          note={this.state.when}>
           <Text style={styles.numberText}> {this.state.pool.length} </Text>
           <Text style={styles.descriptionText}> # of Attenders </Text>
           {this.drawKiView()}

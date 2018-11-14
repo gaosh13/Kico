@@ -128,8 +128,9 @@ class Fire extends React.Component {
       this.profile.doc(this.uid).collection('friends').get().then(rid),
       this.profile.doc(this.uid).collection('blacklist').get().then(rid),
     ]).then( async ([places, friends, blacklist ]) => {
-      let hidden = new Set(friends + blacklist);
+      let hidden = new Set(friends.concat(blacklist));
       hidden.add(this.uid);
+      // console.log('hiddenlist', friends, hidden);
       let alluser = await Promise.all(places.map( (place) => {
         return this.place.doc(place).collection('users').get().then(rid);
       }));
@@ -224,15 +225,20 @@ class Fire extends React.Component {
   }
 
   addFriend = (uid, type='add1') => {
-    const data = {
-      type: type,
-      time: this.timestamp,
-      uid1: uid,
-      uid2: this.uid,
-    };
-    this.notification.add(data);
-    this.profile.doc(this.uid).collection('friends').doc(uid).set({tag: 'friend', nick: ''});
-    this.profile.doc(uid).collection('friends').doc(this.uid).set({tag: 'friend', nick: ''});
+    return this.profile.doc(this.uid).collection('friends').doc(uid).get().then( (doc) => {
+      if (doc.exists) return Promise.reject('');
+      const data = {
+        type: type,
+        time: this.timestamp,
+        uid1: uid,
+        uid2: this.uid,
+      };
+      return Promise.all([
+        this.notification.add(data),
+        this.profile.doc(this.uid).collection('friends').doc(uid).set({tag: 'friend', nick: ''}),
+        this.profile.doc(uid).collection('friends').doc(this.uid).set({tag: 'friend', nick: ''}),
+      ]);
+    });
   }
 
   removeFriend = (uid, type='passive') => {
@@ -303,7 +309,7 @@ class Fire extends React.Component {
       console.log("No such task");
       return {}
     }
-    let taskInfo = doc.data();
+    let taskInfo = {...doc.data(), id: taskID};
     let isGoing = false;
     // console.log('task1', taskInfo);
     [taskInfo.users, taskInfo.where] = await Promise.all([
