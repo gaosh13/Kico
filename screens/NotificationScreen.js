@@ -132,7 +132,16 @@ export default class NotificationScreen extends React.Component {
           // borderWidth: 1, borderColor: '#000',
         }}>
           {this._renderSingleItem(item)}
-          <Text style={styles.timestampText}>{item.time}</Text>
+          <View style={{flexDirection: 'row'}}>
+            <View style={{flex: 1}}>
+              <Text style={styles.timestampText}>{item.time}</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.deleteNotificationContainer}
+              onPress={() => {Fire.shared.removeNotification(item.id)}}>
+              <Image style={{width: 20, height: 20}} source={require('../assets/icons/remove.png')} />
+            </TouchableOpacity>
+          </View>
         </View>
       </TouchableOpacity>
     );
@@ -197,5 +206,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { x: 0, y: 10 },
     // backgroundColor: '#fff',
+  },
+  deleteNotificationContainer:{
+    borderRadius: 20,
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    shadowColor: "#000000",
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
   },
 });

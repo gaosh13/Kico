@@ -109,7 +109,7 @@ class DrawerView extends Component {
           style={styles.menuTouchable}>
           <View style={{alignItems: 'center', justifyContent: 'center'}}>
             <Text style={{color: 'blue'}}>
-            Development
+              Development
             </Text>
           </View>
         </TouchableHighlight>
@@ -117,7 +117,7 @@ class DrawerView extends Component {
         <TouchableHighlight
           onPress={this.Logout}
           underlayColor="#CCC"
-          style={{alignItems: 'center', bottom: -250}}>
+          style={styles.menuTouchable}>
           <View style={{alignItems: 'center', justifyContent: 'center'}}>
             <Text style={{color: 'red'}}>
               Log out

@@ -60,7 +60,7 @@ export default class QRScanner extends React.Component {
         const {uid} = result;
         if (uid) {
           Fire.shared.addFriend(uid).then(
-            ()=>{this.props.navigation.navigate('Congratulations', {uid})},
+            ()=>{this.props.navigation.navigate('Congrats', {uid})},
             ()=>{
               new Promise((resolve) => {
                 Alert.alert(
