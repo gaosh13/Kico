@@ -1,5 +1,5 @@
 import React from 'react';
-import { FlatList, StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native';
+import { FlatList, StyleSheet, View, Text, Image, TouchableOpacity, Alert } from 'react-native';
 import { WebBrowser } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
 import Touchable from 'react-native-platform-touchable';
@@ -75,8 +75,7 @@ export default class NotificationScreen extends React.Component {
     } else if (item.type == 'add1') {
       return (
         <View style={styles.messageTextContainer}>
-          <Button title="Confirm" onPress={()=>{}} />
-          <Button title="Reject" onPress={()=>{}} />
+          <Text style={styles.messageText}>{item.name + " becomes your friend"}</Text>
         </View>
       );
     } else if (item.type == 'add2') {
@@ -101,7 +100,7 @@ export default class NotificationScreen extends React.Component {
   _pressSingleItem = (item) => {
     if (item.type == 'taski') {
       // console.log("item.task", item.task);
-      this.props.navigation.navigate("JoinTaskScreen", {task: item.task});
+      this.props.navigation.navigate("JoinTaskScreen", {taskID: item.task});
     } else if (item.type == 'add1') {
       Alert.alert(
         'Congratulations',

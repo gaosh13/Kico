@@ -239,11 +239,14 @@ export default class App extends React.Component {
                   console.log('who:', users);
                   // console.log('IDK', Fire.shared.toTimeStamp(this.state.selectedDate));
                   if (this.state.whatItems[this.state.whatIndex] && this.state.where && this.state.selectedDate && users){
-                    // Fire.shared.startTasks(['3QcHJ8jc6WQYcAs82JN9E7z4a422'], {'where': '0', 'when': '0', 'what': '0'});
-                    this.props.navigation.navigate('Congrats',{
+                    const www = {
                       what: this.state.whatItems[this.state.whatIndex].activity,
                       where: this.state.where,
                       when: this.state.selectedDate,
+                    }
+                    Fire.shared.startTasks(users, www);
+                    this.props.navigation.navigate('Congrats',{
+                      ...www,
                       who:users,
                     });
                   }else{
@@ -254,7 +257,7 @@ export default class App extends React.Component {
                         {text: 'OK', onPress: () => console.log('OK Pressed')},
                       ],
                     )
-                  }          
+                  }
                   next();
                 }}>
                 <Text style={styles.text}>{"Next"}</Text>

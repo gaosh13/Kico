@@ -21,6 +21,7 @@ import NotificationScreen from '../screens/NotificationScreen';
 import ChangeScreen from '../screens/ChangeScreen';
 import OtherProfileScreen from '../screens/OtherProfileScreen';
 import JoinTaskScreen from '../screens/JoinTask';
+import TaskListScreen from '../screens/TaskListScreen';
 import CreateTaskScreen from '../screens/CreateTask';
 import Congratulations from '../screens/Congratulations.js';
 
@@ -72,7 +73,7 @@ const PersonalDrawer = createDrawerNavigator({
   Chat: createStackNavigator({ChatsScreen}),
   Development: createStackNavigator({DevelopmentScreen}),
   QRCode: createStackNavigator({QRCodeScreen}),
-  JoinTask: createStackNavigator({JoinTaskScreen}),
+  TaskListStack: createStackNavigator({TaskListScreen, JoinTaskScreen}),
 }, {
   initialRouteName: 'HomeStack',
   drawerPosition: 'left',

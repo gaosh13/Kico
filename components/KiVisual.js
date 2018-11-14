@@ -123,14 +123,66 @@ function getImage(uri) {
     return require('../assets/images/AI.jpeg');
 }
 
-export function generateCirclesRow(pool) {
+export function generateCirclesRow(originPool) {
   //this needs to be changed w.r.t. time not array value
   //var values = pool.sort((a,b)=>{return b.value-a.value})
 
-  console.log(pool);
-
+  // console.log(pool);
+  let pool = Array.from(originPool);
   let NumCircles = pool.length;
 
+  while(NumCircles<15){
+    pool.push({uid:null,name:'AI',source:require('../assets/images/AI.jpeg'),value:1});
+    NumCircles ++;
+  }
+
+  let newSum = pool.reduce((prev,next) => prev + next.value,0); 
+
+  return (
+    <ScrollView
+      horizontal
+      scrollEventThrottle={1}
+      showsHorizontalScrollIndicator={false}
+      snapToInterval={68/812*height+5}
+      style={{
+        paddingBottom:15,
+        paddingTop:8,
+      }}
+      contentContainerStyle={{
+        paddingLeft: 16,
+        paddingRight: 16,
+        justifyContent:"center",
+      }}
+      decelerationRate='fast'>
+      {pool.map((element, index) => (
+        <AsyncImageAnimated
+          key={index}
+          style={{
+            marginHorizontal: 4,
+            width: 68/812*height,
+            height: 68/812*height,
+            borderRadius: 34/812*height,
+            shadowOffset:{width:0,height:5},
+            shadowRadius: 5,
+            shadowColor: "rgba(0,0,0,1)",
+            shadowOpacity:0.2}}
+          source={getImage(element.uri)}
+          placeholderColor='#cfd8dc'
+          animationStyle='fade'
+          >
+        </AsyncImageAnimated>
+      ))}
+    </ScrollView>
+  );
+}
+
+export function generateSmallCircles(originPool) {
+  //this needs to be changed w.r.t. time not array value
+  //var values = pool.sort((a,b)=>{return b.value-a.value})
+
+  // console.log(pool);
+  let pool = Array.from(originPool);
+  let NumCircles = pool.length;
 
   while(NumCircles<15){
     pool.push({uid:null,name:'AI',source:require('../assets/images/AI.jpeg'),value:1});

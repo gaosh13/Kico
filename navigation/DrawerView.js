@@ -83,7 +83,7 @@ class DrawerView extends Component {
         </TouchableHighlight>
 
         <TouchableHighlight
-          onPress={() => navigate('JoinTask')}
+          onPress={() => navigate('TaskListScreen')}
           underlayColor="#CCC"
           style={styles.menuTouchable}>
           <View style={styles.navBar}>
@@ -92,7 +92,7 @@ class DrawerView extends Component {
             </View>
             <View style={styles.rightContainer}>
               <Text style={styles.navTextStyle}>
-                Join
+                TaskList
               </Text>
             </View>
           </View>

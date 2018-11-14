@@ -251,7 +251,9 @@ class Fire extends React.Component {
   startTasks = async (uids, param) => {
     const data = {
       users: [this.uid],
-      ...param,
+      where: param.where,
+      what: param.what,
+      when: firebase.firestore.Timestamp.fromDate(param.when),
     };
     let taskID = (await this.task.add(data)).id;
     const baseNotification = {
@@ -303,9 +305,10 @@ class Fire extends React.Component {
     }
     let taskInfo = doc.data();
     let isGoing = false;
+    // console.log('task1', taskInfo);
     [taskInfo.users, taskInfo.where] = await Promise.all([
       Promise.all( taskInfo.users.map( async (user) => {
-        let {name, uri} = await this.getNameNAvatar(notification.uid2);
+        let {name, uri} = await this.getNameNAvatar(user);
         if (user == this.uid) isGoing = true;
         return {
           uid: user,
@@ -315,18 +318,30 @@ class Fire extends React.Component {
       })),
       this.getPlaceInfo(taskInfo.where).then( (data) => {return {name: data.description, uri: data.uri}} ),
     ]);
+    formatDate = (when) => {
+      const time = when.toDate();
+      let hours = time.getHours(), minutes = time.getMinutes();
+      let ampm = hours >= 12 ? 'pm' : 'am';
+      hours = (hours+11) % 12 + 1;
+      minutes = minutes < 10 ? "0"+minutes : minutes;
+      return ((time.getMonth() + 1) + '/' + time.getDate() + ' @ ' + hours + ':' + time.getMinutes() + ' ' + ampm);
+    }
+    try{taskInfo.when = formatDate(taskInfo.when)} catch(e){console.log("not a date")}
     taskInfo.isGoing = isGoing;
+    console.log('taskInfo', taskInfo);
     return taskInfo;
   }
 
   getTaskList = async () => {
-    return await this.profile.doc(this.uid).collection('tasks').get().then( async (snapshot) => {
-      let taskList = snapshot.docs.map( (doc) => {id: doc.id} );
+    return (await this.profile.doc(this.uid).collection('tasks').get().then( async (snapshot) => {
+      let taskList = snapshot.docs.map( (doc) => {return {id: doc.id}} );
+      // console.log('taskList', taskList);
       await Promise.all(taskList.map( (task) => {
         return this.getTaskInfo(task.id).then( (data) => Object.assign(task, data) );
       }));
+      // console.log("taskList", taskList);
       return taskList;
-    });
+    })).filter((e) => (e.what));
   }
 
   deleteTask = async (taskID) => {

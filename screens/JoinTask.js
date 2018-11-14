@@ -5,7 +5,7 @@ import Fire from '../components/Fire';
 import {generateCirclesRow} from '../components/KiVisual';
 import GenericScreen from '../components/GenericScreen';
 import AwesomeButton from 'react-native-really-awesome-button';
-import QRCode from 'react-native-qrcode';
+import QRCode from 'react-native-qrcode-svg';
 
 const { width, height } = Dimensions.get("window");
 
@@ -26,17 +26,20 @@ export default class CheckInScreen extends React.Component {
   }
 
   async componentDidMount() {
-    await this.fetchdata();
+    await this.fetchdata(false);
   }
 
-  async fetchdata() {
-    const task = this.props.navigation.getParam('task', '0');
-    // console.log("begin fetching");
-    // console.log("task", task);
-    Fire.shared.getTaskInfo(task).then( (taskInfo) => {
-      const {users:pool, where, what, when, isGoing} = taskInfo;
+  async fetchdata(refresh=false) {
+    if (!this.props.navigation.getParam('task') || refresh) {
+      const task = this._taskID;
+      Fire.shared.getTaskInfo(task).then( (taskInfo) => {
+        const {users:pool, where, what, when, isGoing} = taskInfo;
+        this.setState({pool, where, what, when, isGoing});
+      });
+    } else {
+      const {users:pool, where, what, when, isGoing} = this.props.navigation.getParam('task');
       this.setState({pool, where, what, when, isGoing});
-    });
+    }
   }  
 
   drawKiView() {
@@ -53,9 +56,13 @@ export default class CheckInScreen extends React.Component {
     }
   }
 
+  get _taskID() {
+    return this.props.navigation.getParam('task', {}).id || this.props.navigation.getParam('taskID', '0');
+  }
+
   _generateQRCode() {
-    const task = this.props.navigation.getParam('task', '0');
-    return JSON.stringify({"uid": Fire.shared.uid, "task": task});
+    return JSON.stringify({"uid": Fire.shared.uid, "task": this._taskID});
+    // return JSON.stringify({"uid": Fire.shared.uid});
   }
 
   _renderQRCode() {
@@ -64,9 +71,7 @@ export default class CheckInScreen extends React.Component {
         <View style={{paddingTop: 20, paddingBottom: 20}}>
           <QRCode
             value={this._generateQRCode()}
-            size={200}
-            bgColor='black'
-            fgColor='white'/>
+            size={200}/>
         </View>
       );
     } else return null;
@@ -75,7 +80,7 @@ export default class CheckInScreen extends React.Component {
   render() {
     const { getParam } = this.props.navigation;
     const displayText = this.state.isGoing ? "Ungoing" : "Join";
-    const task = this.props.navigation.getParam('task', '0');
+    const task = this._taskID;
     return (
       <ScrollView
         scrollEventThrottle={1}
@@ -98,7 +103,7 @@ export default class CheckInScreen extends React.Component {
                 borderRadius= {34/812*height}
                 onPress={(next) => {
                   ((this.state.isGoing) ? Fire.shared.ungoingTask(task) : Fire.shared.joinTask(task)).then(()=>{
-                    this.fetchdata();
+                    this.fetchdata(true);
                   });
                   next();
                 }}>
@@ -138,111 +143,8 @@ const styles = StyleSheet.create({
     paddingRight: 15,
     backgroundColor: '#FFF',
   },
-  descriptionContainer: {
-    marginBottom: 15,
-  },
-  commentContainer: {
-    marginBottom: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-evenly'
-
-  },
-  commentNumber: {
-    fontFamily :"kontakt",
-    fontSize: 15,
-  },
-  imagePropmtContainer: {
-    marginBottom: 5,
-  },
-  imagePropmtText: {
-    fontFamily :"kontakt",
-    fontSize: 15,
-  },
   imageContainer: {
     marginBottom: 20,
-  },
-  buttonsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 15,
-    marginBottom: 15,
-  },
-  cancelButton: {
-    flex: 0.5,
-    marginLeft: 20,
-    marginRight: 10,
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingTop: 5,
-    paddingBottom: 5,
-    borderWidth: 1,
-    borderRadius: 20,
-    borderColor: '#222',
-  },
-  cancelText: {
-    fontFamily :"kontakt",
-    fontSize: 18,
-    textAlign: 'center',
-  },
-  confirmButton: {
-    flex: 0.5,
-    marginLeft: 10,
-    marginRight: 20,
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingTop: 5,
-    paddingBottom: 5,
-    borderWidth: 1,
-    borderRadius: 20,
-    backgroundColor: '#222',
-  },
-  confirmText: {
-    fontFamily :"kontakt",
-    fontSize: 18,
-    textAlign: 'center',
-    color: '#fff'
-  },
-  itemContainer: {
-    flexDirection: 'row',
-    marginTop: 15,
-    borderWidth: 1,
-    borderRadius: 20,
-    borderColor: '#ccc',
-    paddingLeft: 15,
-    paddingRight: 15,
-    paddingTop: 5,
-    paddingBottom: 5,
-    justifyContent: 'space-between',
-  },
-  itemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  itemRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-    endPadding: {
-    paddingRight: 8,
-  },
-  titleCenter: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: 10,
-    paddingBottom: 5,
-  },
-  titleButton: {
-    backgroundColor: '#fff',
-  },
-  titleChangeText: {
-    fontFamily :"kontakt",
-    fontSize: 10,
-    color: 'blue',
-  },
-  titleText: {
-    fontFamily :"kontakt",
-    fontSize: 18,
-    fontWeight: 'bold',
   },
   generalText:{
     fontFamily :"kontakt",
@@ -261,8 +163,9 @@ const styles = StyleSheet.create({
     // backgroundColor: '#fff',
   },
   buttonContainer:{
-    marginLeft:84/812*height,
+    // marginLeft:84/812*height,
     marginTop:17/812*height,
+    alignItems: 'center',
     borderRadius:34/812*height,
     shadowOffset:{width:0,height:10},
     shadowRadius: 30,
