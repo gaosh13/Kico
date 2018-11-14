@@ -22,7 +22,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Fire from '../components/Fire';
 import { REACT_APP_FOURSQUARE_ID, REACT_APP_FOURSQUARE_SECRET } from 'react-native-dotenv'
 import AsyncImageAnimated from '../components/AsyncImageAnimated';
-import {generateRandomCircles} from '../components/KiVisual';
+import {RandomCircles} from '../components/KiVisual';
 import { BlurView, VibrancyView } from 'react-native-blur';
 import ActionButton from 'react-native-action-button';
 import DateTimePicker from 'react-native-modal-datetime-picker';
@@ -48,7 +48,7 @@ export default class HomeScreen extends React.Component {
     this.state = {
       location:{coords:{latitude:0,longitude:0}},
       errorMessage: null,
-      showNotification: false,
+      showOption: false,
       notification: [],
       pool:[],
       markers:[],
@@ -140,31 +140,7 @@ export default class HomeScreen extends React.Component {
         console.log('total promise time', new Date().getTime() - v0);
       })
     }
-
-    // let markers = await this.fetchMarkerData(location);
-    // let markersInfo = [];
-    // for (let index = 0; index < markers.length; ++index) {
-    //   marker = markers[index];
-    //   let uri = await Fire.shared.getPlaceURI(marker.id, marker);
-    //   if (!uri) {
-    //     let url = await this.fetchMarkerPhoto(marker.id);
-    //     marker.uri=url;
-    //     Fire.shared.addPlaceURI(marker.id, url);
-    //   } else {
-    //     marker.uri=uri;
-    //   }
-    //   markersInfo.push({
-    //     id: marker.id,
-    //     uri: marker.uri,
-    //     name: marker.name,
-    //     location: marker.location,
-    //   });
-    //   console.log('marker', marker.uri, marker.name);
-    // }
-    // this.setState({location,region,markers:markersInfo});
-    // console.log('total promise time', new Date().getTime() - v0);
   }
-
 
   async fetchPool() {
     Fire.shared.getPersonalPool().then( (Data) => {
@@ -203,7 +179,7 @@ export default class HomeScreen extends React.Component {
       let response = await fetch(fetchurl);
       let data = await response.json();
       return data.response.venues
-      // the following code is for recommended search, research search in fetchurl with recommended return data.response.groups[0].items      
+      // the following code is for recommended search, research search in fetchurl with recommended return data.response.groups[0].items
     }catch(err){
       console.log('Marker Data Fetching Failed');
       if (this.mountState) this.setState({
@@ -235,7 +211,7 @@ export default class HomeScreen extends React.Component {
       // let friendSum = this.state.pool.reduce((prev,next) => prev + next.value,0);
       return (
         <View style={styles.kiContainer}>
-          {generateRandomCircles(this.state.pool,this.props.navigation)}      
+          <RandomCircles pool={this.state.pool} navigation={this.props.navigation}/>
         </View>
       );
     }else{
@@ -304,16 +280,9 @@ export default class HomeScreen extends React.Component {
             <Image source={require('../assets/icons/notification.png')} />
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.scannerContainer}
-            onPress={() => {this.props.navigation.navigate("QRScanner")}}>
-            <Image source={require('../assets/icons/addTask.png')} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.taskContainer}
-            onPress={() => {this.props.navigation.navigate("CreateTask",{
-              pool:this.state.pool
-            })}}>
-            <Image source={require('../assets/icons/addTask.png')} />
+            style={styles.showOptionContainer}
+            onPress={() => {this.setState({showOption: !this.state.showOption})}}>
+            <Image source={this.state.showOption ? require( '../assets/icons/close2.png') : require('../assets/icons/addTask.png')} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.congratsContainer}
@@ -325,93 +294,35 @@ export default class HomeScreen extends React.Component {
             onPress={() => {this.props.navigation.openDrawer()}}>
             <Image source={require('../assets/icons/drawer.png')} />
           </TouchableOpacity>
-          {this._renderList()}
+          {this._renderOption()}
       </View>
     );
   }
 
-  _showNotification = async() => {
-    let newState = {showNotification: !this.state.showNotification};
-    if (!this.state.showNotification) {
-      let data = await Fire.shared.getNotification();
-      console.log("notification", data);
-      newState.notification = data;
-    }
-    this.setState(newState);
-  }
-
-  _renderList() {
-    if (this.state.showNotification) {
+  _renderOption() {
+    if (this.state.showOption) {
       return (
-        <FlatList
-          style={styles.notificationList}
-          data={this.state.notification}
-          keyExtractor={this._keyExtractor}
-          renderItem={this._renderItem}>
-        </FlatList>
+        <ImageBackground style={styles.optionContainer} source={require('../assets/images/PlayerX_logo.png')}>
+          <View style={{/*borderWidth: 1, borderColor: 'blue'*/}}>
+            <TouchableOpacity
+              style={{paddingVertical: 10}}
+              onPress={() => {this.props.navigation.navigate("CreateTask",{
+                pool:this.state.pool
+              })}}>
+              <Text style={styles.optionText}>Create Task</Text>
+            </TouchableOpacity>
+            <View style={{borderBottomWidth: 1, borderBottomColor: '#ccc', height: 1}}></View>
+            <TouchableOpacity
+              style={{paddingVertical: 10}}
+              onPress={() => {this.props.navigation.navigate("QRScanner")}}>
+              <Text style={styles.optionText}>Scan QR Code</Text>
+            </TouchableOpacity>
+          </View>
+        </ImageBackground>
       );
-    } else {
-      return null;
-    }
+    } else return null;
   }
 
-  _keyExtractor = (item, index) => {return "notification" + index}
-
-  _renderItem = ({item}) => {
-    let displayText = '';
-    if (item.type == 'confirm') {
-      displayText = `${item.name} is now your friend`;
-    } else if (item.type == 'request') {
-      displayText = `${item.name} wants to be your friend`;
-    } else if (item.type == 'remove') {
-      displayText = `${item.name} is no longer your friend`;
-    }
-    return (
-      <View style={styles.itemContainer}>
-        <View style={styles.flexRowContainer}>
-          <Ionicons name='ios-information-circle' size={25} color="blue"/>
-          <Text style={{marginLeft: 15, fontSize: 18}}>{displayText}</Text>
-        </View>
-        {
-          item.type == 'request' ? (
-            <View style={styles.flexRowContainer}>
-              <Button title="Confirm" onPress={()=>{this._confirmFriend(item.uid); this._removeNotification(item.id);}} />
-              <Button title="Reject" onPress={()=>{this._removeNotification(item.id)}} />
-            </View>
-          )
-          : item.type == 'confirm' ?
-          (
-            <View style={styles.flexRowContainer}>
-              <Button title="Got it" onPress={()=>{this._confirmFriend(item.uid, 'confirm'); this._removeNotification(item.id)}} />
-            </View>
-          )
-          : item.type == 'remove' ?
-          (
-            <View style={styles.flexRowContainer}>
-              <Button title="So sad" onPress={()=>{this._removeFriend(item.uid); this._removeNotification(item.id)}} />
-            </View>
-          )
-          : (null)
-        }
-      </View>
-    );
-  }
-
-  _confirmFriend = (uid, type='request') => {
-    Fire.shared.confirmFriend(uid, {tag: 'friend'});
-    if (type == 'request')
-      Fire.shared.addFriend(uid, 'confirm');
-  }
-
-  _removeFriend = (uid) => {
-    Fire.shared.removeFriend(uid, 'passive');
-  }
-
-  _removeNotification = async (id) => {
-    await Fire.shared.removeNotification(id);
-    let data = await Fire.shared.getNotification();
-    this.setState({notification: data});
-  }
 }
 
 
@@ -434,26 +345,11 @@ const styles = StyleSheet.create({
     shadowRadius: 15,
     shadowOpacity: 0.2,
     shadowOffset: { x: 0, y: 10 },
-
   },
-  scannerContainer: {
+  showOptionContainer: {
     position: 'absolute',
     top: 60,
-    right: 65,
-    borderRadius: 30,
-    width: 30,
-    height: 30,
-    alignItems:'center',
-    backgroundColor: '#fff',
-    shadowColor: "#000000",
-    shadowRadius: 15,
-    shadowOpacity: 0.2,
-    shadowOffset: { x: 0, y: 10 },
-  },
-  taskContainer:{
-    position: 'absolute',
-    top: 60,
-    right: 100,
+    right: 80,
     borderRadius: 30,
     width: 30,
     height: 30,
@@ -471,12 +367,35 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     width: 30,
     height: 30,
-    alignItems:'center',
+    alignItems: 'center',
     backgroundColor: '#fff',
     shadowColor: "#000000",
     shadowRadius: 15,
     shadowOpacity: 0.2,
     shadowOffset: { x: 0, y: 10 },
+  },
+  optionContainer:{
+    position: 'absolute',
+    top: 110,
+    right: 30,
+    width: 160,
+    height: 90,
+    // borderWidth: 1,
+    // borderRadius: 10,
+    justifyContent: 'flex-end',
+    paddingHorizontal: 5,
+    backgroundColor: '#fff',
+    shadowColor: "#000000",
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
+  },
+  optionText: {
+    textAlign: 'center',
+    fontSize: 18,
+    color: '#313254',
+    fontWeight: 'bold',
+    fontFamily: 'GSB',
   },
   createTaskContainer:{
     position: 'absolute',
@@ -529,15 +448,6 @@ const styles = StyleSheet.create({
     shadowRadius: 15,
     shadowOpacity: 0.2,
     shadowOffset: { x: 0, y: 10 },
-  },
-  notificationList: {
-    position: 'absolute',
-    top: 100,
-    marginLeft: '10%',
-    marginRight: '10%',
-    width: '80%',
-    backgroundColor: '#ffffffa0',
-    padding: 10,
   },
   scrollView: {
     position: "absolute",
@@ -618,287 +528,3 @@ const styles = StyleSheet.create({
     height: height
   },
 });
-
-mapStyle =[
-  {
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#1d2c4d"
-      }
-    ]
-  },
-  {
-    "elementType": "labels",
-    "stylers": [
-      {
-        "visibility": "off"
-      }
-    ]
-  },
-  {
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#8ec3b9"
-      }
-    ]
-  },
-  {
-    "elementType": "labels.text.stroke",
-    "stylers": [
-      {
-        "color": "#1a3646"
-      }
-    ]
-  },
-  {
-    "featureType": "administrative",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "visibility": "off"
-      }
-    ]
-  },
-  {
-    "featureType": "administrative.country",
-    "elementType": "geometry.stroke",
-    "stylers": [
-      {
-        "color": "#4b6878"
-      }
-    ]
-  },
-  {
-    "featureType": "administrative.land_parcel",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#64779e"
-      }
-    ]
-  },
-  {
-    "featureType": "administrative.neighborhood",
-    "stylers": [
-      {
-        "visibility": "off"
-      }
-    ]
-  },
-  {
-    "featureType": "administrative.province",
-    "elementType": "geometry.stroke",
-    "stylers": [
-      {
-        "color": "#4b6878"
-      }
-    ]
-  },
-  {
-    "featureType": "landscape.man_made",
-    "elementType": "geometry.stroke",
-    "stylers": [
-      {
-        "color": "#334e87"
-      }
-    ]
-  },
-  {
-    "featureType": "landscape.natural",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#023e58"
-      }
-    ]
-  },
-  {
-    "featureType": "poi",
-    "stylers": [
-      {
-        "visibility": "off"
-      }
-    ]
-  },
-  {
-    "featureType": "poi",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#283d6a"
-      }
-    ]
-  },
-  {
-    "featureType": "poi",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#6f9ba5"
-      }
-    ]
-  },
-  {
-    "featureType": "poi",
-    "elementType": "labels.text.stroke",
-    "stylers": [
-      {
-        "color": "#1d2c4d"
-      }
-    ]
-  },
-  {
-    "featureType": "poi.park",
-    "elementType": "geometry.fill",
-    "stylers": [
-      {
-        "color": "#023e58"
-      }
-    ]
-  },
-  {
-    "featureType": "poi.park",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#3C7680"
-      }
-    ]
-  },
-  {
-    "featureType": "road",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#304a7d"
-      }
-    ]
-  },
-  {
-    "featureType": "road",
-    "elementType": "labels.icon",
-    "stylers": [
-      {
-        "visibility": "off"
-      }
-    ]
-  },
-  {
-    "featureType": "road",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#98a5be"
-      }
-    ]
-  },
-  {
-    "featureType": "road",
-    "elementType": "labels.text.stroke",
-    "stylers": [
-      {
-        "color": "#1d2c4d"
-      }
-    ]
-  },
-  {
-    "featureType": "road.highway",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#2c6675"
-      }
-    ]
-  },
-  {
-    "featureType": "road.highway",
-    "elementType": "geometry.stroke",
-    "stylers": [
-      {
-        "color": "#255763"
-      }
-    ]
-  },
-  {
-    "featureType": "road.highway",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#b0d5ce"
-      }
-    ]
-  },
-  {
-    "featureType": "road.highway",
-    "elementType": "labels.text.stroke",
-    "stylers": [
-      {
-        "color": "#023e58"
-      }
-    ]
-  },
-  {
-    "featureType": "transit",
-    "stylers": [
-      {
-        "visibility": "off"
-      }
-    ]
-  },
-  {
-    "featureType": "transit",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#98a5be"
-      }
-    ]
-  },
-  {
-    "featureType": "transit",
-    "elementType": "labels.text.stroke",
-    "stylers": [
-      {
-        "color": "#1d2c4d"
-      }
-    ]
-  },
-  {
-    "featureType": "transit.line",
-    "elementType": "geometry.fill",
-    "stylers": [
-      {
-        "color": "#283d6a"
-      }
-    ]
-  },
-  {
-    "featureType": "transit.station",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#3a4762"
-      }
-    ]
-  },
-  {
-    "featureType": "water",
-    "elementType": "geometry",
-    "stylers": [
-      {
-        "color": "#0e1626"
-      }
-    ]
-  },
-  {
-    "featureType": "water",
-    "elementType": "labels.text.fill",
-    "stylers": [
-      {
-        "color": "#4e6d70"
-      }
-    ]
-  }
-]

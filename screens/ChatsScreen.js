@@ -1,9 +1,12 @@
 import React from 'react';
-import { FlatList, StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native';
+import { FlatList, StyleSheet, View, Text, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { WebBrowser } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
 import Touchable from 'react-native-platform-touchable';
 import Fire from '../components/Fire';
+import {generateCirclesRow} from '../components/KiVisual';
+
+const { width, height } = Dimensions.get("window");
 
 export default class ChatsScreen extends React.Component {
   static navigationOptions = {
@@ -20,7 +23,6 @@ export default class ChatsScreen extends React.Component {
     let timestamp = Fire.shared.timestamp;
     Fire.shared.getFriends().then((data) => {
       if (this.mountState && data.length) {
-        // this.setState({notification: data});
         data.forEach((element) => {
           element.time = Fire.shared.timeSince(timestamp) + " ago";
         });
@@ -30,7 +32,8 @@ export default class ChatsScreen extends React.Component {
           strangersList.push(data[i % data.length]);
           friendsList.push(data[i % data.length]);
         }
-        this.setState({strangers: strangersList, friends: friendsList});
+        // this.setState({strangers: strangersList, friends: friendsList});
+        this.setState({strangers: data, friends: data});
       }
     });
   }
@@ -43,20 +46,27 @@ export default class ChatsScreen extends React.Component {
     this.mountState = false;
   }
 
+  drawKiView() {
+    if (this.state.strangers.length){
+      return (
+        <View style={styles.kiContainer}>
+          {generateCirclesRow(this.state.strangers)}          
+        </View>
+      )
+    } else{
+      return (
+        <View style={styles.kiContainer} />
+      )
+    }
+  }
+
   render() {
     return (
       <View style={styles.container}>
         <View style={{marginBottom: 10}}>
           <Text style={styles.titleText}>Recent</Text>
         </View>
-        <FlatList
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          style={styles.strangerList}
-          data={this.state.strangers}
-          keyExtractor={(item, index) => {return "stranger" + index}}
-          renderItem={this._renderStrangerListItem}>
-        </FlatList>
+        {this.drawKiView()}
         <View style={{borderBottomColor: '#ccc', borderBottomWidth: 1, marginTop: 10, marginBottom: 10,}}/>
         <FlatList
           showsVerticalScrollIndicator={false}
@@ -70,17 +80,6 @@ export default class ChatsScreen extends React.Component {
           onPress={() => {this.props.navigation.openDrawer()}}>
           <Image source={require('../assets/icons/back.png')} />
         </TouchableOpacity>
-      </View>
-    );
-  }
-
-  _renderStrangerListItem = ({item}) => {
-    return (
-      <View style={{marginRight: 15}}>
-        <Image
-          style={styles.userImage}
-          source={{uri: item.uri}}
-        />
       </View>
     );
   }
@@ -119,6 +118,11 @@ const styles = StyleSheet.create({
     paddingLeft: 15,
     paddingRight: 15,
     backgroundColor: '#FAFBFD',
+  },
+  kiContainer: {
+    width: width,
+    height: 91/812*height,
+    // marginTop: 17/812*height, 
   },
   userImage: {
     borderRadius: 32,
@@ -159,17 +163,6 @@ const styles = StyleSheet.create({
     // justifyContent: 'center',
     // borderWidth: 1,
     // borderColor: '#f00',
-  },
-  friendList: {
-    // marginTop: 10,
-    // borderTopWidth: 2,
-    // borderTopColor: '#ccc',
-  },
-  strangerList: {
-    height: 90,
-    // paddingRight: 15,
-    // borderWidth: 1,
-    // marginBottom: 10,
   },
   backButtonContainer: {
     position: 'absolute',

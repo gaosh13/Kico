@@ -114,7 +114,7 @@ export default class CheckInScreen extends React.Component {
         </GenericScreen>
         <TouchableOpacity
           style={styles.closeButtonContainer}
-          onPress={() => {this.props.navigation.navigate("Home")}}>
+          onPress={() => {this.props.navigation.navigate("TaskListScreen")}}>
           <Ionicons name='ios-close' size={25} color="#000"/>
         </TouchableOpacity>
       </ScrollView>
