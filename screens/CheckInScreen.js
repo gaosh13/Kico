@@ -54,7 +54,7 @@ export default class CheckInScreen extends React.Component {
   drawKiView(){
 // follows this tutorial:
 // https://www.youtube.com/watch?v=XATr_jdh-44
-console.log(this.state.pool)
+// console.log(this.state.pool)
     if (this.state.pool.length){
       //console.log('ZZZZZZZZ',this.state.sum);
       return (

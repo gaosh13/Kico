@@ -117,6 +117,7 @@ class Fire extends React.Component {
     });
   }
 
+
   getPersonalPool = async (refresh_time=3600) => {
     let time = (await this.profile.doc(this.uid).get()).get('time');
     if (time && this.timeLimit(time, refresh_time)) {

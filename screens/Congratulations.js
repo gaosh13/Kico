@@ -45,7 +45,7 @@ export default class Congratulations extends React.Component {
       let uid = this.props.navigation.getParam('uid');
       Fire.shared.getNameNAvatar(uid).then( (data) => {
       //console.log(data);
-      this.setState({name:data.name,uri:data.uri,friendmode:true});
+      this.setState({item:data.name,uri:data.uri,friendmode:true});
     });
     }if(this.props.navigation.getParam('where')){
       Fire.shared.getPlaceInfo(this.props.navigation.getParam('where')).then((data)=>{

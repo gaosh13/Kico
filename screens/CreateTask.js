@@ -233,10 +233,6 @@ export default class App extends React.Component {
                 borderRadius= {34/812*height}
                 onPress={(next) => {
                   const users = Array.from(this.state.selectedWho).map((userIndex) => getParam('pool')[userIndex].uid);
-                  // console.log('what:', this.state.whatItems[this.state.whatIndex].activity);
-                  // console.log('where:', this.state.where);
-                  // console.log('when:', this.state.selectedDate);
-                  // console.log('who:', users);
                   // console.log('IDK', Fire.shared.toTimeStamp(this.state.selectedDate));
                   if (this.state.whatIndex != undefined && this.state.whatItems[this.state.whatIndex] && this.state.where && this.state.selectedDate && users){
                     const www = {
@@ -244,9 +240,8 @@ export default class App extends React.Component {
                       where: this.state.where,
                       when: this.state.selectedDate,
                     }
-                    Fire.shared.startTasks(users, www);
-                    this.props.navigation.navigate('Congrats',{
-                      ...www,
+                    this.props.navigation.navigate('InviteFriends',{
+                      www,
                       who:users,
                     });
                   }else{

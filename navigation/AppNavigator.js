@@ -24,6 +24,7 @@ import JoinTaskScreen from '../screens/JoinTask';
 import TaskListScreen from '../screens/TaskListScreen';
 import CreateTaskScreen from '../screens/CreateTask';
 import Congratulations from '../screens/Congratulations.js';
+import FriendListScreen from '../screens/FriendListScreen.js';
 
 import ReadyPage from '../screens/ReadyPage';
 import Login from '../screens/Login';
@@ -67,6 +68,7 @@ const PersonalDrawer = createDrawerNavigator({
     QRScanner,
     CreateTask: CreateTaskScreen,
     Congrats:Congratulations,
+    InviteFriends:FriendListScreen,
   }, {
     initialRouteName: 'Home',
   }),
