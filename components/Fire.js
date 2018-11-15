@@ -325,7 +325,7 @@ class Fire extends React.Component {
       })),
       this.getPlaceInfo(taskInfo.where).then( (data) => {return {name: data.description, uri: data.uri}} ),
     ]);
-    formatDate = (when) => {
+  formatDate = (when) => {
       const time = when.toDate();
       let hours = time.getHours(), minutes = time.getMinutes();
       let ampm = hours >= 12 ? 'pm' : 'am';
@@ -367,7 +367,7 @@ class Fire extends React.Component {
     // console.log("get Place Info placeID", placeID);
     let doc = await this.place.doc(placeID).get();
     if (!doc.exists) {
-      console.log("No such place");
+      console.log("No such place",default_param);
       let data = {
         description: default_param.description || '',
         uri: default_param.uri || '',

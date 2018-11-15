@@ -6,45 +6,57 @@ import Touchable from 'react-native-platform-touchable';
 import Fire from '../components/Fire';
 import { REACT_APP_FOURSQUARE_ID, REACT_APP_FOURSQUARE_SECRET } from 'react-native-dotenv'
 
-const venues = [{
+const venues = [
+                {
                     label: 'Global Innovation Exchange',
-                    value: '12280 NE District Way, Bellevue, WA 98005',
+                    // value: '12280 NE District Way, Bellevue, WA 98005',
+                    value:'59bb267a805e3f59823645a3'
                 },
                 {
                     label: 'Odegaard library',
-                    value: '4060 George Washington Lane Northeast, Seattle, WA 98195',
+                    // value: '4060 George Washington Lane Northeast, Seattle, WA 98195',
+                    value:'4a99e654f964a520063120e3'
+
                 },
                 {
                     label: 'Husky Union Building',
-                    value: '4001 E Stevens Way NE, Seattle, WA 98195',
+                    // value: '4001 E Stevens Way NE, Seattle, WA 98195',
+                    value:'441eb908f964a5207c311fe3'
                 },
                 {
                     label: 'IMA',
-                    value: '3924 Montlake Blvd NE, Seattle, WA 98195',
+                    // value: '3924 Montlake Blvd NE, Seattle, WA 98195',
+                    value:'4ad7da23f964a520710f21e3'
                 },
                 {
-                    label: 'Bellevue Starbucks',
-                    value: '10214 NE 8th St Bellevue WA 98004',
+                    label: 'Starbucks @ Bellevue',
+                    // value: '10214 NE 8th St Bellevue WA 98004',
+                    value:'52869068498e3289da673edf'
                 },
                 {
-                    label: 'Pike Starbucks',
-                    value: '1912 Pike Pl Seattle WA 98101',
+                    label: 'Starbucks Reserve @ Pike',
+                    // value: '1912 Pike Pl Seattle WA 98101',
+                    value:'58ad168cd8e55956ea9db67e'
                 },
                 {
                     label: 'Space Needle',
-                    value: '400 Broad St, Seattle, WA 98109',
+                    // value: '400 Broad St, Seattle, WA 98109',
+                    value:'416dc180f964a5209b1d1fe3'
                 },
                 {
                     label: 'Gas work Park',
-                    value: '2101 N Northlake Way, Seattle, WA 98103',
+                    // value: '2101 N Northlake Way, Seattle, WA 98103',
+                    value:'430bb880f964a5203a271fe3'
                 },
                 {
                     label: 'LA Fitness Bellevue',
-                    value: '550 106th Ave NE #215 Bellevue WA 98004',
+                    // value: '550 106th Ave NE #215 Bellevue WA 98004',
+                    value:'49cac644f964a520de581fe3'
                 },
                 {
-                    label: 'Starbucks',
-                    value: '4147 University Way NE Seattle WA 98105',
+                    label: 'Starbucks @ UW',
+                    // value: '4147 University Way NE Seattle WA 98105',
+                    value:'4470775ef964a52093331fe3'
                 }]
 
 
@@ -64,7 +76,7 @@ export default class DevelopmentScreen extends React.Component {
         <Button title="generate a notification" onPress={()=>{Fire.shared.generateNotification();}}/>
         <Button title="transfer photos" onPress={()=>{Fire.shared.transferAllImages();}}/>
         <Button title="refresh personal pool" onPress={()=>{Fire.shared.getPersonalPool(0);}}/>
-        <Button title="fetch list information" onPress ={getVenueIDs}/>
+        <Button title="fetch list information" onPress ={() => createVenue()}/>
       </View>
     );
   }
@@ -75,74 +87,88 @@ export default class DevelopmentScreen extends React.Component {
     try{
       let response = await fetch(fetchurl);
       let data = await response.json();
-      // console.log('foursquare photo data: ', data.response.venue.bestPhoto)
-      return data.response.venue.bestPhoto.prefix + "original" + data.response.venue.bestPhoto.suffix
+      console.log('foursquare photo data: ', data.response.venue);
+      return {uri:data.response.venue.bestPhoto.prefix + "original" + data.response.venue.bestPhoto.suffix, name:data.response.venue.name,address:data.response.venue.location.formattedAddress,description:data.response.venue.description}
       // the following code is for recommended search, research search in fetchurl with recommended return data.response.groups[0].items      
     }catch(err){
       console.log('Marker Photo Failed');
-      // if (this.mountState) this.setState({
-      //     errorMessage: err,
-      // });
+      if (this.mountState) this.setState({
+          errorMessage: err,
+      });
     }
   }
 
 
-  getVenueIDs = async () =>{
+  createVenue = async () =>{
     // console.log(venues);
     output=[];
+    console.log('fetching list information')
     venues.map( (element, index) => {
-    this.fetchMarkerData(element).then( (data) => {
-      return Fire.shared.getPlaceURI(data.id, data).then( (uri) => {
-        if (uri) {
-          return {
-            id: data.id,
-            uri: uri,
-            name: data.name,
-            location: data.address,
-          }
-        } else {
-          return this.fetchMarkerPhoto(data.id).then( (url) => {
-            if (url) {
-              Fire.shared.addPlaceURI(data.id, url);
-              return {
-                id: data.id,
-                uri: url,
-                name: data.name,
-                location: data.address,
-              }
-            }else{
-              return null;
-            }
-          });
-        } 
-      });
-    }).then( (detailedInfo) => {
-      // console.log('YAAAAA', detailedInfo)
-      output.push(detailedInfo);
-    //   this.setState({location,region,markers:markersInfo.filter((obj)=>obj)});
-    // this.loadingMarkers = false;
-    // console.log('total promise time', new Date().getTime() - v0);
+      Fire.shared.getPlaceInfo(element.value).then((data) => {
+        if(!data.description){
+          fetchMarkerPhoto(element.value).then((info) => {
+            console.log(info.name, ' has been set to firebase' );
+            Fire.shared.getPlaceInfo(element.value,{uri:info.uri,description:info.name})
+          })
+        }else{
+          console.log(data.description,' already exists');
+        }
+      })
     })
-  });
   }
 
+  //   this.fetchMarkerData(element).then( (data) => {
+  //     return Fire.shared.getPlaceURI(data.id, data).then( (uri) => {
+  //       if (uri) {
+  //         return {
+  //           id: data.id,
+  //           uri: uri,
+  //           name: data.name,
+  //           location: data.address,
+  //         }
+  //       } else {
+  //         return this.fetchMarkerPhoto(data.id).then( (url) => {
+  //           if (url) {
+  //             Fire.shared.addPlaceURI(data.id, url);
+  //             return {
+  //               id: data.id,
+  //               uri: url,
+  //               name: data.name,
+  //               location: data.address,
+  //             }
+  //           }else{
+  //             return null;
+  //           }
+  //         });
+  //       } 
+  //     });
+  //   }).then( (detailedInfo) => {
+  //     // console.log('YAAAAA', detailedInfo)
+  //     output.push(detailedInfo);
+  //   //   this.setState({location,region,markers:markersInfo.filter((obj)=>obj)});
+  //   // this.loadingMarkers = false;
+  //   // console.log('total promise time', new Date().getTime() - v0);
+  //   })
+  // });
+  // }
 
-  fetchMarkerData = async (element) =>{
-    //venues.map(async (element,index)=>{
-      let fetchurl = "https://api.foursquare.com/v2/venues/search?client_id="+REACT_APP_FOURSQUARE_ID+"&client_secret="+REACT_APP_FOURSQUARE_SECRET+"&v=20180323&limit=3&near=" + element.value + "&query="  + element.label ;
-      //console.log(fetchurl);
-      try{  
-        let response = await fetch(fetchurl);
-        let data = await response.json();
-        let name = data.response.venues[0].name;
-        let id = data.response.venues[0].id;
-        console.log(element.label,{name:name,id:id,address:address});
-        let address = data.response.venues[0].location.formattedAddress
-        return {name:name,id:id,address:address}
-    }catch(err){
-      console.log('this problem is not being fetched: ', element.label , fetchurl)     
-    }
-  }
+
+  // fetchMarkerData = async (element) =>{
+  //   //venues.map(async (element,index)=>{
+  //     let fetchurl = "https://api.foursquare.com/v2/venues/search?client_id="+REACT_APP_FOURSQUARE_ID+"&client_secret="+REACT_APP_FOURSQUARE_SECRET+"&v=20180323&limit=3&near=" + element.value + "&query="  + element.label ;
+  //     //console.log(fetchurl);
+  //     try{  
+  //       let response = await fetch(fetchurl);
+  //       let data = await response.json();
+  //       let name = data.response.venues[0].name;
+  //       let id = data.response.venues[0].id;
+  //       console.log(element.label,{name:name,id:id,address:address});
+  //       let address = data.response.venues[0].location.formattedAddress
+  //       return {name:name,id:id,address:address}
+  //   }catch(err){
+  //     console.log('this problem is not being fetched: ', element.label , fetchurl)     
+  //   }
+  // }
 
 
 
