@@ -24,11 +24,14 @@ export default class CheckInScreen extends React.Component {
 
   constructor(props) {
     super(props);
+    this.actionTaken = false;
     this.state = {
       pool: [],
       isVisited: true,
       circles:[],
     };
+
+    console.log('checking params', this.props.navigation.state.params);
 
     // this.props.navigation.setParams({ jump: this._onPress });
     //this.fetchdata();
@@ -37,6 +40,10 @@ export default class CheckInScreen extends React.Component {
   componentDidMount() {
     this.fetchdata();
    // await this.fetchVenueData();
+  }
+
+  componentWillUnmount(){
+    this.actionTaken = false;
   }
 
   fetchdata() {
@@ -89,6 +96,7 @@ export default class CheckInScreen extends React.Component {
               backgroundColor="#FFFFFF"
               borderRadius= {34/812*height}
               onPress={(next) => {
+                this.actionTaken=true;
                 ((this.state.isVisited) ? Fire.shared.checkout(place) : Fire.shared.checkin(place)).then(()=>{
                   this.fetchdata();
                 });
@@ -100,7 +108,8 @@ export default class CheckInScreen extends React.Component {
         </GenericScreen>
         <TouchableOpacity
           style={styles.closeButtonContainer}
-          onPress={() => {this.props.navigation.navigate("Home")}}>
+          onPress={() => {this.props.navigation.navigate("Home",{shouldUpdate:this.actionTaken});}}
+          >
           <Image source={require('../assets/icons/close.png')} />
         </TouchableOpacity>
       </View>

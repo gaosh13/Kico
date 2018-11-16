@@ -103,6 +103,8 @@ class DrawerView extends Component {
           </View>
         </TouchableHighlight>
 
+        <View style={{height:hRatio(250)}}/>
+
         <TouchableHighlight
           onPress={() => navigate('Development')}
           underlayColor="#CCC"
@@ -263,7 +265,7 @@ const styles = StyleSheet.create({
   closeButtonContainer: {
     position: 'absolute',
     top: 60,
-    left: 36,
+    right: 36,
     borderRadius: 30,
     width: 30,
     height: 30,

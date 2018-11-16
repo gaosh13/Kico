@@ -42,7 +42,7 @@ export default class TaskListScreen extends React.Component {
     return (
       <View style={styles.container}>
         <View style={{marginBottom: 10}}>
-          <Text style={styles.titleText}>Tasks</Text>
+          <Text style={styles.titleText}>Missions</Text>
         </View>
         <FlatList
           data={this.state.task}

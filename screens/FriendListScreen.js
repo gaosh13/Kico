@@ -25,12 +25,6 @@ const wRatio = (value) => {
 }
 
 
-let names = require('./names');
-names = _.groupBy(require('./names'), (name) => name[0].toUpperCase());
-
-
-
-
 export default class App extends React.Component {
     static navigationOptions = {
         header: null,

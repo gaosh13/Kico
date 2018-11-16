@@ -10,21 +10,25 @@ const area = width*height;
 export class RandomCircles extends React.PureComponent {
 // use PureComponent to prevent the circles from the unnessassary refresh
   render() {
-    const pool = this.props.pool;
+    const pool = Array.from(this.props.pool);
     const navigation = this.props.navigation;
-    var NumCircles = pool.length;
-    // console.log(pool,pool.length)
+    var NumCircles = 0;
+    if (pool) {NumCircles = pool.length;}
     var values = pool.sort((a,b)=>{return b.value-a.value})
     var counter = 0;
     var savedCirclesCounter = 0;
     //maximum number of bubbles to be tested
-    var protection = NumCircles * 100;
     var overlapping = false;
 
     while(NumCircles<15){
-      pool.push({uid:null,name:'AI',source:require('../assets/images/AI.jpeg'),value:1});
+      pool.push({uid:null,name:'AI',source:require('../assets/images/AI.jpeg'),value:0.5});
       NumCircles ++;
     }
+
+    // console.log('Lets check order', pool);
+
+    var protection = NumCircles * 100;
+
 
     let newSum = pool.reduce((prev,next) => prev + next.value,0); 
 
@@ -33,8 +37,8 @@ export class RandomCircles extends React.PureComponent {
     while (circles.length < NumCircles &&
          counter < protection) {
 
-      var randomX = Math.round(50+Math.random() * (width-80));
-      var randomY = Math.round(50+Math.random() * (500/812*height-80));
+      var randomX = 25+Math.round(Math.random() * (width-50));
+      var randomY = 40+Math.round(Math.random() * ((600/812)*height-80));
       //perhaps better algorithm here
       var size = Math.sqrt(Math.pow(pool[savedCirclesCounter].value/newSum,2)*(area));
       var opacity = 0.2 + 0.8 * (Math.max(0,8 - savedCirclesCounter)/8);  
@@ -43,8 +47,6 @@ export class RandomCircles extends React.PureComponent {
       var uid = pool[savedCirclesCounter].uid;
       
       overlapping = false;
-      //console.log('counter is currently at: ', counter);
-      //console.log('added circles count is currently at: ', circles.length);
     
       // check that it is not overlapping with any existing circle
       for (var i = 0; i < circles.length; i++) {
@@ -58,6 +60,7 @@ export class RandomCircles extends React.PureComponent {
           break;
         }
       } 
+      
       // add valid circles to array
       if (!overlapping) {
         if (uri){
@@ -66,13 +69,12 @@ export class RandomCircles extends React.PureComponent {
         else{
           var circle = {width:size, xPos:randomX, yPos:randomY,opacity:opacity,source:pool[savedCirclesCounter].source,uid:uid,name:name};
         }
-
         savedCirclesCounter++;
+        // console.log('circle', savedCirclesCounter, 'is being rendered: ',circle);
         circles.push(circle);      
       }   
       counter++;
     }
-    //console.log('cirles to be rendered',circles);
     return clickBox(circles,navigation);
   }
 }

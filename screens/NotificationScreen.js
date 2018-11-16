@@ -1,17 +1,28 @@
 import React from 'react';
-import { FlatList, StyleSheet, View, Text, Image, TouchableOpacity, Alert } from 'react-native';
+import { FlatList, StyleSheet, View, Text, Image, TouchableOpacity, Alert,Dimensions } from 'react-native';
 import { WebBrowser } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
 import Touchable from 'react-native-platform-touchable';
 import Fire from '../components/Fire';
+
+const { width, height } = Dimensions.get("window");
+
+const hRatio = (value) => {
+  return value /812*height;
+}
+
+const wRatio = (value) => {
+  return value /375*width;
+}
+
 
 export default class NotificationScreen extends React.Component {
   static navigationOptions = {
     header: null,
   };
 
-  constructor(){
-    super();
+  constructor(props){
+    super(props);
     this.mountState = false;
     this.state = {
       notification: [],
@@ -26,6 +37,7 @@ export default class NotificationScreen extends React.Component {
         // this.setState({notification: dataArray});
       }
     });
+    console.log('checking params', this.props.navigation.state.params);
   }
 
   componentDidMount() {
@@ -69,13 +81,13 @@ export default class NotificationScreen extends React.Component {
     } else if (item.type == 'taski') {
       return (
         <View style={styles.messageTextContainer}>
-          <Text style={styles.messageText}>{item.name + " invite you to an event"}</Text>
+          <Text style={styles.messageText}>{item.name + " invited you to a mission"}</Text>
         </View>
       );
     } else if (item.type == 'add1') {
       return (
         <View style={styles.messageTextContainer}>
-          <Text style={styles.messageText}>{item.name + " becomes your friend"}</Text>
+          <Text style={styles.messageText}>{item.name + " is now your friend"}</Text>
         </View>
       );
     } else if (item.type == 'add2') {
@@ -152,8 +164,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 100,
-    paddingLeft: 15,
-    paddingRight: 15,
     backgroundColor: '#FAFBFD',
   },
   userImage: {
@@ -172,6 +182,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: 32,
+    marginLeft:wRatio(18),
     color: '#313254',
     fontWeight: 'bold',
     letterSpacing: 0.5,
@@ -192,6 +203,8 @@ const styles = StyleSheet.create({
     // borderColor: '#f00',
   },
   notificationList: {
+    marginLeft:wRatio(18),
+    paddingRight:wRatio(18),
   },
   closeButtonContainer: {
     position: 'absolute',

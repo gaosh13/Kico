@@ -84,9 +84,10 @@ export default class CheckInScreen extends React.Component {
     const task = this._taskID;
     return (
       <ScrollView
+        bounces={false}
         scrollEventThrottle={1}
         showsHorizontalScrollIndicator={false}
-        snapToInterval={104/812*height}
+        // snapToInterval={104/812*height}
         decelerationRate='fast'>
         <GenericScreen
           source={this.state.where.uri || undefined}
@@ -115,7 +116,7 @@ export default class CheckInScreen extends React.Component {
         </GenericScreen>
         <TouchableOpacity
           style={styles.closeButtonContainer}
-          onPress={() => {this.props.navigation.navigate("TaskListScreen")}}>
+          onPress={() => {this.props.navigation.navigate("Notification")}}>
           <Image source={require('../assets/icons/close.png')} />
         </TouchableOpacity>
         <TouchableOpacity
