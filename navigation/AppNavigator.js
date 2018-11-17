@@ -79,7 +79,7 @@ const PersonalDrawer = createDrawerNavigator({
   TaskListStack: createStackNavigator({TaskListScreen, JoinTaskScreen}),
 }, {
   initialRouteName: 'HomeStack',
-  drawerWidth: width,
+  drawerWidth: width*.8,
   drawerPosition: 'left',
   contentComponent: DrawerView,
 });

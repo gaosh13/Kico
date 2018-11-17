@@ -76,9 +76,9 @@ export default class ChatsScreen extends React.Component {
           renderItem={this._renderFriendListItem}>
         </FlatList>
         <TouchableOpacity
-          style={styles.backButtonContainer}
-          onPress={() => {this.props.navigation.openDrawer()}}>
-          <Image source={require('../assets/icons/back.png')} />
+          style={styles.closeButtonContainer}
+          onPress={() => {this.props.navigation.navigate('Home')}}>
+          <Image source={require('../assets/icons/close.png')} />
         </TouchableOpacity>
       </View>
     );
@@ -164,10 +164,10 @@ const styles = StyleSheet.create({
     // borderWidth: 1,
     // borderColor: '#f00',
   },
-  backButtonContainer: {
+  closeButtonContainer: {
     position: 'absolute',
     top: 60,
-    left: 30,
+    right: 30,
     borderRadius: 30,
     width: 30,
     height: 30,

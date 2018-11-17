@@ -53,8 +53,8 @@ export default class TaskListScreen extends React.Component {
         </FlatList>
         <TouchableOpacity
           style={styles.closeButtonContainer}
-          onPress={() => {this.props.navigation.openDrawer()}}>
-          <Image source={require('../assets/icons/back.png')} />
+          onPress={() => {this.props.navigation.navigate('Home')}}>
+          <Image source={require('../assets/icons/close.png')} />
         </TouchableOpacity>
       </View>
     );
@@ -172,7 +172,7 @@ const styles = StyleSheet.create({
   closeButtonContainer: {
     position: 'absolute',
     top: 60,
-    left: 30,
+    right: 30,
     borderRadius: 30,
     width: 30,
     height: 30,
