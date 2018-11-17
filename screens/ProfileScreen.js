@@ -58,7 +58,8 @@ export default class ProfileScreen extends React.Component {
     let [data, frienddata, pool] = await Promise.all([Fire.shared.readInfo(), Fire.shared.getFriends(), Fire.shared.getCheckedPlaces()]);
     if (data && frienddata) {
       const {name, gender, age, ki, photoURL} = data;
-      console.log('pool', pool);
+      pool = pool.sort((a,b)=>{return b.rawTime-a.rawTime});
+      console.log('pool & data', pool);
       this.setState({
         name: name,
         gender: gender,
@@ -105,7 +106,7 @@ export default class ProfileScreen extends React.Component {
           <View style={styles.innerCircle}/>
         </View>
         <View style={{width:114}} >
-          <Text style={styles.venueNameText_odd}>{item.name}</Text>
+          <Text numberOfLines={1} style={styles.venueNameText_odd}>{item.name}</Text>
           <Text style={styles.venueTimeText_odd}>{item.time}</Text> 
         </View>
       </View>
@@ -116,7 +117,7 @@ export default class ProfileScreen extends React.Component {
     return(
       <View key={"place"+index} style={{flexDirection:'row',justifyContent: 'space-evenly', height:104}}>
         <View style={{width:114}}>
-          <Text style={styles.venueNameText_even}>{item.name}</Text>
+          <Text numberOfLines={1} style={styles.venueNameText_even}>{item.name}</Text>
           <Text style={styles.venueTimeText_even}>{item.time}</Text> 
         </View>        
         <View style={{alignItems:'center'}}>
@@ -151,11 +152,11 @@ export default class ProfileScreen extends React.Component {
                 <Text style={styles.descriptionText}> # of Friends </Text> 
               </View>
               <View>
-                <Text style={styles.numberText}> {this.state.ki}/300 </Text>
+                <Text style={styles.numberText}> {this.state.ki-1}/300 </Text>
                 <Text style={styles.descriptionText}> # of Ki Left</Text> 
               </View>
               <View>
-                <Text style={styles.numberText}> 25 </Text>
+                <Text style={styles.numberText}> {this.state.pool.length} </Text>
                 <Text style={styles.descriptionText}> # of CheckIns </Text> 
               </View>
             </View>

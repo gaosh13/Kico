@@ -73,7 +73,7 @@ class Fire extends React.Component {
   }
 
   readUserInfo = async (UID) => {
-    // console.log('ready to download data, userID: ',UID);
+    console.log('ready to download data, userID: ',UID);
     let doc = await this.profile.doc(UID).get();
     // console.log('retrieved from readProfile:', doc.data());
     if (!doc.exists) {
@@ -165,6 +165,7 @@ class Fire extends React.Component {
           uri: doc.get('uri'),
           time: (time.getMonth() + 1) + '/' + time.getDate() + '/' + time.getFullYear(),
           id: doc.id,
+          rawTime:doc.get('time').seconds
         }
       });
     });

@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
     fontFamily:'GR',
     fontSize:14,
     color:'rgb(7,43,79)',
-    opacity:0.3
+    opacity:0.6
   }
 
 });

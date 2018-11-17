@@ -12,14 +12,15 @@ import {
   FlatList,
   AppRegistry,
   Button,
-  ImageBackground
+  ImageBackground,
+  TouchableWithoutFeedback,
 } from "react-native";
 import {
   WebBrowser,
   Constants,
   Location,
   Permissions,
-  LinearGradient
+  LinearGradient,
 } from "expo";
 import Touchable from "react-native-platform-touchable";
 import { MonoText } from "../components/StyledText";
@@ -36,11 +37,12 @@ import { BlurView, VibrancyView } from "react-native-blur";
 import ActionButton from "react-native-action-button";
 import DateTimePicker from "react-native-modal-datetime-picker";
 import { NavigationEvents } from "react-navigation";
+import Carousel ,{ Pagination }from 'react-native-snap-carousel';
 
 const { width, height } = Dimensions.get("window");
 
 const CARD_HEIGHT = (212 / 812) * height;
-const CARD_WIDTH = width / 1.1;
+const CARD_WIDTH = width / 1.25;
 
 //https://codedaily.io/tutorials/9/Build-a-Map-with-Custom-Animated-Markers-and-Region-Focus-when-Content-is-Scrolled-in-React-Native
 
@@ -64,7 +66,8 @@ export default class HomeScreen extends React.Component {
       markers: [],
       loaded: false,
       poolLoaded: false,
-      is_updated: false
+      is_updated: false,
+      activeSlide:null,
     };
     this.index = 0;
     this.loadingMarkers = false;
@@ -152,7 +155,8 @@ export default class HomeScreen extends React.Component {
                     id: marker.id,
                     uri: uri,
                     name: marker.name,
-                    location: marker.location
+                    location: marker.location,
+                    that:this
                   };
                 } else {
                   return this.fetchMarkerPhoto(marker.id).then(url => {
@@ -162,7 +166,8 @@ export default class HomeScreen extends React.Component {
                         id: marker.id,
                         uri: url,
                         name: marker.name,
-                        location: marker.location
+                        location: marker.location,
+                        that:this
                       };
                     } else {
                       return null;
@@ -280,7 +285,7 @@ export default class HomeScreen extends React.Component {
     if (this.mountState && this.state.poolLoaded) {
       // let friendSum = this.state.pool.reduce((prev,next) => prev + next.value,0);
       return (
-        <View style={styles.kiContainer}>
+        <View>
           <RandomCircles
             pool={this.state.pool}
             navigation={this.props.navigation}
@@ -293,63 +298,101 @@ export default class HomeScreen extends React.Component {
     }
   }
 
+  drawMarkers(){
+    if(this.mountState && this.state.markers.length){
+      return(
+      <View>
+        <Carousel
+          data={this.state.markers}
+          renderItem={this._renderItem}
+          sliderWidth={width}
+          itemWidth={0.75*width+0.04*width}
+          containerCustomStyle={styles.slider}
+          contentContainerCustomStyle={styles.sliderContentContainer}
+          onSnapToItem={(index) => this.setState({ activeSlide: index }) }
+          layout={"stack"}
+          loop={true}
+        />
+      </View>
+      )
+    }
+  }
+
+  _renderItem ({item, index}) {
+    console.log(item);
+    return (
+      <TouchableWithoutFeedback
+      key={index}
+      onPress={() =>
+        item.that.setState({ showOption: false }, function() {
+          item.that.props.navigation.navigate("CheckIn", {
+            shouldUpdate: false,
+            uri: item.uri,
+            name: item.name,
+            placeID: item.id,
+            location: item.location.formattedAddress.slice(0, -1)
+          });
+        })
+      }
+    >
+      <View style={styles.card}>
+        <AsyncImageAnimated
+          style={styles.cardImage}
+          source={{
+            uri: item.uri
+          }}
+          placeholderColor="#cfd8dc"
+          animationStyle="fade"
+        />
+        <LinearGradient
+          colors={["rgba(0,0,0,0)", "rgba(0,0,0,1)"]}
+          style={styles.blurView}
+        />
+        <View style={styles.textContent}>
+          <Text numberOfLines={1} style={styles.cardtitle}>
+            {item.name}
+          </Text>
+          <Text numberOfLines={1} style={styles.cardDescription}>
+            {item.location.formattedAddress.slice(0, -1)}
+          </Text>
+        </View>
+        <View style={styles.handle} />
+      </View>
+    </TouchableWithoutFeedback>
+    );
+}
+
+get pagination () {
+  const { markers, activeSlide } = this.state;
+  return (
+      <Pagination
+        dotsLength={markers.length}
+        activeDotIndex={activeSlide}
+        containerStyle={{paddingVertical:2,backgroundColor: 'rgba(0, 0, 0, 0)' }}
+        dotContainerStyle={{height:12}}
+        dotStyle={{
+            marginHorizontal: -4,
+            paddingVertical:0,
+            backgroundColor: 'rgba(0, 0, 0, 1)'
+        }}
+        inactiveDotOpacity={0.4}
+        inactiveDotScale={0.4}
+      />
+  );
+}
+
   render() {
     let stationaryurl =
       "https://s3.amazonaws.com/exp-brand-assets/ExponentEmptyManifest_192.png";
     return (
       <View style={styles.container}>
-        <View style={styles.particlesContainer}>{this.drawKiView()}</View>
-        <ScrollView
-          horizontal
-          scrollEventThrottle={1}
-          showsHorizontalScrollIndicator={false}
-          snapToInterval={CARD_WIDTH + 5}
-          style={styles.scrollView}
-          contentContainerStyle={styles.endPadding}
-          decelerationRate="fast"
-        >
-          {this.state.markers.map((marker, index) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() =>
-                this.setState({ showOption: false }, function() {
-                  this.props.navigation.navigate("CheckIn", {
-                    shouldUpdate: false,
-                    uri: marker.uri,
-                    name: marker.name,
-                    placeID: marker.id,
-                    location: marker.location.formattedAddress.slice(0, -1)
-                  });
-                })
-              }
-            >
-              <View style={styles.card}>
-                <AsyncImageAnimated
-                  style={styles.cardImage}
-                  source={{
-                    uri: marker.uri
-                  }}
-                  placeholderColor="#cfd8dc"
-                  animationStyle="fade"
-                />
-                <LinearGradient
-                  colors={["rgba(0,0,0,0)", "rgba(0,0,0,1)"]}
-                  style={styles.blurView}
-                />
-                <View style={styles.textContent}>
-                  <Text numberOfLines={1} style={styles.cardtitle}>
-                    {marker.name}
-                  </Text>
-                  <Text numberOfLines={1} style={styles.cardDescription}>
-                    {marker.location.formattedAddress.slice(0, -1)}
-                  </Text>
-                </View>
-                <View style={styles.handle} />
-              </View>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
+        <View style={styles.kiContainer}>
+          {this.drawKiView()}
+        </View>
+        <View style={styles.cardContainer}>
+          {this.pagination}  
+          {this.drawMarkers()}      
+        </View>
         <TouchableOpacity
           style={styles.notificationContainer}
           onPress={() => {
@@ -513,15 +556,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { x: 0, y: 10 }
   },
-  particlesContainer: {
-    marginTop: height / 8,
-    height: (height * 2) / 3,
-    width: width
-  },
   kiContainer: {
-    marginTop: (-102 / 812) * height,
+    height: height-CARD_HEIGHT,
     width: width,
-    height: (1 - 212 / height) * height
+    backgroundColor:'transparent'
   },
   itemContainer: {
     marginBottom: 15,
@@ -568,8 +606,9 @@ const styles = StyleSheet.create({
     elevation: 2,
     backgroundColor: "#FFF",
     marginHorizontal: 2.5,
-    borderTopLeftRadius: 5,
-    borderTopRightRadius: 5,
+    // borderTopLeftRadius: 5,
+    // borderTopRightRadius: 5,
+    borderRadius:5,
     shadowColor: "#000000",
     shadowRadius: 1.5,
     shadowOpacity: 0.1,
@@ -609,7 +648,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     color: "white",
     textAlign: "left",
-    fontFamily: "GSB",
+    fontFamily: "GR",
     fontSize: (22 / 812) * height,
     fontWeight: "bold"
   },
@@ -629,5 +668,18 @@ const styles = StyleSheet.create({
     flex: 1,
     width: width,
     height: height
-  }
+  },
+  cardContainer: {
+    position:'absolute',
+    bottom:0,
+    backgroundColor: 'transparent'
+    // paddingVertical: 30
+  },
+  slider: {
+      // marginTop: 15,
+      // overflow: 'visible' // for custom animations
+  },
+  sliderContentContainer: {
+      // paddingVertical: 10 // for custom animation
+  },
 });
