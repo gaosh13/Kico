@@ -122,7 +122,7 @@ export default class App extends React.Component {
     _handleActivity = (index) => {
       this.setState((state) => {
         const selected = new Set(state.selectedWhat);
-        if (this.state.whatIndex != undefined) selected.delete(this.state.whatIndex);
+        if (state.whatIndex != undefined) selected.delete(state.whatIndex);
         selected.add(index);
         return {selectedWhat: selected, whatIndex: index};
       });

@@ -41,11 +41,11 @@ export default class CheckInScreen extends React.Component {
     if (!this.props.navigation.getParam('task') || refresh) {
       const task = this._taskID;
       Fire.shared.getTaskInfo(task).then( (taskInfo) => {
-        const {users:pool, where, what, when, isGoing} = taskInfo;
+        const {users:pool={}, where={}, what, when, isGoing} = taskInfo;
         this.setState({pool, where, what, when, isGoing});
       });
     } else {
-      const {users:pool, where, what, when, isGoing} = this.props.navigation.getParam('task');
+      const {users:pool={}, where={}, what, when, isGoing} = this.props.navigation.getParam('task');
       this.setState({pool, where, what, when, isGoing});
     }
   }  
@@ -54,7 +54,7 @@ export default class CheckInScreen extends React.Component {
     if (this.state.pool.length){
       return (
         <View style={styles.kiContainer}>
-          {generateCirclesRow(this.state.pool)}          
+          {generateCirclesRow(this.state.pool)}
         </View>
       )
     } else{
@@ -144,6 +144,7 @@ export default class CheckInScreen extends React.Component {
   }
 
   _removeTask(task) {
+    const { getParam } = this.props.navigation;
     new Promise((resolve, reject) => {
       Alert.alert(
         'Warning',
@@ -156,7 +157,14 @@ export default class CheckInScreen extends React.Component {
       );
     }).then((ret)=>{
       console.log("promise", ret, task);
-      return Fire.shared.deleteTask(task).then(this.props.navigation.navigate("TaskListScreen"));
+      return Fire.shared.deleteTask(task).then( () => {
+        if (getParam('from')) {
+          this.props.navigation.navigate("Notification")
+        } else {
+          getParam('remove', ()=>{})(task);
+          this.props.navigation.navigate("TaskListScreen");
+        }
+      });
     }, (ret)=>{
       console.log("promise cancelled", ret);
     });
