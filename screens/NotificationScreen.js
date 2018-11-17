@@ -24,28 +24,56 @@ export default class NotificationScreen extends React.Component {
   constructor(props){
     super(props);
     this.mountState = false;
+    this.unsubscribe = false;
     this.state = {
       notification: [],
     };
-    Fire.shared.getNotification().then((data) => {
-      if (this.mountState && data.length) {
-        this.setState({notification: data});
-        // let dataArray = [];
-        // for (let i = 0; i < 10; ++i) {
-        //   dataArray.push(data[i % data.length]);
-        // }
-        // this.setState({notification: dataArray});
-      }
-    });
     console.log('checking params', this.props.navigation.state.params);
+  }
+
+  onSnapshot(type, msg) {
+    // console.log('on', type, msg, this.mountState);
+    if (this.mountState) {
+      if (type === 'added') {
+        for (let i = 0; i < this.state.notification.length; ++i) {
+          if (msg.id == this.state.notification[i].id) return;
+        }
+        this.setState((state) => {
+          let notification = Array.from(state.notification);
+          notification.unshift(msg);
+          return {notification}
+        });
+      } else {
+        this.setState((state) => {
+          let notification = Array.from(state.notification);
+          for (let i = 0; i < notification.length; ++i) {
+            if (msg == notification[i].id) {
+              notification.splice(i, 1);
+              break;
+            }
+          }
+          return {notification}
+        });
+      }
+    }
   }
 
   componentDidMount() {
     this.mountState = true;
+    Fire.shared.getNotification().then((data) => {
+      if (this.mountState && data.length) {
+        this.setState({notification: data});
+        this.unsubscribe = Fire.shared.listenNotification((type, msg) => {this.onSnapshot(type, msg)});
+      }
+    });
   }
 
   componentWillUnmount() {
     this.mountState = false;
+    if (this.unsubscribe) {
+      this.unsubscribe();
+      this.unsubscribe = null;
+    }
   }
 
   render() {

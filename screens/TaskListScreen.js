@@ -53,15 +53,27 @@ export default class TaskListScreen extends React.Component {
         </FlatList>
         <TouchableOpacity
           style={styles.closeButtonContainer}
-          onPress={() => {this.props.navigation.openDrawer()}}>
-          <Image source={require('../assets/icons/back.png')} />
+          onPress={() => {this.props.navigation.navigate('Home')}}>
+          <Image source={require('../assets/icons/close.png')} />
         </TouchableOpacity>
       </View>
     );
   }
 
   _handlePress = (item) => {
-    this.props.navigation.navigate("JoinTaskScreen", {task: item});
+    this.props.navigation.navigate("JoinTaskScreen", {taskID: item.id, remove: (taskID) => {this._removeItem(taskID)}});
+  }
+
+  _removeItem = (taskID) => {
+    let task = this.state.task;
+    for (let i = 0; i < task.length; ++i) {
+      if (taskID.toString() == task[i].id.toString()) {
+        task.splice(i, 1);
+        break;
+      }
+    }
+    console.log('newList', task);
+    this.setState({task});
   }
 
   _renderListItem = ({item}) => (
@@ -93,9 +105,11 @@ class TaskItem extends React.PureComponent {
               {/*<Text style={styles.furtherText}>Suzzallo Cafe, Today @ 3:30pm</Text>*/}
               <Text style={styles.furtherText}>{item.where.name}, {item.when.toString()}</Text>
             </View>
+            {/*
             <View style={{flex: 0.5}}>
               {generateSmallCircles(item.users)}
             </View>
+            */}
           </View>
         </View>
       </TouchableOpacity>
@@ -126,6 +140,7 @@ const styles = StyleSheet.create({
   cardDescription: {
     flexDirection: 'row',
     backgroundColor: 'white',
+    paddingVertical: 5,
   },
   container: {
     flex: 1,
@@ -172,7 +187,7 @@ const styles = StyleSheet.create({
   closeButtonContainer: {
     position: 'absolute',
     top: 60,
-    left: 30,
+    right: 30,
     borderRadius: 30,
     width: 30,
     height: 30,

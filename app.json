@@ -5,12 +5,12 @@
     "slug": "PlayerX",
     "privacy": "public",
     "sdkVersion": "30.0.0",
-    "platforms": ["ios", "android"],
-    "version": "1.0.0",
+    "platforms": ["ios"],
+    "version": "1.0.3",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/appicon.png",
     "splash": {
-      "image": "./assets/images/PlayerX_logo.png",
+      "image": "./assets/images/appicon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
