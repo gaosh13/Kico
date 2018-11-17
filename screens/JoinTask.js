@@ -9,6 +9,14 @@ import QRCode from 'react-native-qrcode-svg';
 
 const { width, height } = Dimensions.get("window");
 
+const hRatio = (value) => {
+  return value /812*height;
+}
+
+const wRatio = (value) => {
+  return value /375*width;
+}
+
 export default class CheckInScreen extends React.Component {
   static navigationOptions = {
     header: null,
@@ -69,10 +77,11 @@ export default class CheckInScreen extends React.Component {
   _renderQRCode() {
     if (this.state.isGoing) {
       return (
-        <View style={{paddingTop: 20, paddingBottom: 20}}>
+        <View style={{paddingTop: 20, paddingBottom: 20,alignItems:'center'}}>
           <QRCode
             value={this._generateQRCode()}
             size={200}/>
+          <Text style={styles.QRText}>Scan QR code to add friend</Text>
         </View>
       );
     } else return null;
@@ -101,6 +110,7 @@ export default class CheckInScreen extends React.Component {
               {this._renderQRCode()}
               <AwesomeButton
                 // progress
+                marginTop={hRatio(32)}
                 height={68/812*height}
                 backgroundColor="#FFFFFF"
                 borderRadius= {34/812*height}
@@ -116,7 +126,12 @@ export default class CheckInScreen extends React.Component {
         </GenericScreen>
         <TouchableOpacity
           style={styles.closeButtonContainer}
-          onPress={() => {this.props.navigation.navigate("Notification")}}>
+          onPress={() => {
+            if(getParam('from')) {
+              this.props.navigation.navigate("Notification")
+            }else{
+              this.props.navigation.navigate("TaskListScreen")
+            }}}>
           <Image source={require('../assets/icons/close.png')} />
         </TouchableOpacity>
         <TouchableOpacity
@@ -234,6 +249,13 @@ const styles = StyleSheet.create({
     color:'rgb(7,43,79)',
     opacity:0.5,
     textAlign: "center"
+  },
+  QRText:{
+    marginTop:hRatio(26),
+    fontFamily:'GR',
+    fontSize:14,
+    color:'rgb(7,43,79)',
+    opacity:0.3
   }
 
 });

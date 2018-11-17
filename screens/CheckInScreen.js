@@ -27,6 +27,7 @@ export default class CheckInScreen extends React.Component {
     this.actionTaken = false;
     this.state = {
       pool: [],
+      poolLoaded:false,
       isVisited: true,
       circles:[],
     };
@@ -54,7 +55,7 @@ export default class CheckInScreen extends React.Component {
       Fire.shared.isVisited(place),
     ]).then( ([pool, isVisited])=>{
       // console.log("changed", isVisited);
-      this.setState({pool, isVisited});
+      this.setState({pool, isVisited,poolLoaded:true});
     });
   }
 
@@ -62,7 +63,7 @@ export default class CheckInScreen extends React.Component {
 // follows this tutorial:
 // https://www.youtube.com/watch?v=XATr_jdh-44
 // console.log(this.state.pool)
-    if (this.state.pool.length){
+    if (this.state.poolLoaded){
       //console.log('ZZZZZZZZ',this.state.sum);
       return (
         <View style={styles.kiContainer}>

@@ -9,6 +9,7 @@ const area = width*height;
 
 export class RandomCircles extends React.PureComponent {
 // use PureComponent to prevent the circles from the unnessassary refresh
+
   render() {
     const pool = Array.from(this.props.pool);
     const navigation = this.props.navigation;
@@ -136,8 +137,8 @@ export function generateCirclesRow(originPool) {
 
   // console.log(pool);
   let pool = Array.from(originPool);
-  let NumCircles = pool.length;
-
+  var NumCircles = 0;
+  if (pool) {NumCircles = pool.length;}
   while(NumCircles<15){
     pool.push({uid:null,name:'AI',source:require('../assets/images/AI.jpeg'),value:1});
     NumCircles ++;

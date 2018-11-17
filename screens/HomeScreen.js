@@ -72,11 +72,13 @@ export default class HomeScreen extends React.Component {
   }
 
   componentDidMount() {
-    this.updatePool = this.props.navigation.addListener("didFocus", payload => {
-      console.log("checking params", this.props.navigation.state.params);
-      console.log("top addlistener is called", payload.state);
+    this.updatePool = this.props.navigation.addListener("willFocus", payload => {
+      // console.log("checking params", this.props.navigation.state.params);
+      // console.log("top addlistener is called", payload.state);
       if (this.props.navigation.getParam("shouldUpdate",false)){
         this.props.navigation.setParams({shouldUpdate:false})
+        console.log('we want to refetch to pool')
+        this.setState({poolLoaded:false});
         this.fetchPool();
       }
       // this.setState(
@@ -285,13 +287,6 @@ export default class HomeScreen extends React.Component {
           />
         </View>
       );
-    } else if (this.mountState && this.state.is_updated) {
-      console.log("BOOM");
-      // this.fetchPool();
-      // return (
-      //   <View style={styles.kiContainer}>
-      //     <RandomCircles pool={this.state.pool} navigation={this.props.navigation}/>
-      //   </View>);
     } else {
       // console.log('wait....');
       return <View style={styles.kiContainer} />;

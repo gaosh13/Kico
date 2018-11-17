@@ -112,7 +112,7 @@ export default class NotificationScreen extends React.Component {
   _pressSingleItem = (item) => {
     if (item.type == 'taski') {
       // console.log("item.task", item.task);
-      this.props.navigation.navigate("JoinTaskScreen", {taskID: item.task});
+      this.props.navigation.navigate("JoinTaskScreen", {taskID: item.task,from:"notification"});
     } else if (item.type == 'add1') {
       Alert.alert(
         'Congratulations',
