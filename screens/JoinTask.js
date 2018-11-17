@@ -125,14 +125,14 @@ export default class CheckInScreen extends React.Component {
           </View>
         </GenericScreen>
         <TouchableOpacity
-          style={styles.closeButtonContainer}
+          style={styles.backButtonContainer}
           onPress={() => {
             if(getParam('from')) {
               this.props.navigation.navigate("Notification")
             }else{
               this.props.navigation.navigate("TaskListScreen")
             }}}>
-          <Image source={require('../assets/icons/close.png')} />
+          <Image source={require('../assets/icons/back.png')} />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.deleteButtonContainer}
@@ -199,10 +199,10 @@ const styles = StyleSheet.create({
   generalText:{
     fontFamily :"kontakt",
   },
-  closeButtonContainer: {
+  backButtonContainer: {
     position: 'absolute',
     top: 60,
-    right: 30,
+    left: 30,
     borderRadius: 30,
     width: 30,
     height: 30,
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
   deleteButtonContainer:{
     position: 'absolute',
     top: 100,
-    right: 30,
+    left: 30,
     borderRadius: 30,
     width: 30,
     height: 30,
