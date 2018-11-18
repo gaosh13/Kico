@@ -8,19 +8,31 @@ import {
   StyleSheet,
   Button,
   TouchableHighlight,
+  TouchableOpacity,
   Image,
   FlatList,
+  Dimensions,
 } from 'react-native'
 import { Constants } from 'expo'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import * as firebase from 'firebase'
 import Fire from '../components/Fire'
 
+const { width, height } = Dimensions.get('window')
+
+const hRatio = value => {
+  return (value / 812) * height
+}
+
+const wRatio = value => {
+  return (value / 375) * width
+}
+
 class DrawerView extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      name: 'Annie',
+      name: 'Jeremy',
       photoUrl: '../assets/images/icon.png',
     }
   }
@@ -48,58 +60,67 @@ class DrawerView extends Component {
 
     return (
       <View style={styles.container}>
+        <View style={styles.space} />
+
         <TouchableHighlight
-          onPress={() => navigate('Profile')}
+          onPress={() => {
+            navigate('Profile')
+            this.props.navigation.closeDrawer()
+          }}
           underlayColor="#CCC"
-          style={styles.firstTouchable}
+          style={styles.menuTouchable}
         >
-          <View style={styles.profileContainer}>
-            <View style={styles.profileImg}>
+          <View style={styles.navBar}>
+            <View style={styles.leftContainer}>
               <Image
-                style={styles.userImage}
-                source={{
-                  uri: this.state.photoUrl,
-                }}
+                style={{ width: wRatio(72), height: wRatio(72) }}
+                source={require('../assets/icons/profile.png')}
               />
-              <Text style={styles.navTextStyle}>{this.state.name}</Text>
             </View>
-            <View style={styles.navBar}>
-              <View style={styles.leftContainer}>
-                <Icon name={'gift'} size={30} color="#000" />
-              </View>
-              <View style={styles.rightContainer}>
-                <Text style={styles.navTextStyle}>Profile</Text>
-              </View>
+            <View style={styles.rightContainer}>
+              <Text style={styles.navTextStyle}>Human Profile</Text>
             </View>
           </View>
         </TouchableHighlight>
 
         <TouchableHighlight
-          onPress={() => navigate('Chats')}
+          onPress={() => {
+            navigate('Chats')
+            this.props.navigation.closeDrawer()
+          }}
           underlayColor="#CCC"
           style={styles.menuTouchable}
         >
           <View style={styles.navBar}>
             <View style={styles.leftContainer}>
-              <Icon name={'eye'} size={30} color="#000" />
+              <Image
+                style={{ width: wRatio(72), height: wRatio(72) }}
+                source={require('../assets/icons/chat.png')}
+              />
             </View>
             <View style={styles.rightContainer}>
-              <Text style={styles.navTextStyle}>Chat</Text>
+              <Text style={styles.navTextStyle}>Ki Communication</Text>
             </View>
           </View>
         </TouchableHighlight>
 
         <TouchableHighlight
-          onPress={() => navigate('JoinTask')}
+          onPress={() => {
+            navigate('TaskListScreen')
+            this.props.navigation.closeDrawer()
+          }}
           underlayColor="#CCC"
           style={styles.menuTouchable}
         >
           <View style={styles.navBar}>
             <View style={styles.leftContainer}>
-              <Icon name={'eye'} size={30} color="#000" />
+              <Image
+                style={{ width: wRatio(72), height: wRatio(72) }}
+                source={require('../assets/icons/task.png')}
+              />
             </View>
             <View style={styles.rightContainer}>
-              <Text style={styles.navTextStyle}>Join</Text>
+              <Text style={styles.navTextStyle}>Missions</Text>
             </View>
           </View>
         </TouchableHighlight>
@@ -109,55 +130,26 @@ class DrawerView extends Component {
           underlayColor="#CCC"
           style={styles.menuTouchable}
         >
-          <View style={styles.navBar}>
-            <View style={styles.leftContainer}>
-              <Icon name={'gift'} size={30} color="#000" />
-            </View>
-            <View style={styles.rightContainer}>
-              <Text style={styles.navTextStyle}>Development</Text>
-            </View>
+          <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+            <Text style={{ color: 'blue' }}>Development</Text>
           </View>
         </TouchableHighlight>
 
-        <TouchableHighlight
-          onPress={() => navigate('QRCode')}
-          underlayColor="#CCC"
-          style={styles.menuTouchable}
-        >
-          <View style={styles.navBar}>
-            <View style={styles.leftContainer}>
-              <Icon name={'gift'} size={30} color="#000" />
-            </View>
-            <View style={styles.rightContainer}>
-              <Text style={styles.navTextStyle}>QRCode</Text>
-            </View>
-          </View>
-        </TouchableHighlight>
-
-        <TouchableHighlight
-          onPress={() => navigate('Home')}
-          underlayColor="#CCC"
-          style={styles.menuTouchable}
-        >
-          <View style={styles.navBar}>
-            <View style={styles.leftContainer}>
-              <Icon name={'rocket'} size={30} color="#000" />
-            </View>
-            <View style={styles.rightContainer}>
-              <Text style={styles.navTextStyle}>Main</Text>
-            </View>
-          </View>
-        </TouchableHighlight>
-
-        <TouchableHighlight
-          onPress={this.Logout}
-          underlayColor="#CCC"
-          style={{ position: 'absolute', bottom: 0 }}
-        >
+        <TouchableHighlight onPress={this.Logout} underlayColor="#CCC" style={styles.menuTouchable}>
           <View style={{ alignItems: 'center', justifyContent: 'center' }}>
             <Text style={{ color: 'red' }}>Log out</Text>
           </View>
         </TouchableHighlight>
+
+        <TouchableOpacity
+          style={styles.closeButtonContainer}
+          onPress={() => {
+            navigate('Home')
+            this.props.navigation.closeDrawer()
+          }}
+        >
+          <Image source={require('../assets/icons/close.png')} />
+        </TouchableOpacity>
       </View>
     )
   }
@@ -215,7 +207,7 @@ DrawerView.propTypes = {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 15,
+    paddingTop: 10,
     backgroundColor: '#fff',
   },
   userImage: {
@@ -232,17 +224,17 @@ const styles = StyleSheet.create({
     marginTop: 9,
     marginBottom: 12,
   },
-  firstTouchable: {
-    backgroundColor: '#fff',
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    // borderBottomWidth: StyleSheet.hairlineWidth,
-    // borderBottomColor: '#000',
-  },
+  // firstTouchable: {
+  //   backgroundColor: '#fff',
+  //   paddingVertical: 10,
+  //   paddingHorizontal: 5,
+  //   // borderBottomWidth: StyleSheet.hairlineWidth,
+  //   // borderBottomColor: '#000',
+  // },
   menuTouchable: {
     backgroundColor: '#fff',
     paddingVertical: 10,
-    paddingHorizontal: 5,
+    paddingHorizontal: 10,
     // borderBottomWidth: StyleSheet.hairlineWidth,
     // borderBottomColor: '#EDEDED',
   },
@@ -264,15 +256,13 @@ const styles = StyleSheet.create({
   navTextStyle: {
     paddingTop: 10,
     fontSize: 15,
+    fontFamily: 'GSB',
   },
   footerContainer: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-  },
-  navTextStyle: {
-    fontFamily: 'mylodon-light',
   },
   profileContainer: {
     paddingTop: 50,
@@ -286,6 +276,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     // borderBottomWidth: StyleSheet.hairlineWidth,
     // borderBottomColor: '#EDEDED',
+  },
+  closeButtonContainer: {
+    position: 'absolute',
+    top: 60,
+    left: 36,
+    borderRadius: 30,
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    shadowColor: '#000000',
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
+    // backgroundColor: '#fff',
+  },
+  space: {
+    paddingTop: '45%',
   },
 })
 

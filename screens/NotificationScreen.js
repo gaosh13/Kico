@@ -1,142 +1,161 @@
-import React from 'react';
-import { FlatList, StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native';
-import { WebBrowser } from 'expo';
-import { Ionicons } from '@expo/vector-icons';
-import Touchable from 'react-native-platform-touchable';
-import Fire from '../components/Fire';
+import React from 'react'
+import { FlatList, StyleSheet, View, Text, Image, TouchableOpacity, Alert } from 'react-native'
+import { WebBrowser } from 'expo'
+import { Ionicons } from '@expo/vector-icons'
+import Touchable from 'react-native-platform-touchable'
+import Fire from '../components/Fire'
 
 export default class NotificationScreen extends React.Component {
   static navigationOptions = {
     header: null,
-  };
+  }
 
-  constructor(){
-    super();
-    this.mountState = false;
+  constructor() {
+    super()
+    this.mountState = false
     this.state = {
       notification: [],
-    };
-    Fire.shared.getNotification().then((data) => {
+    }
+    Fire.shared.getNotification().then(data => {
       if (this.mountState && data.length) {
-        // this.setState({notification: data});
-        let dataArray = [];
-        for (let i = 0; i < 10; ++i) {
-          dataArray.push(data[i % data.length]);
-        }
-        this.setState({notification: dataArray});
+        this.setState({ notification: data })
+        // let dataArray = [];
+        // for (let i = 0; i < 10; ++i) {
+        //   dataArray.push(data[i % data.length]);
+        // }
+        // this.setState({notification: dataArray});
       }
-    });
+    })
   }
 
   componentDidMount() {
-    this.mountState = true;
+    this.mountState = true
   }
 
   componentWillUnmount() {
-    this.mountState = false;
+    this.mountState = false
   }
 
   render() {
     return (
       <View style={styles.container}>
-        <View style={{marginBottom: 10}}>
+        <View style={{ marginBottom: 10 }}>
           <Text style={styles.titleText}>Notification</Text>
         </View>
         <FlatList
           style={styles.notificationList}
           data={this.state.notification}
           keyExtractor={this._keyExtractor}
-          renderItem={this._renderListItem}>
-        </FlatList>
+          renderItem={this._renderListItem}
+        />
         <TouchableOpacity
           style={styles.closeButtonContainer}
-          onPress={() => {this.props.navigation.navigate("Home")}}>
-          <Ionicons name='ios-close' size={25} color="#000"/>
+          onPress={() => {
+            this.props.navigation.navigate('Home')
+          }}
+        >
+          <Image source={require('../assets/icons/close.png')} />
         </TouchableOpacity>
       </View>
-    );
+    )
   }
 
-  _keyExtractor = (item, index) => {return "notification" + index}
+  _keyExtractor = (item, index) => {
+    return 'notification' + index
+  }
 
-  _renderSingleItem = (item) => {
+  _renderSingleItem = item => {
     if (item.type == 'sys1') {
       return (
         <View style={styles.messageTextContainer}>
           <Text style={styles.messageText}>{item.message}</Text>
         </View>
-      );
+      )
     } else if (item.type == 'taski') {
       return (
         <View style={styles.messageTextContainer}>
-          <Text style={styles.messageText}>{item.name + " invite you to an event"}</Text>
+          <Text style={styles.messageText}>{item.name + ' invite you to an event'}</Text>
         </View>
-      );
+      )
     } else if (item.type == 'add1') {
       return (
         <View style={styles.messageTextContainer}>
-          <Button title="Confirm" onPress={()=>{}} />
-          <Button title="Reject" onPress={()=>{}} />
+          <Text style={styles.messageText}>{item.name + ' becomes your friend'}</Text>
         </View>
-      );
+      )
     } else if (item.type == 'add2') {
       return (
         <View style={styles.messageTextContainer}>
-          <Button title="Confirm" onPress={()=>{}} />
-          <Button title="Reject" onPress={()=>{}} />
+          <Button title="Confirm" onPress={() => {}} />
+          <Button title="Reject" onPress={() => {}} />
         </View>
-      );
+      )
     } else {
-      return null;
+      return null
     }
   }
 
   _getImage(item) {
-    if (item.type == 'sys1')
-      return require("../assets/images/PlayerX_logo.png");
-    else
-      return {uri: item.uri};
+    if (item.type == 'sys1') return require('../assets/images/PlayerX_logo.png')
+    else return { uri: item.uri }
   }
 
-  _pressSingleItem = (item) => {
+  _pressSingleItem = item => {
     if (item.type == 'taski') {
       // console.log("item.task", item.task);
-      this.props.navigation.navigate("JoinTaskScreen", {task: item.task});
+      this.props.navigation.navigate('JoinTaskScreen', { taskID: item.task })
     } else if (item.type == 'add1') {
       Alert.alert(
         'Congratulations',
-        'You and ' + item.name + ' are friends now.',
+        'You and ' + item.name + ' are friends now.'
         // [
         //   {text: 'No', onPress: () => console.warn('NO Pressed'), style: 'cancel'},
         //   {text: 'Yes', onPress: () => {console.warn('YES Pressed'); Fire.shared.addFriend(item.uid2, "add2")} },
         // ]
-      );
+      )
     }
   }
 
-  _renderListItem = ({item}) => {
-    let displayText = 'Here comes a new message';
+  _renderListItem = ({ item }) => {
+    let displayText = 'Here comes a new message'
     // console.log("item.uri", item.uri);
     return (
-      <TouchableOpacity
-        style={styles.itemContainer}
-        onPress={() => this._pressSingleItem(item)}>
-        <View style={{flex: 0.25,
-          // borderWidth: 1, borderColor: '#000'
-        }}>
-          <Image
-            style={styles.userImage}
-            source={this._getImage(item)}
-          />
+      <TouchableOpacity style={styles.itemContainer} onPress={() => this._pressSingleItem(item)}>
+        <View
+          style={{
+            flex: 0.25,
+            // borderWidth: 1, borderColor: '#000'
+          }}
+        >
+          <Image style={styles.userImage} source={this._getImage(item)} />
         </View>
-        <View style={{flex: 0.75, justifyContent: 'center',
-          // borderWidth: 1, borderColor: '#000',
-        }}>
+        <View
+          style={{
+            flex: 0.75,
+            justifyContent: 'center',
+            // borderWidth: 1, borderColor: '#000',
+          }}
+        >
           {this._renderSingleItem(item)}
-          <Text style={styles.timestampText}>{item.time}</Text>
+          <View style={{ flexDirection: 'row' }}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.timestampText}>{item.time}</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.deleteNotificationContainer}
+              onPress={() => {
+                Fire.shared.removeNotification(item.id)
+              }}
+            >
+              <Image
+                style={{ width: 20, height: 20 }}
+                source={require('../assets/icons/remove.png')}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
       </TouchableOpacity>
-    );
+    )
   }
 }
 
@@ -183,8 +202,7 @@ const styles = StyleSheet.create({
     // borderWidth: 1,
     // borderColor: '#f00',
   },
-  notificationList: {
-  },
+  notificationList: {},
   closeButtonContainer: {
     position: 'absolute',
     top: 60,
@@ -192,9 +210,22 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     width: 30,
     height: 30,
-    alignItems:'center',
-    borderWidth: 1.5,
-    borderColor: '#000',
+    alignItems: 'center',
+    shadowColor: '#000000',
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
     // backgroundColor: '#fff',
   },
-});
+  deleteNotificationContainer: {
+    borderRadius: 20,
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    shadowColor: '#000000',
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
+  },
+})

@@ -59,6 +59,7 @@ export default class CheckInScreen extends React.Component {
   drawKiView() {
     // follows this tutorial:
     // https://www.youtube.com/watch?v=XATr_jdh-44
+    // console.log(this.state.pool)
     if (this.state.pool.length) {
       //console.log('ZZZZZZZZ',this.state.sum);
       return <View style={styles.kiContainer}>{generateCirclesRow(this.state.pool)}</View>
@@ -109,7 +110,7 @@ export default class CheckInScreen extends React.Component {
             this.props.navigation.navigate('Home')
           }}
         >
-          <Ionicons name="ios-close" size={25} color="#000" />
+          <Image source={require('../assets/icons/close.png')} />
         </TouchableOpacity>
       </View>
     )
@@ -247,10 +248,8 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     alignItems: 'center',
-    borderWidth: 0.5,
-    borderColor: '#000',
     backgroundColor: '#fff',
-    // backgroundColor: '#fff',
+    opacity: 0.8,
   },
   buttonContainer: {
     alignItems: 'center',

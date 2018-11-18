@@ -16,6 +16,7 @@ import {
   AsyncStorage,
   ImageBackground,
   TouchableHighlight,
+  Dimensions,
 } from 'react-native'
 import Expo from 'expo'
 import GoogleSignInButton from '../components/GoogleSignInButton'
@@ -33,12 +34,20 @@ import QRCodeScreen from '../screens/QRCodeScreen'
 import DevelopmentScreen from '../screens/DevelopmentScreen'
 import CheckInScreen from '../screens/CheckInScreen'
 import NotificationScreen from '../screens/NotificationScreen'
-import ChatScreen from '../screens/ChatScreen'
 import ChangeScreen from '../screens/ChangeScreen'
+import ChatScreen from '../screens/ChatScreen'
 import OtherProfileScreen from '../screens/OtherProfileScreen'
 import JoinTaskScreen from '../screens/JoinTask'
+import TaskListScreen from '../screens/TaskListScreen'
 import CreateTaskScreen from '../screens/CreateTask'
 import Congratulations from '../screens/Congratulations.js'
+import FriendListScreen from '../screens/FriendListScreen.js'
+
+import ReadyPage from '../screens/ReadyPage'
+import Login from '../screens/Login'
+import * as firebase from 'firebase'
+
+const { width, height } = Dimensions.get('window')
 
 import ReadyPage from '../screens/ReadyPage'
 import Login from '../screens/Login'
@@ -80,20 +89,22 @@ const PersonalDrawer = createDrawerNavigator(
         ViewOther: OtherProfileScreen,
         QRScanner,
         CreateTask: CreateTaskScreen,
-        Congratulations,
+        Congrats: Congratulations,
+        InviteFriends: FriendListScreen,
       },
       {
         initialRouteName: 'Home',
       }
     ),
     Profile: createStackNavigator({ ProfileScreen, Edit: EditScreen }),
-    Chats: createStackNavigator({ ChatsScreen }),
+    Chat: createStackNavigator({ ChatsScreen }),
     Development: createStackNavigator({ DevelopmentScreen }),
     QRCode: createStackNavigator({ QRCodeScreen }),
-    JoinTask: createStackNavigator({ JoinTaskScreen }),
+    TaskListStack: createStackNavigator({ TaskListScreen, JoinTaskScreen }),
   },
   {
     initialRouteName: 'HomeStack',
+    drawerWidth: width * 0.8,
     drawerPosition: 'left',
     contentComponent: DrawerView,
   }

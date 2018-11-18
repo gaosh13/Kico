@@ -99,7 +99,7 @@ export default class ProfileScreen extends React.Component {
             navigate('Home')
           }}
         >
-          <Ionicons name="ios-close" size={25} color="#000" />
+          <Image source={require('../assets/icons/close.png')} />
         </TouchableOpacity>
       </View>
     )
@@ -115,14 +115,11 @@ const styles = StyleSheet.create({
     width: (30 / 812) * height,
     height: (30 / 812) * height,
     alignItems: 'center',
-    borderWidth: 0.5,
-    borderColor: '#000',
     backgroundColor: '#fff',
-    shadowOffset: { width: 0, height: 10 },
-    shadowRadius: 10,
-    shadowColor: 'rgba(0,0,0,1)',
-    shadowOpacity: 0.1,
-    // backgroundColor: '#fff',
+    shadowColor: '#000000',
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
   },
   buttonContainer: {
     marginTop: (56 / 812) * height,
@@ -141,10 +138,10 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     height: (427 / 812) * height,
     width: (315 / 375) * width,
-    shadowOffset: { width: 0, height: 20 },
-    shadowRadius: 10,
-    shadowColor: 'rgba(0,0,0,1)',
-    shadowOpacity: 0.4,
+    shadowColor: '#000000',
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
     marginTop: 12,
     resizeMode: 'cover',
   },
