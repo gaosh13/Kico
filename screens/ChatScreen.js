@@ -47,10 +47,13 @@ export default class ChatScreen extends React.Component {
           .collection('messages')
           .doc(uid)
           .collection('messages')
-          .limit(8)
+          .limit(10)
           .orderBy('createdAt', 'desc')
           .onSnapshot(snap => {
-            const docs = snap.docChanges().map(changes => changes.doc.id)
+            const docs = snap
+              .docChanges()
+              .filter(changes => changes.type === 'added')
+              .map(changes => changes.doc.id)
             Fire.shared.getMessages(docs).then(messages => {
               this.setState(previousState => {
                 if (
