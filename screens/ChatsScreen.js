@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons'
 import Touchable from 'react-native-platform-touchable'
 import Fire from '../components/Fire'
 import { generateCirclesRow } from '../components/KiVisual'
+import moment from 'moment'
 
 const { width, height } = Dimensions.get('window')
 
@@ -86,7 +87,7 @@ export default class ChatsScreen extends React.Component {
         />
         <FlatList
           showsVerticalScrollIndicator={false}
-          style={{ marginLeft: wRatio(18) }}
+          style={{ marginHorizontal: 15 }}
           data={this.state.friends}
           keyExtractor={(item, index) => {
             return 'friend' + index
@@ -129,7 +130,7 @@ export default class ChatsScreen extends React.Component {
     return (
       <TouchableOpacity
         onPress={() => {
-          this.props.navigation.navigate('Chat', {
+          this.props.navigation.navigate('ChatScreen', {
             uri: item.uri,
             name: item.name,
             uid: item.uid,
@@ -180,6 +181,7 @@ export default class ChatsScreen extends React.Component {
             >
               <Text style={styles.usernameText}>{item.name}</Text>
               <Text style={styles.timestampText}>
+                {/* SOMETIME */}
                 {item.updatedAt ? moment(item.updatedAt).fromNow() : ''}
               </Text>
             </View>
@@ -253,7 +255,7 @@ const styles = StyleSheet.create({
   },
   strangerList: {
     height: 90,
-    // paddingRight: 15,
+    paddingHorizontal: 15,
     // borderWidth: 1,
     // marginBottom: 10,
   },
