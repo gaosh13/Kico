@@ -374,47 +374,52 @@ export default class HomeScreen extends React.Component {
 
   render() {
     return (
-      <View style={styles.container}>
-        <View style={styles.kiContainer}>{this.drawKiView()}</View>
-        <View style={styles.cardContainer}>{this.drawMarkers()}</View>
-        <TouchableOpacity
-          style={styles.notificationContainer}
-          onPress={() => {
-            this.setState({ showOption: false }, function() {
-              this.props.navigation.navigate('Notification', {
-                shouldUpdate: false,
+      <ImageBackground
+        style={{ width: '100%', height: '100%' }}
+        source={require('../assets/images/particles.jpg')}
+      >
+        <View style={styles.container}>
+          <View style={styles.kiContainer}>{this.drawKiView()}</View>
+          <View style={styles.cardContainer}>{this.drawMarkers()}</View>
+          <TouchableOpacity
+            style={styles.notificationContainer}
+            onPress={() => {
+              this.setState({ showOption: false }, function() {
+                this.props.navigation.navigate('Notification', {
+                  shouldUpdate: false,
+                })
               })
-            })
-          }}
-        >
-          <Image source={require('../assets/icons/notification.png')} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.showOptionContainer}
-          onPress={() => {
-            this.setState({ showOption: !this.state.showOption })
-          }}
-        >
-          <Image
-            source={
-              this.state.showOption
-                ? require('../assets/icons/close.png')
-                : require('../assets/icons/addTask.png')
-            }
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.drawerContainer}
-          onPress={() => {
-            this.setState({ showOption: false }, function() {
-              this.props.navigation.openDrawer()
-            })
-          }}
-        >
-          <Image source={require('../assets/icons/drawer.png')} />
-        </TouchableOpacity>
-        {this._renderOption()}
-      </View>
+            }}
+          >
+            <Image source={require('../assets/icons/notification.png')} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.showOptionContainer}
+            onPress={() => {
+              this.setState({ showOption: !this.state.showOption })
+            }}
+          >
+            <Image
+              source={
+                this.state.showOption
+                  ? require('../assets/icons/close.png')
+                  : require('../assets/icons/addTask.png')
+              }
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.drawerContainer}
+            onPress={() => {
+              this.setState({ showOption: false }, function() {
+                this.props.navigation.openDrawer()
+              })
+            }}
+          >
+            <Image source={require('../assets/icons/drawer.png')} />
+          </TouchableOpacity>
+          {this._renderOption()}
+        </View>
+      </ImageBackground>
     )
   }
 
@@ -472,9 +477,10 @@ export default class HomeScreen extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: 'transparent',
   },
   notificationContainer: {
+    opacity: 0.5,
     position: 'absolute',
     top: 60,
     right: 30,
@@ -490,6 +496,7 @@ const styles = StyleSheet.create({
   },
   showOptionContainer: {
     position: 'absolute',
+    opacity: 0.5,
     top: 60,
     right: 80,
     borderRadius: 30,
@@ -504,6 +511,7 @@ const styles = StyleSheet.create({
   },
   optionContainer: {
     position: 'absolute',
+    opacity: 0.75,
     top: 110,
     right: 30,
     width: 160,
@@ -562,11 +570,13 @@ const styles = StyleSheet.create({
   },
   drawerContainer: {
     position: 'absolute',
+    opacity: 0.5,
     top: 60,
     left: 30,
     borderRadius: 30,
     width: 30,
     height: 30,
+    opacity: 0.5,
     alignItems: 'center',
     backgroundColor: '#fff',
     shadowColor: '#000000',

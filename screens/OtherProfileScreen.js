@@ -81,7 +81,7 @@ export default class ProfileScreen extends React.Component {
             backgroundColor="#FFFFFF"
             borderRadius={(34 / 812) * height}
             onPress={() =>
-              navigate('Chat', {
+              navigate('ChatScreen', {
                 uri: getParam('uri'),
                 name: getParam('name'),
                 uid: getParam('uid'),

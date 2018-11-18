@@ -68,36 +68,28 @@ class AuthLoadingScreen extends React.Component {
 
 const PersonalDrawer = createDrawerNavigator(
   {
-    // Main: createStackNavigator({
-    //   MainTabView: {
-    //     screen: MainTabNavigator,
-    //     navigationOptions: {
-    //       header: null,
-    //     },
-    //   }
-    // }),
-    // checkIn:CheckInScreen,
     HomeStack: createStackNavigator(
       {
         Home: HomeScreen,
         CheckIn: CheckInScreen,
         Notification: NotificationScreen,
-        Chat: ChatScreen,
         ViewOther: OtherProfileScreen,
         QRScanner,
         CreateTask: CreateTaskScreen,
         Congrats: Congratulations,
         InviteFriends: FriendListScreen,
+        Profile: ProfileScreen,
+        // Edit: EditScreen,
+        ChatScreen,
+        ChatsScreen,
+        TaskListScreen,
+        JoinTaskScreen,
       },
       {
         initialRouteName: 'Home',
       }
     ),
-    Profile: createStackNavigator({ ProfileScreen, Edit: EditScreen }),
-    Chats: createStackNavigator({ ChatsScreen }),
     Development: createStackNavigator({ DevelopmentScreen }),
-    QRCode: createStackNavigator({ QRCodeScreen }),
-    TaskListStack: createStackNavigator({ TaskListScreen, JoinTaskScreen }),
   },
   {
     initialRouteName: 'HomeStack',
@@ -106,10 +98,53 @@ const PersonalDrawer = createDrawerNavigator(
     contentComponent: DrawerView,
   }
 )
+// const PersonalDrawer = createDrawerNavigator({
+//   HomeStack: createStackNavigator({
+//     Home: HomeScreen,
+//     CheckIn: CheckInScreen,
+//     Notification: NotificationScreen,
+//     ViewOther: OtherProfileScreen,
+//     QRScanner,
+//     CreateTask: CreateTaskScreen,
+//     Congrats:Congratulations,
+//     InviteFriends:FriendListScreen,
+//   }, {
+//     initialRouteName: 'Home',
+//   }),
+//   Profile: createStackNavigator({ProfileScreen, Edit: EditScreen}),
+//   Chat: createStackNavigator({ChatsScreen}),
+//   Development: createStackNavigator({DevelopmentScreen}),
+//   TaskListStack: createStackNavigator({TaskListScreen, JoinTaskScreen}),
+// }, {
+//   initialRouteName: 'HomeStack',
+//   drawerWidth: width*.8,
+//   drawerPosition: 'left',
+//   contentComponent: DrawerView,
+// });
 
-// const CheckInStack = createStackNavigator({
+// const HomeStack = createStackNavigator({
+//   Home: HomeScreen,
 //   CheckIn: CheckInScreen,
-//   Change: ChangeScreen,
+//   Notification: NotificationScreen,
+//   ViewOther: OtherProfileScreen,
+//   QRScanner,
+//   CreateTask: CreateTaskScreen,
+//   Congrats:Congratulations,
+//   InviteFriends:FriendListScreen,
+//   PersonalDrawer : createDrawerNavigator({
+//       Profile: createStackNavigator({ProfileScreen, Edit: EditScreen}),
+//       Chat: createStackNavigator({ChatsScreen}),
+//       Development: createStackNavigator({DevelopmentScreen}),
+//       TaskListStack: createStackNavigator({TaskListScreen, JoinTaskScreen}),
+//     }, {
+//       initialRouteName: 'Profile',
+//       drawerWidth: width*.8,
+//       drawerPosition: 'left',
+//       contentComponent: DrawerView,
+//     }
+//   ),
+// }, {
+//   initialRouteName: 'Home',
 // });
 
 export default createSwitchNavigator(

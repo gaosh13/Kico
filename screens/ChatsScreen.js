@@ -109,7 +109,7 @@ export default class ChatsScreen extends React.Component {
     return (
       <TouchableOpacity
         onPress={() => {
-          this.props.navigation.navigate('Chat', {
+          this.props.navigation.navigate('ChatScreen', {
             uri: item.uri,
             name: item.name,
             uid: item.uid,

@@ -86,7 +86,7 @@ class DrawerView extends Component {
 
           <TouchableHighlight
             onPress={() => {
-              navigate('Chats')
+              navigate('ChatsScreen')
               this.props.navigation.closeDrawer()
             }}
             underlayColor="#CCC"

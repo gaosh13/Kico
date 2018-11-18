@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, View, TouchableOpacity, Text, ScrollView } from 'react-native'
+import { StyleSheet, View, TouchableOpacity, Text, ScrollView, Image } from 'react-native'
 
 import Fire from '../components/Fire'
 
@@ -233,14 +233,6 @@ export default class ChatScreen extends React.Component {
     const { user, isFriend } = this.state
     return (
       <View style={styles.container}>
-        <TouchableOpacity
-          style={styles.closeButtonContainer}
-          onPress={() => {
-            goBack()
-          }}
-        >
-          <Ionicons name="ios-close" size={25} color="#000" />
-        </TouchableOpacity>
         <View style={styles.chatHeader}>
           <Text numberOfLines={1} style={styles.chatName}>
             {getParam('name')}
@@ -281,6 +273,14 @@ export default class ChatScreen extends React.Component {
             user={user}
           />
         </View>
+        <TouchableOpacity
+          style={styles.closeButtonContainer}
+          onPress={() => {
+            goBack()
+          }}
+        >
+          <Image source={require('../assets/icons/close.png')} />
+        </TouchableOpacity>
       </View>
     )
   }
@@ -310,14 +310,16 @@ const styles = StyleSheet.create({
   closeButtonContainer: {
     position: 'absolute',
     top: 60,
-    left: 30,
+    right: 30,
     borderRadius: 30,
     width: 30,
     height: 30,
     alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: '#000',
-    zIndex: 2,
+    shadowColor: '#000000',
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
+    // backgroundColor: '#fff',
   },
   chatName: {
     textAlign: 'center',
