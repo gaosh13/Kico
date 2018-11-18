@@ -49,8 +49,8 @@ export default class ReadyPage extends React.Component{
     return (
       <ImageBackground style={{width: '100%', height: '100%'}} source={require('../assets/images/load.gif')}>
       <View style={styles.container}>
-          <Text style={styles.header}>Player </Text>
-          <Text style={styles.h3}>{"\n"}</Text>
+          <Text style={styles.header}>Welcome Back </Text>
+          <View style={{marginTop:25}}/> 
           <Text style={styles.header}>{this.state.name}</Text>
           <Text style={styles.h3}>{"\n"}</Text>
           <Image style={styles.image} source={{ uri: this.state.photoUrl }}/>
@@ -58,10 +58,11 @@ export default class ReadyPage extends React.Component{
           <AwesomeButtonRick type="primary" progress={true} height={50} onPress={() => this.props.navigation.navigate('PersonalDrawer')}>
             <Text style={styles.h3}>{"Synchronize to Game"}</Text>
           </AwesomeButtonRick>
-          <Text style={styles.h3}>{"\n"}</Text>       
+          <View style={{marginTop:10}}/>     
           <AwesomeButtonRick type="secondary" height={50} onPress={() => this.Logout(this.props)}>
             <Text style={styles.h3}>{"Switch Account"}</Text>
-          </AwesomeButtonRick> 
+          </AwesomeButtonRick>         
+          <Text style={styles.h4}>Kico wishes you best of luck finding other Humains</Text> 
       </View>
       </ImageBackground>
       )
@@ -88,6 +89,14 @@ const styles = StyleSheet.create({
     color:"white",
     textAlign: "center",
     fontWeight: '100',
+  },
+  h4:{
+    fontFamily :"GR",
+    fontSize: 14,
+    color:"grey",
+    textAlign: "center",
+    position:'absolute',
+    bottom:20,
   },
   image: {
     marginTop: 35,

@@ -1,39 +1,79 @@
 import React from 'react';
-import { FlatList, StyleSheet, View, Text, Image, TouchableOpacity, Alert } from 'react-native';
+import { FlatList, StyleSheet, View, Text, Image, TouchableOpacity, Alert,Dimensions } from 'react-native';
 import { WebBrowser } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
 import Touchable from 'react-native-platform-touchable';
 import Fire from '../components/Fire';
+
+const { width, height } = Dimensions.get("window");
+
+const hRatio = (value) => {
+  return value /812*height;
+}
+
+const wRatio = (value) => {
+  return value /375*width;
+}
+
 
 export default class NotificationScreen extends React.Component {
   static navigationOptions = {
     header: null,
   };
 
-  constructor(){
-    super();
+  constructor(props){
+    super(props);
     this.mountState = false;
+    this.unsubscribe = false;
     this.state = {
       notification: [],
     };
-    Fire.shared.getNotification().then((data) => {
-      if (this.mountState && data.length) {
-        this.setState({notification: data});
-        // let dataArray = [];
-        // for (let i = 0; i < 10; ++i) {
-        //   dataArray.push(data[i % data.length]);
-        // }
-        // this.setState({notification: dataArray});
+    console.log('checking params', this.props.navigation.state.params);
+  }
+
+  onSnapshot(type, msg) {
+    // console.log('on', type, msg, this.mountState);
+    if (this.mountState) {
+      if (type === 'added') {
+        for (let i = 0; i < this.state.notification.length; ++i) {
+          if (msg.id == this.state.notification[i].id) return;
+        }
+        this.setState((state) => {
+          let notification = Array.from(state.notification);
+          notification.unshift(msg);
+          return {notification}
+        });
+      } else {
+        this.setState((state) => {
+          let notification = Array.from(state.notification);
+          for (let i = 0; i < notification.length; ++i) {
+            if (msg == notification[i].id) {
+              notification.splice(i, 1);
+              break;
+            }
+          }
+          return {notification}
+        });
       }
-    });
+    }
   }
 
   componentDidMount() {
     this.mountState = true;
+    Fire.shared.getNotification().then((data) => {
+      if (this.mountState && data.length) {
+        this.setState({notification: data});
+        this.unsubscribe = Fire.shared.listenNotification((type, msg) => {this.onSnapshot(type, msg)});
+      }
+    });
   }
 
   componentWillUnmount() {
     this.mountState = false;
+    if (this.unsubscribe) {
+      this.unsubscribe();
+      this.unsubscribe = null;
+    }
   }
 
   render() {
@@ -69,13 +109,13 @@ export default class NotificationScreen extends React.Component {
     } else if (item.type == 'taski') {
       return (
         <View style={styles.messageTextContainer}>
-          <Text style={styles.messageText}>{item.name + " invite you to an event"}</Text>
+          <Text style={styles.messageText}>{item.name + " invited you to a mission"}</Text>
         </View>
       );
     } else if (item.type == 'add1') {
       return (
         <View style={styles.messageTextContainer}>
-          <Text style={styles.messageText}>{item.name + " becomes your friend"}</Text>
+          <Text style={styles.messageText}>{item.name + " is now your friend"}</Text>
         </View>
       );
     } else if (item.type == 'add2') {
@@ -100,7 +140,7 @@ export default class NotificationScreen extends React.Component {
   _pressSingleItem = (item) => {
     if (item.type == 'taski') {
       // console.log("item.task", item.task);
-      this.props.navigation.navigate("JoinTaskScreen", {taskID: item.task});
+      this.props.navigation.navigate("JoinTaskScreen", {taskID: item.task,from:"notification"});
     } else if (item.type == 'add1') {
       Alert.alert(
         'Congratulations',
@@ -152,8 +192,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 100,
-    paddingLeft: 15,
-    paddingRight: 15,
     backgroundColor: '#FAFBFD',
   },
   userImage: {
@@ -172,6 +210,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: 32,
+    marginLeft:wRatio(18),
     color: '#313254',
     fontWeight: 'bold',
     letterSpacing: 0.5,
@@ -192,6 +231,8 @@ const styles = StyleSheet.create({
     // borderColor: '#f00',
   },
   notificationList: {
+    marginLeft:wRatio(18),
+    paddingRight:wRatio(18),
   },
   closeButtonContainer: {
     position: 'absolute',

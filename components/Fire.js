@@ -62,9 +62,9 @@ class Fire extends React.Component {
   }
 
   readAuth = async () => {
-    console.log('ready to download data, userID: ',this.uid);
+    // console.log('ready to download data, userID: ',this.uid);
     let doc = await this.auth.doc(this.uid).get();
-    console.log('retrieved from readProfile:', doc.data());
+    // console.log('retrieved from readProfile:', doc.data());
     if (!doc.exists) {
       console.log('No such document!');
     } else {
@@ -75,7 +75,7 @@ class Fire extends React.Component {
   readUserInfo = async (UID) => {
     console.log('ready to download data, userID: ',UID);
     let doc = await this.profile.doc(UID).get();
-    console.log('retrieved from readProfile:', doc.data());
+    // console.log('retrieved from readProfile:', doc.data());
     if (!doc.exists) {
       console.log('No such document!');
     } else {
@@ -118,7 +118,7 @@ class Fire extends React.Component {
   }
 
 
-  getPersonalPool = async (refresh_time=3600) => {
+  getPersonalPool = async (refresh_time=0) => {
     let time = (await this.profile.doc(this.uid).get()).get('time');
     if (time && this.timeLimit(time, refresh_time)) {
       return (await this.profile.doc(this.uid).collection('pool').doc('0').get()).get('data');
@@ -141,7 +141,7 @@ class Fire extends React.Component {
       })});
       let items = Object.keys(counter).map((key) => ({uid: key, value: counter[key]}));
       items.sort((first, second) => (second.value - first.value));
-      items = items.slice(0, 20);
+      items = items.slice(0, 15);
       await Promise.all(items.map( (friend) => {
         return this.getNameNAvatar(friend.uid).then( (data) => Object.assign(friend, data) );
       }));
@@ -165,6 +165,7 @@ class Fire extends React.Component {
           uri: doc.get('uri'),
           time: (time.getMonth() + 1) + '/' + time.getDate() + '/' + time.getFullYear(),
           id: doc.id,
+          rawTime:doc.get('time').seconds
         }
       });
     });
@@ -190,14 +191,39 @@ class Fire extends React.Component {
     }
   }
 
+  listenNotification = (refreshFunc) => {
+    return this.notification.where('uid1', '==', this.uid).onSnapshot((snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        const doc = change.doc;
+        // console.log('firelisten', change.type, doc.data());
+        if (change.type == 'added') {
+          let notification = Object.assign({id: doc.id}, doc.data());
+          notification.rawTime = notification.time.seconds;
+          notification.time = this.timeSince(notification.time) + 'ago';
+          if (this.notification.uid2) {
+            this.getNameNAvatar(notification.uid2).then( (data) => {
+              Object.assign(notification, data);
+              refreshFunc('added', notification);
+            });
+          } else refreshFunc('added', notification);
+        } else if (change.type == 'removed') {
+          refreshFunc('removed', doc.id);
+        }
+      });
+    });
+  }
+
   getNotification = async () => {
     let doc = await this.notification.where('uid1', '==', this.uid).get();
     let notificationData = [];
     doc.forEach((d) => {
       let pushData = Object.assign({id: d.id}, d.data());
+      pushData=Object.assign(pushData,{rawTime:pushData.time.seconds});
       pushData.time = this.timeSince(pushData.time) + ' ago';
       notificationData.push(pushData);
     });
+    notificationData = notificationData.sort((a,b)=>{return b.rawTime-a.rawTime});
+    // console.log('New Notifications retrieved: ', notificationData);
     await Promise.all(notificationData.map( (notification) => {
       if (notification.uid2) {
         return this.getNameNAvatar(notification.uid2).then( (data) => Object.assign(notification, data) );
@@ -335,7 +361,26 @@ class Fire extends React.Component {
     }
     try{taskInfo.when = formatDate(taskInfo.when)} catch(e){console.log("not a date")}
     taskInfo.isGoing = isGoing;
-    console.log('taskInfo', taskInfo);
+    return taskInfo;
+  }
+
+  getTaskInfoNoUsers = async (taskID) => {
+    const doc = await this.task.doc(taskID).get();
+    if (!doc.exists) {
+      console.log("No such task");
+      return {}
+    }
+    let taskInfo = {what: doc.get('what'), where: doc.get('where'), when: doc.get('when'), id: taskID};
+    taskInfo.where = await this.getPlaceInfo(taskInfo.where).then( (data) => {return {name: data.description, uri: data.uri}} ),
+    formatDate = (when) => {
+      const time = when.toDate();
+      let hours = time.getHours(), minutes = time.getMinutes();
+      let ampm = hours >= 12 ? 'pm' : 'am';
+      hours = (hours+11) % 12 + 1;
+      minutes = minutes < 10 ? "0"+minutes : minutes;
+      return ((time.getMonth() + 1) + '/' + time.getDate() + ' @ ' + hours + ':' + time.getMinutes() + ' ' + ampm);
+    }
+    try{taskInfo.when = formatDate(taskInfo.when)} catch(e){console.log("not a date")}
     return taskInfo;
   }
 
@@ -344,7 +389,7 @@ class Fire extends React.Component {
       let taskList = snapshot.docs.map( (doc) => {return {id: doc.id}} );
       // console.log('taskList', taskList);
       await Promise.all(taskList.map( (task) => {
-        return this.getTaskInfo(task.id).then( (data) => Object.assign(task, data) );
+        return this.getTaskInfoNoUsers(task.id).then( (data) => Object.assign(task, data) );
       }));
       // console.log("taskList", taskList);
       return taskList;
@@ -367,7 +412,7 @@ class Fire extends React.Component {
     // console.log("get Place Info placeID", placeID);
     let doc = await this.place.doc(placeID).get();
     if (!doc.exists) {
-      console.log("No such place");
+      console.log("No such place",default_param);
       let data = {
         description: default_param.description || '',
         uri: default_param.uri || '',
@@ -399,6 +444,8 @@ class Fire extends React.Component {
       await Promise.all(users.map( (user) => {
         return this.getNameNAvatar(user.uid).then( (data) => Object.assign(user, data) );
       }));
+      // console.log('getPlacePool: ',typeof users[0].time.seconds)
+      users = users.sort((a,b)=>{return b.time.seconds-a.time.seconds});
       return users;
     });
   }  
@@ -412,6 +459,7 @@ class Fire extends React.Component {
   checkout = (placeID, default_param={}) => {
     return this.getPlaceInfo(placeID, default_param).then( () => {
       this.place.doc(placeID).collection('users').doc(this.uid).delete();
+      this.profile.doc(this.uid).collection('places').doc(placeID).delete();
     });
   }
 
@@ -531,7 +579,7 @@ class Fire extends React.Component {
     return Math.floor(seconds) + " seconds";
   }
 
-  timeLimit = (date, time=3600) => {
+  timeLimit = (date, time=0) => {
     var seconds = Math.floor((this.timestamp.toDate() - date.toDate()) / 1000);
     // 1 day = 86400 seconds, 1 hour = 3600 seconds
     return seconds < time;

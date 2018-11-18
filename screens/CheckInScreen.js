@@ -24,19 +24,30 @@ export default class CheckInScreen extends React.Component {
 
   constructor(props) {
     super(props);
+    this.actionTaken = false;
+    this.mountState = false;
     this.state = {
       pool: [],
+      poolLoaded:false,
       isVisited: true,
       circles:[],
     };
+
+    console.log('checking params', this.props.navigation.state.params);
 
     // this.props.navigation.setParams({ jump: this._onPress });
     //this.fetchdata();
   }
 
   componentDidMount() {
+    this.mountState = true;
     this.fetchdata();
    // await this.fetchVenueData();
+  }
+
+  componentWillUnmount(){
+    this.mountState = false;
+    this.actionTaken = false;
   }
 
   fetchdata() {
@@ -47,7 +58,8 @@ export default class CheckInScreen extends React.Component {
       Fire.shared.isVisited(place),
     ]).then( ([pool, isVisited])=>{
       // console.log("changed", isVisited);
-      this.setState({pool, isVisited});
+      if (this.mountState)
+        this.setState({pool, isVisited,poolLoaded:true});
     });
   }
 
@@ -55,7 +67,7 @@ export default class CheckInScreen extends React.Component {
 // follows this tutorial:
 // https://www.youtube.com/watch?v=XATr_jdh-44
 // console.log(this.state.pool)
-    if (this.state.pool.length){
+    if (this.state.poolLoaded){
       //console.log('ZZZZZZZZ',this.state.sum);
       return (
         <View style={styles.kiContainer}>
@@ -89,6 +101,7 @@ export default class CheckInScreen extends React.Component {
               backgroundColor="#FFFFFF"
               borderRadius= {34/812*height}
               onPress={(next) => {
+                this.actionTaken=true;
                 ((this.state.isVisited) ? Fire.shared.checkout(place) : Fire.shared.checkin(place)).then(()=>{
                   this.fetchdata();
                 });
@@ -100,7 +113,8 @@ export default class CheckInScreen extends React.Component {
         </GenericScreen>
         <TouchableOpacity
           style={styles.closeButtonContainer}
-          onPress={() => {this.props.navigation.navigate("Home")}}>
+          onPress={() => {this.props.navigation.navigate("Home",{shouldUpdate:this.actionTaken});}}
+          >
           <Image source={require('../assets/icons/close.png')} />
         </TouchableOpacity>
       </View>

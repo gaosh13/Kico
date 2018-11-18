@@ -31,64 +31,68 @@ export default class App extends React.Component {
             selectedDate:false,
             where: undefined,
             whereItems: [
-                {
-                    label: 'Global Innovation Exchange',
-                    // value: '12280 NE District Way, Bellevue, WA 98005',
-                    value:'59bb267a805e3f59823645a3'
-                },
-                {
-                    label: 'Odegaard library',
-                    // value: '4060 George Washington Lane Northeast, Seattle, WA 98195',
-                    value:'4a99e654f964a520063120e3'
+              {
+                  label: 'Suzzallo Library',
+                  // value: '12280 NE District Way, Bellevue, WA 98005',
+                  value:'4a31cc4af964a5202b9a1fe3'
+              },
+              {
+                  label: 'Odegaard Library',
+                  // value: '4060 George Washington Lane Northeast, Seattle, WA 98195',
+                  value:'4a99e654f964a520063120e3'
 
-                },
-                {
-                    label: 'Husky Union Building',
-                    // value: '4001 E Stevens Way NE, Seattle, WA 98195',
-                    value:'441eb908f964a5207c311fe3'
-                },
-                {
-                    label: 'IMA',
-                    // value: '3924 Montlake Blvd NE, Seattle, WA 98195',
-                    value:'4ad7da23f964a520710f21e3'
-                },
-                {
-                    label: 'Starbucks @ Bellevue',
-                    // value: '10214 NE 8th St Bellevue WA 98004',
-                    value:'52869068498e3289da673edf'
-                },
-                {
-                    label: 'Starbucks Reserve @ Pike',
-                    // value: '1912 Pike Pl Seattle WA 98101',
-                    value:'58ad168cd8e55956ea9db67e'
-                },
-                {
-                    label: 'Space Needle',
-                    // value: '400 Broad St, Seattle, WA 98109',
-                    value:'416dc180f964a5209b1d1fe3'
-                },
-                {
-                    label: 'Gas work Park',
-                    // value: '2101 N Northlake Way, Seattle, WA 98103',
-                    value:'430bb880f964a5203a271fe3'
-                },
-                {
-                    label: 'LA Fitness Bellevue',
-                    // value: '550 106th Ave NE #215 Bellevue WA 98004',
-                    value:'49cac644f964a520de581fe3'
-                },
-                {
-                    label: 'Starbucks @ UW',
-                    // value: '4147 University Way NE Seattle WA 98105',
-                    value:'4470775ef964a52093331fe3'
-                }],
+              },
+              {
+                  label: 'Husky Union Building',
+                  // value: '4001 E Stevens Way NE, Seattle, WA 98195',
+                  value:'441eb908f964a5207c311fe3'
+              },
+              {
+                  label: 'IMA',
+                  // value: '3924 Montlake Blvd NE, Seattle, WA 98195',
+                  value:'4ad7da23f964a520710f21e3'
+              },
+              {
+                  label: 'Husky Stadium',
+                  // value: '10214 NE 8th St Bellevue WA 98004',
+                  value:'42a78680f964a52014251fe3'
+              },
+              {
+                  label: 'Red square',
+                  // value: '1912 Pike Pl Seattle WA 98101',
+                  value:'4b06cf78f964a520a4f022e3'
+              },
+              {
+                  label: 'Kungfu Tea',
+                  // value: '400 Broad St, Seattle, WA 98109',
+                  value:'5789221b498e4bcb1f8c0beb'
+              },
+              {
+                  label: 'Enkore',
+                  // value: '2101 N Northlake Way, Seattle, WA 98103',
+                  value:'4a7406b6f964a520b5dd1fe3'
+              },
+              {
+                  label: 'Drumheller Fountain',
+                  // value: '550 106th Ave NE #215 Bellevue WA 98004',
+                  value:'4beb11bf415e20a171d8e5bb'
+              },
+              {
+                  label: 'Starbucks @ Ave',
+                  // value: '4147 University Way NE Seattle WA 98105',
+                  value:'4470775ef964a52093331fe3'
+              }],
             whatIndex: undefined,
             selectedWhatBool:false,
             selectedWhat: new Set(),
             selectedWho: new Set(),
             whatItems: [
               {
-                activity: 'Coffee Break',
+                activity: 'Exchange Ki',
+                source:require('../assets/images/particles2.jpg'),
+              },
+              {
+                activity: 'Coffee/Tea Break',
                 source:require('../assets/images/coffee.jpeg'),
               },
               {
@@ -98,10 +102,6 @@ export default class App extends React.Component {
               {
                 activity: 'Library',
                 source:require('../assets/images/library.jpg'),
-              },
-              {
-                activity: 'Sightseeing',
-                source:require('../assets/images/sightseeing.jpg'),
               },
             ],
         };
@@ -122,7 +122,7 @@ export default class App extends React.Component {
     _handleActivity = (index) => {
       this.setState((state) => {
         const selected = new Set(state.selectedWhat);
-        if (this.state.whatIndex != undefined) selected.delete(this.state.whatIndex);
+        if (state.whatIndex != undefined) selected.delete(state.whatIndex);
         selected.add(index);
         return {selectedWhat: selected, whatIndex: index};
       });

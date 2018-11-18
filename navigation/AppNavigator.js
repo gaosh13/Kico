@@ -60,6 +60,7 @@ const PersonalDrawer = createDrawerNavigator({
   //     },
   //   }
   // }),
+  // checkIn:CheckInScreen,
   HomeStack: createStackNavigator({
     Home: HomeScreen,
     CheckIn: CheckInScreen,
