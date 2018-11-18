@@ -43,10 +43,6 @@ import CreateTaskScreen from '../screens/CreateTask'
 import Congratulations from '../screens/Congratulations.js'
 import FriendListScreen from '../screens/FriendListScreen.js'
 
-import ReadyPage from '../screens/ReadyPage'
-import Login from '../screens/Login'
-import * as firebase from 'firebase'
-
 const { width, height } = Dimensions.get('window')
 
 import ReadyPage from '../screens/ReadyPage'
@@ -97,7 +93,7 @@ const PersonalDrawer = createDrawerNavigator(
       }
     ),
     Profile: createStackNavigator({ ProfileScreen, Edit: EditScreen }),
-    Chat: createStackNavigator({ ChatsScreen }),
+    Chats: createStackNavigator({ ChatsScreen }),
     Development: createStackNavigator({ DevelopmentScreen }),
     QRCode: createStackNavigator({ QRCodeScreen }),
     TaskListStack: createStackNavigator({ TaskListScreen, JoinTaskScreen }),

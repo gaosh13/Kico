@@ -150,6 +150,9 @@ class Fire extends React.Component {
         .doc('0')
         .get()).get('data')
     }
+    let rid = data => {
+      return data.docs.map(doc => doc.id)
+    }
     let saved = await Promise.all([
       this.profile
         .doc(this.uid)

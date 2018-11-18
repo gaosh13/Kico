@@ -99,7 +99,7 @@ class DrawerView extends Component {
               />
             </View>
             <View style={styles.rightContainer}>
-              <Text style={styles.navTextStyle}>Ki Communication</Text>
+              <Text style={styles.navTextStyle}>Chats</Text>
             </View>
           </View>
         </TouchableHighlight>

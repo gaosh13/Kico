@@ -97,6 +97,24 @@ export default class ChatsScreen extends React.Component {
     )
   }
 
+  _renderStrangerListItem = ({ item }) => {
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          this.props.navigation.navigate('Chat', {
+            uri: item.uri,
+            name: item.name,
+            uid: item.uid,
+          })
+        }}
+      >
+        <View style={{ marginRight: 15 }}>
+          <Image style={styles.userImage} source={{ uri: item.uri }} />
+        </View>
+      </TouchableOpacity>
+    )
+  }
+
   _renderFriendListItem = ({ item }) => {
     let displayText = 'Here comes a new message'
     // console.log("item.uri", item.uri);
