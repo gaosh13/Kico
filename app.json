@@ -23,9 +23,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.gix.playerX",
-        "config": {
-          "googleMapsApiKey": "AIzaSyBigZTNYwCKIDqyQI7WXoQU9s7fFIZE9fY"
+      "config": {
+        "googleSignIn":{
+          "reservedClientId":"170596970815-nfcgnsf62ukg9g4q7vroetaefuk73jdf.apps.googleusercontent.com"
         }
-      },
+      }
+    }
   }
 }

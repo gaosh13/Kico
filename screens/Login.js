@@ -20,7 +20,10 @@ export default class Login extends React.Component {
   GooglesignIn = async () => {
     try {
       const result = await Expo.Google.logInAsync({
+        //below is for Expo usage
         iosClientId: "170596970815-ahntllu95qsbqmf4kbjqia19momth7no.apps.googleusercontent.com",
+        //below is for standalone
+        iosStandaloneAppClientId: "170596970815-nfcgnsf62ukg9g4q7vroetaefuk73jdf.apps.googleusercontent.com",
         //iandriodClientId: YOUR_CLIENT_ID_HERE,  <-- if you use android
         scopes: ["profile", "email"]
       })
@@ -55,7 +58,6 @@ export default class Login extends React.Component {
   }
 
   FacebooksignIn = async () => {
-
     try {
       const { type, token } = await Expo.Facebook.logInWithReadPermissionsAsync('264052254250223', {
           permissions: ['public_profile'],

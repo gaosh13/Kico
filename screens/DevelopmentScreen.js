@@ -8,12 +8,12 @@ import { REACT_APP_FOURSQUARE_ID, REACT_APP_FOURSQUARE_SECRET } from 'react-nati
 
 const venues = [
                 {
-                    label: 'Global Innovation Exchange',
+                    label: 'Suzzallo Library',
                     // value: '12280 NE District Way, Bellevue, WA 98005',
-                    value:'59bb267a805e3f59823645a3'
+                    value:'4a31cc4af964a5202b9a1fe3'
                 },
                 {
-                    label: 'Odegaard library',
+                    label: 'Odegaard Library',
                     // value: '4060 George Washington Lane Northeast, Seattle, WA 98195',
                     value:'4a99e654f964a520063120e3'
 
@@ -29,32 +29,32 @@ const venues = [
                     value:'4ad7da23f964a520710f21e3'
                 },
                 {
-                    label: 'Starbucks @ Bellevue',
+                    label: 'Husky Stadium',
                     // value: '10214 NE 8th St Bellevue WA 98004',
-                    value:'52869068498e3289da673edf'
+                    value:'42a78680f964a52014251fe3'
                 },
                 {
-                    label: 'Starbucks Reserve @ Pike',
+                    label: 'Red square',
                     // value: '1912 Pike Pl Seattle WA 98101',
-                    value:'58ad168cd8e55956ea9db67e'
+                    value:'4b06cf78f964a520a4f022e3'
                 },
                 {
-                    label: 'Space Needle',
+                    label: 'Kungfu Tea',
                     // value: '400 Broad St, Seattle, WA 98109',
-                    value:'416dc180f964a5209b1d1fe3'
+                    value:'5789221b498e4bcb1f8c0beb'
                 },
                 {
-                    label: 'Gas work Park',
+                    label: 'Enkore',
                     // value: '2101 N Northlake Way, Seattle, WA 98103',
-                    value:'430bb880f964a5203a271fe3'
+                    value:'4a7406b6f964a520b5dd1fe3'
                 },
                 {
-                    label: 'LA Fitness Bellevue',
+                    label: 'Drumheller Fountain',
                     // value: '550 106th Ave NE #215 Bellevue WA 98004',
-                    value:'49cac644f964a520de581fe3'
+                    value:'4beb11bf415e20a171d8e5bb'
                 },
                 {
-                    label: 'Starbucks @ UW',
+                    label: 'Starbucks @ Ave',
                     // value: '4147 University Way NE Seattle WA 98105',
                     value:'4470775ef964a52093331fe3'
                 }]
