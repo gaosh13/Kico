@@ -39,6 +39,24 @@ export default class QRScanner extends React.Component {
       )
   }
 
+  promiseAlert(title, text) {
+    return new Promise(resolve => {
+      Alert.alert(
+        title,
+        text,
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              resolve('YES')
+            },
+          },
+        ],
+        { cancelable: false }
+      )
+    })
+  }
+
   handleBarCodeScanned = ({ type, data }) => {
     if (type == 'org.iso.QRCode') {
       if (!this.scanned) {
@@ -46,52 +64,32 @@ export default class QRScanner extends React.Component {
         try {
           var result = JSON.parse(data)
         } catch (e) {
-          new Promise(resolve => {
-            Alert.alert(
-              'Tips',
-              'Only scan the QRCode in the task screen',
-              [
-                {
-                  text: 'OK',
-                  onPress: () => {
-                    resolve('YES')
-                  },
-                },
-              ],
-              { cancelable: false }
-            )
-          }).then(() => {
+          this.promiseAlert('Tips', 'Only scan the QRCode in the task screen').then(() => {
             this.scanned = false
           })
           return
         }
         const result = JSON.parse(data)
-        const { uid } = result
-        if (uid) {
-          Fire.shared.addFriend(uid).then(
-            () => {
-              this.props.navigation.navigate('Congrats', { uid })
-            },
-            () => {
-              new Promise(resolve => {
-                Alert.alert(
-                  'WoW',
-                  'You find an old friend',
-                  [
-                    {
-                      text: 'OK',
-                      onPress: () => {
-                        resolve('YES')
-                      },
-                    },
-                  ],
-                  { cancelable: false }
-                )
-              }).then(() => {
+        const { uid, task } = result
+        if (uid && task) {
+          Fire.shared.hasTask(task).then(has => {
+            if (has) {
+              Fire.shared.addFriend(uid).then(
+                () => {
+                  this.props.navigation.navigate('Congrats', { uid })
+                },
+                () => {
+                  this.promiseAlert('WoW', 'You find an old friend').then(() => {
+                    this.scanned = false
+                  })
+                }
+              )
+            } else {
+              this.promiseAlert('Err', 'You can only add friends in the same task').then(() => {
                 this.scanned = false
               })
             }
-          )
+          })
         } else this.scanned = false
       }
     }

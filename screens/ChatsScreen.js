@@ -191,7 +191,6 @@ export default class ChatsScreen extends React.Component {
             >
               <Text style={styles.usernameText}>{item.name}</Text>
               <Text style={styles.timestampText}>
-                {/* SOMETIME */}
                 {item.updatedAt ? moment(item.updatedAt).fromNow() : ''}
               </Text>
             </View>

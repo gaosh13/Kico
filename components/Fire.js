@@ -47,7 +47,7 @@ class Fire extends React.Component {
         .doc(this.uid)
         .get()
         .then(doc => {
-          // if (!doc.exists) doc.ref.set(data);
+          // if (!doc.exists) doc.ref.set(data)
           doc.ref.set(data)
         })
     }
@@ -72,9 +72,9 @@ class Fire extends React.Component {
   }
 
   readAuth = async () => {
-    // console.log('ready to download data, userID: ',this.uid);
+    // console.log('ready to download data, userID: ',this.uid)
     let doc = await this.auth.doc(this.uid).get()
-    // console.log('retrieved from readProfile:', doc.data());
+    // console.log('retrieved from readProfile:', doc.data())
     if (!doc.exists) {
       console.log('No such document!')
     } else {
@@ -85,7 +85,7 @@ class Fire extends React.Component {
   readUserInfo = async UID => {
     console.log('ready to download data, userID: ', UID)
     let doc = await this.profile.doc(UID).get()
-    // console.log('retrieved from readProfile:', doc.data());
+    // console.log('retrieved from readProfile:', doc.data())
     if (!doc.exists) {
       console.log('No such document!')
     } else {
@@ -94,9 +94,9 @@ class Fire extends React.Component {
   }
 
   readUserAvatar = async UID => {
-    // console.log('accessing user Avatar Url, userID: ',UID);
+    // console.log('accessing user Avatar Url, userID: ',UID)
     let doc = await this.auth.doc(UID).get()
-    // console.log('retrieved from readUserAvatar:', doc.data());
+    // console.log('retrieved from readUserAvatar:', doc.data())
     if (!doc.exists) {
       console.log('No such document!')
     } else {
@@ -172,7 +172,7 @@ class Fire extends React.Component {
     ]).then(async ([places, friends, blacklist]) => {
       let hidden = new Set(friends.concat(blacklist))
       hidden.add(this.uid)
-      // console.log('hiddenlist', friends, hidden);
+      // console.log('hiddenlist', friends, hidden)
       let alluser = await Promise.all(
         places.map(place => {
           return this.place
@@ -254,7 +254,7 @@ class Fire extends React.Component {
     return this.notification.where('uid1', '==', this.uid).onSnapshot(snapshot => {
       snapshot.docChanges().forEach(change => {
         const doc = change.doc
-        // console.log('firelisten', change.type, doc.data());
+        // console.log('firelisten', change.type, doc.data())
         if (change.type == 'added') {
           let notification = Object.assign({ id: doc.id }, doc.data())
           notification.rawTime = notification.time.seconds
@@ -284,7 +284,7 @@ class Fire extends React.Component {
     notificationData = notificationData.sort((a, b) => {
       return b.rawTime - a.rawTime
     })
-    // console.log('New Notifications retrieved: ', notificationData);
+    // console.log('New Notifications retrieved: ', notificationData)
     await Promise.all(
       notificationData.map(notification => {
         if (notification.uid2) {
@@ -297,7 +297,7 @@ class Fire extends React.Component {
         }
       })
     )
-    // console.log(notificationData);
+    // console.log(notificationData)
     return notificationData
   }
 
@@ -316,6 +316,17 @@ class Fire extends React.Component {
     }
   }
 
+  hasTask = task => {
+    return this.profile
+      .doc(this.uid)
+      .collection('tasks')
+      .doc(task)
+      .get()
+      .then(doc => {
+        return doc.exists
+      })
+  }
+
   addFriend = (uid, type = 'add1') => {
     return this.profile
       .doc(this.uid)
@@ -323,6 +334,34 @@ class Fire extends React.Component {
       .doc(uid)
       .get()
       .then(doc => {
+        this.profile
+          .doc(this.uid)
+          .collection('messages')
+          .doc(uid)
+          .get()
+          .then(doc => {
+            if (doc.exists) {
+              doc.ref.update({
+                isFriend: true,
+              })
+            } else {
+              doc.ref.set({ isFriend: true })
+            }
+          })
+        this.profile
+          .doc(uid)
+          .collection('messages')
+          .doc(this.uid)
+          .get()
+          .then(doc => {
+            if (doc.exists) {
+              doc.ref.update({
+                isFriend: true,
+              })
+            } else {
+              doc.ref.set({ isFriend: true })
+            }
+          })
         if (doc.exists) return Promise.reject('')
         const data = {
           type: type,
@@ -330,34 +369,6 @@ class Fire extends React.Component {
           uid1: uid,
           uid2: this.uid,
         }
-        this.profile
-          .doc(this.uid)
-          .collection('messages')
-          .doc(uid)
-          .get()
-          .then(doc => {
-            if (doc.exists) {
-              doc.ref.update({
-                isFriend: true,
-              })
-            } else {
-              doc.ref.set({ isFriend: true })
-            }
-          })
-        this.profile
-          .doc(uid)
-          .collection('messages')
-          .doc(this.uid)
-          .get()
-          .then(doc => {
-            if (doc.exists) {
-              doc.ref.update({
-                isFriend: true,
-              })
-            } else {
-              doc.ref.set({ isFriend: true })
-            }
-          })
         return Promise.all([
           this.notification.add(data),
           this.profile
@@ -471,7 +482,7 @@ class Fire extends React.Component {
     }
     let taskInfo = { ...doc.data(), id: taskID }
     let isGoing = false
-    // console.log('task1', taskInfo);
+    // console.log('task1', taskInfo)
     ;[taskInfo.users, taskInfo.where] = await Promise.all([
       Promise.all(
         taskInfo.users.map(async user => {
@@ -507,11 +518,6 @@ class Fire extends React.Component {
         ' ' +
         ampm
       )
-    }
-    try {
-      taskInfo.when = formatDate(taskInfo.when)
-    } catch (e) {
-      console.log('not a date')
     }
     try {
       taskInfo.when = formatDate(taskInfo.when)
@@ -574,13 +580,13 @@ class Fire extends React.Component {
         let taskList = snapshot.docs.map(doc => {
           return { id: doc.id }
         })
-        // console.log('taskList', taskList);
+        // console.log('taskList', taskList)
         await Promise.all(
           taskList.map(task => {
             return this.getTaskInfoNoUsers(task.id).then(data => Object.assign(task, data))
           })
         )
-        // console.log("taskList", taskList);
+        // console.log("taskList", taskList)
         return taskList
       })).filter(e => e.what)
   }
@@ -606,7 +612,7 @@ class Fire extends React.Component {
   }
 
   getPlaceInfo = async (placeID, default_param = {}) => {
-    // console.log("get Place Info placeID", placeID);
+    // console.log("get Place Info placeID", placeID)
     let doc = await this.place.doc(placeID).get()
     if (!doc.exists) {
       console.log('No such place', default_param)

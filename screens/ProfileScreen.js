@@ -61,6 +61,21 @@ export default class ProfileScreen extends React.Component {
     }
   }
 
+  onSet(number, text) {
+    console.log('this', number, text)
+    let { name, gender, age } = this.state
+    if (number === 0) {
+      name = text
+    } else if (number === 1) {
+      gender = text
+    } else if (number === 2) {
+      age = Number(text) || -1
+    }
+    const info = { name, gender, age }
+    this.setState(info)
+    Fire.shared.updateInfo(info)
+  }
+
   drawNode() {
     return (
       <View>
@@ -143,8 +158,7 @@ export default class ProfileScreen extends React.Component {
             name={this.state.name}
             description={this.state.gender}
             note={this.state.age}
-            friends={this.state.friends}
-            ki={this.state.ki}
+            onSet={(number, text) => this.onSet(number, text)}
           >
             <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
               <TouchableOpacity

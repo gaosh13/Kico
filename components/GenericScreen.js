@@ -3,14 +3,30 @@ import React, { Component } from 'react'
 import { Constants, Svg, LinearGradient } from 'expo'
 import { Ionicons } from '@expo/vector-icons'
 import { withNavigation, ScrollView } from 'react-navigation'
-import { Text, TouchableOpacity, Image, View, Dimensions, StyleSheet } from 'react-native'
-import AwesomeButton from 'react-native-really-awesome-button'
+import {
+  Text,
+  TouchableWithoutFeedback,
+  Image,
+  View,
+  Dimensions,
+  StyleSheet,
+  AlertIOS,
+} from 'react-native'
 
 const { width, height } = Dimensions.get('window')
 
 class GenericScreen extends Component {
+  constructor(props) {
+    super(props)
+    this.dialog = [
+      { message: 'Change your name' },
+      { message: 'Change your gender' },
+      { message: 'Change your age' },
+    ]
+  }
+
   render = () => {
-    const { source, children, name, description, note, ki, friends } = this.props
+    const { source, children } = this.props
     return (
       <View style={styles.container}>
         <View style={{ width: '100%', height: 0.6403 * height }}>
@@ -22,18 +38,73 @@ class GenericScreen extends Component {
             resizeMode="cover"
           />
           <LinearGradient colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.6)']} style={styles.blurView} />
-          <View style={styles.textContent}>
-            <Text numberOfLines={1} style={styles.cardtitle}>
-              {name}
-            </Text>
-            <Text numberOfLines={1} style={styles.cardDescription}>
-              {description},{note}
-            </Text>
-          </View>
+          <View style={styles.textContent}>{this._renderCard()}</View>
         </View>
         <View style={styles.cardContainer}>{children}</View>
       </View>
     )
+  }
+
+  onSet(i) {
+    const { name, description, note, onSet } = this.props
+    const hints = [name, description, note]
+    AlertIOS.prompt(this.dialog[i].message, null, text => onSet(i, text), 'plain-text', hints[i])
+  }
+
+  _renderCard() {
+    const { name, description, note, onSet } = this.props
+    if (onSet) {
+      return (
+        <View>
+          <TouchableWithoutFeedback
+            onPress={() => {
+              this.onSet(0)
+            }}
+          >
+            <View>
+              <Text numberOfLines={1} style={styles.cardtitle}>
+                {name}
+              </Text>
+            </View>
+          </TouchableWithoutFeedback>
+          <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+            <TouchableWithoutFeedback
+              onPress={() => {
+                this.onSet(1)
+              }}
+            >
+              <View>
+                <Text numberOfLines={1} style={styles.cardInfoDescription}>
+                  {description},
+                </Text>
+              </View>
+            </TouchableWithoutFeedback>
+            <TouchableWithoutFeedback
+              onPress={() => {
+                this.onSet(2)
+              }}
+            >
+              <View>
+                <Text numberOfLines={1} style={styles.cardInfoDescription}>
+                  {note}
+                </Text>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </View>
+      )
+    } else {
+      return (
+        <View>
+          <Text numberOfLines={1} style={styles.cardtitle}>
+            {name}
+          </Text>
+          <Text numberOfLines={1} style={styles.cardDescription}>
+            {description},{note}
+          </Text>
+        </View>
+      )
+    }
   }
 }
 
@@ -76,6 +147,13 @@ const styles = StyleSheet.create({
     marginTop: (4 / 812) * height,
     fontFamily: 'GR',
     textAlign: 'center',
+    color: '#FFFFFF',
+    opacity: 0.6,
+    fontSize: 14,
+  },
+  cardInfoDescription: {
+    marginTop: (4 / 812) * height,
+    fontFamily: 'GR',
     color: '#FFFFFF',
     opacity: 0.6,
     fontSize: 14,
