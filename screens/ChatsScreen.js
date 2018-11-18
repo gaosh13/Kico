@@ -118,9 +118,30 @@ export default class ChatsScreen extends React.Component {
           <View
             style={{
               flex: 0.25,
+              justifyContent: 'space-between',
+              alignItems: 'center',
             }}
           >
             <Image style={styles.userImage} source={{ uri: item.uri }} />
+            {item.unreadCount ? (
+              <View
+                style={{
+                  position: 'absolute',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  backgroundColor: '#FD563F',
+                  height: 24,
+                  width: 24,
+                  borderRadius: 12,
+                  top: 1,
+                  right: 4,
+                }}
+              >
+                <Text style={{ color: '#FFF', fontSize: 12, lineHeight: 24 }}>
+                  {item.unreadCount}
+                </Text>
+              </View>
+            ) : null}
           </View>
           <View
             style={{
@@ -137,11 +158,7 @@ export default class ChatsScreen extends React.Component {
             >
               <Text style={styles.usernameText}>{item.name}</Text>
               <Text style={styles.timestampText}>
-                {item.updatedAt
-                  ? moment(item.updatedAt)
-                      .locale(this.props.context.getLocale())
-                      .fromNow()
-                  : ''}
+                {item.updatedAt ? moment(item.updatedAt).fromNow() : ''}
               </Text>
             </View>
             <Text style={styles.messageText} numberOfLines={1}>
