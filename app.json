@@ -25,7 +25,7 @@
       "bundleIdentifier": "com.gix.playerX",
       "config": {
         "googleSignIn":{
-          "reservedClientId":"170596970815-nfcgnsf62ukg9g4q7vroetaefuk73jdf.apps.googleusercontent.com"
+          "reservedClientId":"170596970815-nfcgnsf62ukg9g4q7vroetaefuk73jdf.apps.googleusercontent.com",
         }
       }
     }

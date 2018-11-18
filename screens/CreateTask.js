@@ -88,7 +88,11 @@ export default class App extends React.Component {
             selectedWho: new Set(),
             whatItems: [
               {
-                activity: 'Coffee Break',
+                activity: 'Exchange Ki',
+                source:require('../assets/images/particles2.jpg'),
+              },
+              {
+                activity: 'Coffee/Tea Break',
                 source:require('../assets/images/coffee.jpeg'),
               },
               {
@@ -98,10 +102,6 @@ export default class App extends React.Component {
               {
                 activity: 'Library',
                 source:require('../assets/images/library.jpg'),
-              },
-              {
-                activity: 'Sightseeing',
-                source:require('../assets/images/sightseeing.jpg'),
               },
             ],
         };

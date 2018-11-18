@@ -67,7 +67,7 @@ export default class HomeScreen extends React.Component {
       loaded: false,
       poolLoaded: false,
       is_updated: false,
-      activeSlide:null,
+      activeSlide:0,
     };
     this.index = 0;
     this.loadingMarkers = false;
@@ -119,6 +119,7 @@ export default class HomeScreen extends React.Component {
   }
 
   _getLocationAsync = async () => {
+    // console.log('inside getlocationasync')
     //https://docs.expo.io/versions/v30.0.0/sdk/location
     let { status } = await Permissions.askAsync(Permissions.LOCATION);
     if (status !== "granted") {
@@ -128,7 +129,7 @@ export default class HomeScreen extends React.Component {
         });
     }
     this.location = await Location.watchPositionAsync(
-      { enableHighAccuracy: false, timeInterval: 60000, distanceInterval: 25 },
+      { enableHighAccuracy: false, timeInterval: 60000, distanceInterval: 100 },
       this.locationChanged
     );
     //this.locationChanged is called on each location update;
@@ -141,12 +142,14 @@ export default class HomeScreen extends React.Component {
       latitudeDelta: 0.004,
       longitudeDelta: 0.002
     };
+    // console.log("region has been retrieved", region)
     if (!this.mountState) return;
     let v0 = new Date().getTime();
     if (!this.loadingMarkers) {
       this.loadingMarkers = true;
       this.fetchMarkerData(location)
         .then(markers => {
+          // console.log('this is were venues are fetched', markers);
           return Promise.all(
             markers.map((marker, index) => {
               return Fire.shared.getPlaceURI(marker.id, marker).then(uri => {
@@ -179,6 +182,7 @@ export default class HomeScreen extends React.Component {
           );
         })
         .then(markersInfo => {
+          // console.log('we are at markersInfo', typeof markersInfo);
           if (this.mountState)
             this.setState({
               location,
@@ -192,6 +196,7 @@ export default class HomeScreen extends React.Component {
   };
 
   async fetchPool() {
+    // console.log('inside fetch pool')
     Fire.shared
       .getPersonalPool()
       .then(Data => {
@@ -214,7 +219,7 @@ export default class HomeScreen extends React.Component {
       })
       .then(updatedData => {
         if (updatedData) {
-          // console.log("personalpool Data has been pulled", updatedData);
+          // console.log("personalpool Data has been pulled", typeof updatedData);
           // let checkinSum = updatedData.reduce((prev,next) => prev + next.value,0);
           this.setState({ pool: updatedData, poolLoaded: true });
         } else {
@@ -301,25 +306,28 @@ export default class HomeScreen extends React.Component {
   drawMarkers(){
     if(this.mountState && this.state.markers.length){
       return(
-      <View>
-        <Carousel
-          data={this.state.markers}
-          renderItem={this._renderItem}
-          sliderWidth={width}
-          itemWidth={0.75*width+0.04*width}
-          containerCustomStyle={styles.slider}
-          contentContainerCustomStyle={styles.sliderContentContainer}
-          onSnapToItem={(index) => this.setState({ activeSlide: index }) }
-          layout={"stack"}
-          loop={true}
-        />
-      </View>
-      )
+          <View>
+            {this.pagination}
+            <Carousel
+              data={this.state.markers}
+              renderItem={this._renderItem}
+              sliderWidth={width}
+              itemWidth={0.75*width+0.04*width}
+              containerCustomStyle={styles.slider}
+              contentContainerCustomStyle={styles.sliderContentContainer}
+              onSnapToItem={(index) => this.setState({ activeSlide: index }) }
+              layout={"stack"}
+              loop={true}
+            />
+          </View>
+          )
+    }else{
+      return null;
     }
   }
 
   _renderItem ({item, index}) {
-    console.log(item);
+    // console.log(item);
     return (
       <TouchableWithoutFeedback
       key={index}
@@ -382,15 +390,12 @@ get pagination () {
 }
 
   render() {
-    let stationaryurl =
-      "https://s3.amazonaws.com/exp-brand-assets/ExponentEmptyManifest_192.png";
     return (
       <View style={styles.container}>
         <View style={styles.kiContainer}>
           {this.drawKiView()}
         </View>
-        <View style={styles.cardContainer}>
-          {this.pagination}  
+        <View style={styles.cardContainer}>  
           {this.drawMarkers()}      
         </View>
         <TouchableOpacity
