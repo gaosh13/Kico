@@ -9,29 +9,6 @@ import AwesomeButton from 'react-native-really-awesome-button'
 const { width, height } = Dimensions.get('window')
 
 class GenericScreen extends Component {
-  static propTypes = {
-    //Source: PropTypes.string.isRequired}
-    // textStyles: PropTypes.oneOfType([
-    //   PropTypes.array,
-    //   PropTypes.number,
-    //   PropTypes.shape({}),
-    // ]).isRequired,
-    // buttonStyles: PropTypes.oneOfType([
-    //   PropTypes.array,
-    //   PropTypes.number,
-    //   PropTypes.shape({}),
-    // ]).isRequired,
-    // static defaultProps = {
-    //   onClose: null,
-    //   onCancel: null,
-    //   closeInterval: 4000,
-    //   startDelta: -100,
-    //   endDelta: 0,
-    //   titleNumOfLines: 1,
-    //   messageNumOfLines: 3,
-    //   imageSrc: null
-  }
-
   render = () => {
     const { source, children, name, description, note, ki, friends } = this.props
     return (

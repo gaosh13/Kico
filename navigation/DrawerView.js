@@ -62,68 +62,70 @@ class DrawerView extends Component {
       <View style={styles.container}>
         <View style={styles.space} />
 
-        <TouchableHighlight
-          onPress={() => {
-            navigate('Profile')
-            this.props.navigation.closeDrawer()
-          }}
-          underlayColor="#CCC"
-          style={styles.menuTouchable}
-        >
-          <View style={styles.navBar}>
-            <View style={styles.leftContainer}>
-              <Image
-                style={{ width: wRatio(72), height: wRatio(72) }}
-                source={require('../assets/icons/profile.png')}
-              />
+        <View style={{ flex: 1 }}>
+          <TouchableHighlight
+            onPress={() => {
+              navigate('Profile')
+              this.props.navigation.closeDrawer()
+            }}
+            underlayColor="#CCC"
+            style={styles.menuTouchable}
+          >
+            <View style={styles.navBar}>
+              <View style={styles.leftContainer}>
+                <Image
+                  style={{ width: wRatio(72), height: wRatio(72) }}
+                  source={require('../assets/icons/profile.png')}
+                />
+              </View>
+              <View style={styles.rightContainer}>
+                <Text style={styles.navTextStyle}>Human Profile</Text>
+              </View>
             </View>
-            <View style={styles.rightContainer}>
-              <Text style={styles.navTextStyle}>Human Profile</Text>
-            </View>
-          </View>
-        </TouchableHighlight>
+          </TouchableHighlight>
 
-        <TouchableHighlight
-          onPress={() => {
-            navigate('Chats')
-            this.props.navigation.closeDrawer()
-          }}
-          underlayColor="#CCC"
-          style={styles.menuTouchable}
-        >
-          <View style={styles.navBar}>
-            <View style={styles.leftContainer}>
-              <Image
-                style={{ width: wRatio(72), height: wRatio(72) }}
-                source={require('../assets/icons/chat.png')}
-              />
+          <TouchableHighlight
+            onPress={() => {
+              navigate('Chats')
+              this.props.navigation.closeDrawer()
+            }}
+            underlayColor="#CCC"
+            style={styles.menuTouchable}
+          >
+            <View style={styles.navBar}>
+              <View style={styles.leftContainer}>
+                <Image
+                  style={{ width: wRatio(72), height: wRatio(72) }}
+                  source={require('../assets/icons/chat.png')}
+                />
+              </View>
+              <View style={styles.rightContainer}>
+                <Text style={styles.navTextStyle}>Chats</Text>
+              </View>
             </View>
-            <View style={styles.rightContainer}>
-              <Text style={styles.navTextStyle}>Chats</Text>
-            </View>
-          </View>
-        </TouchableHighlight>
+          </TouchableHighlight>
 
-        <TouchableHighlight
-          onPress={() => {
-            navigate('TaskListScreen')
-            this.props.navigation.closeDrawer()
-          }}
-          underlayColor="#CCC"
-          style={styles.menuTouchable}
-        >
-          <View style={styles.navBar}>
-            <View style={styles.leftContainer}>
-              <Image
-                style={{ width: wRatio(72), height: wRatio(72) }}
-                source={require('../assets/icons/task.png')}
-              />
+          <TouchableHighlight
+            onPress={() => {
+              navigate('TaskListScreen')
+              this.props.navigation.closeDrawer()
+            }}
+            underlayColor="#CCC"
+            style={styles.menuTouchable}
+          >
+            <View style={styles.navBar}>
+              <View style={styles.leftContainer}>
+                <Image
+                  style={{ width: wRatio(72), height: wRatio(72) }}
+                  source={require('../assets/icons/task.png')}
+                />
+              </View>
+              <View style={styles.rightContainer}>
+                <Text style={styles.navTextStyle}>Missions</Text>
+              </View>
             </View>
-            <View style={styles.rightContainer}>
-              <Text style={styles.navTextStyle}>Missions</Text>
-            </View>
-          </View>
-        </TouchableHighlight>
+          </TouchableHighlight>
+        </View>
 
         <TouchableHighlight
           onPress={() => navigate('Development')}
@@ -150,6 +152,7 @@ class DrawerView extends Component {
         >
           <Image source={require('../assets/icons/close.png')} />
         </TouchableOpacity>
+        <View style={{ height: 10 }} />
       </View>
     )
   }
@@ -280,7 +283,7 @@ const styles = StyleSheet.create({
   closeButtonContainer: {
     position: 'absolute',
     top: 60,
-    left: 36,
+    right: 36,
     borderRadius: 30,
     width: 30,
     height: 30,

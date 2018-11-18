@@ -21,6 +21,14 @@ import QRCode from 'react-native-qrcode-svg'
 
 const { width, height } = Dimensions.get('window')
 
+const hRatio = value => {
+  return (value / 812) * height
+}
+
+const wRatio = value => {
+  return (value / 375) * width
+}
+
 export default class CheckInScreen extends React.Component {
   static navigationOptions = {
     header: null,
@@ -45,11 +53,13 @@ export default class CheckInScreen extends React.Component {
     if (!this.props.navigation.getParam('task') || refresh) {
       const task = this._taskID
       Fire.shared.getTaskInfo(task).then(taskInfo => {
-        const { users: pool, where, what, when, isGoing } = taskInfo
+        const { users: pool = {}, where = {}, what, when, isGoing } = taskInfo
         this.setState({ pool, where, what, when, isGoing })
       })
     } else {
-      const { users: pool, where, what, when, isGoing } = this.props.navigation.getParam('task')
+      const { users: pool = {}, where = {}, what, when, isGoing } = this.props.navigation.getParam(
+        'task'
+      )
       this.setState({ pool, where, what, when, isGoing })
     }
   }
@@ -77,8 +87,9 @@ export default class CheckInScreen extends React.Component {
   _renderQRCode() {
     if (this.state.isGoing) {
       return (
-        <View style={{ paddingTop: 20, paddingBottom: 20 }}>
+        <View style={{ paddingTop: 20, paddingBottom: 20, alignItems: 'center' }}>
           <QRCode value={this._generateQRCode()} size={200} />
+          <Text style={styles.QRText}>Scan QR code to add friend</Text>
         </View>
       )
     } else return null
@@ -90,9 +101,10 @@ export default class CheckInScreen extends React.Component {
     const task = this._taskID
     return (
       <ScrollView
+        bounces={false}
         scrollEventThrottle={1}
         showsHorizontalScrollIndicator={false}
-        snapToInterval={(104 / 812) * height}
+        // snapToInterval={104/812*height}
         decelerationRate="fast"
       >
         <GenericScreen
@@ -108,6 +120,7 @@ export default class CheckInScreen extends React.Component {
             {this._renderQRCode()}
             <AwesomeButton
               // progress
+              marginTop={hRatio(32)}
               height={(68 / 812) * height}
               backgroundColor="#FFFFFF"
               borderRadius={(34 / 812) * height}
@@ -128,7 +141,11 @@ export default class CheckInScreen extends React.Component {
         <TouchableOpacity
           style={styles.backButtonContainer}
           onPress={() => {
-            this.props.navigation.navigate('TaskListScreen')
+            if (getParam('from')) {
+              this.props.navigation.navigate('Notification')
+            } else {
+              this.props.navigation.navigate('TaskListScreen')
+            }
           }}
         >
           <Image source={require('../assets/icons/back.png')} />
@@ -146,6 +163,7 @@ export default class CheckInScreen extends React.Component {
   }
 
   _removeTask(task) {
+    const { getParam } = this.props.navigation
     new Promise((resolve, reject) => {
       Alert.alert(
         'Warning',
@@ -170,7 +188,14 @@ export default class CheckInScreen extends React.Component {
     }).then(
       ret => {
         console.log('promise', ret, task)
-        return Fire.shared.deleteTask(task).then(this.props.navigation.navigate('TaskListScreen'))
+        return Fire.shared.deleteTask(task).then(() => {
+          if (getParam('from')) {
+            this.props.navigation.navigate('Notification')
+          } else {
+            getParam('remove', () => {})(task)
+            this.props.navigation.navigate('TaskListScreen')
+          }
+        })
       },
       ret => {
         console.log('promise cancelled', ret)
@@ -264,5 +289,12 @@ const styles = StyleSheet.create({
     color: 'rgb(7,43,79)',
     opacity: 0.5,
     textAlign: 'center',
+  },
+  QRText: {
+    marginTop: hRatio(26),
+    fontFamily: 'GR',
+    fontSize: 14,
+    color: 'rgb(7,43,79)',
+    opacity: 0.6,
   },
 })

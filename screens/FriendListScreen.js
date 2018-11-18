@@ -17,9 +17,6 @@ const wRatio = value => {
   return (value / 375) * width
 }
 
-let names = require('./names')
-names = _.groupBy(require('./names'), name => name[0].toUpperCase())
-
 export default class App extends React.Component {
   static navigationOptions = {
     header: null,
@@ -47,8 +44,8 @@ export default class App extends React.Component {
     let rawData = await Fire.shared.getFriends()
     // friends = _.forEach(friends,function(friend){_.assign(friend,{that:this.state.loading})})
     let friends = []
-    rawData.forEach(oneData => {
-      friends.push(Object.assign(oneData, { that: this }))
+    rawData.forEach((oneData, index) => {
+      friends.push(Object.assign(oneData, { that: this, index }))
     })
     this.dataArray = friends
     let res = _.groupBy(friends, friend => friend.name[0].toUpperCase())
@@ -75,15 +72,16 @@ export default class App extends React.Component {
     let existingPool = this.state.pool
     // existingPool.map(value=>value.name).sort().sort((a,b)=>{
     // })
-    if (
-      !_.find(existingPool, function(item) {
-        return item.name === data.name
-      })
-    ) {
-      existingPool.push(data)
-      this.setState({ pool: existingPool })
+    let flag = false
+    for (let i = 0; i < existingPool.length; ++i) {
+      if (existingPool[i].index == data.index) {
+        existingPool.splice(i, 1)
+        flag = true
+        break
+      }
     }
-    // console.log('clicked', t);
+    if (!flag) existingPool.push(data)
+    this.setState({ pool: existingPool })
   }
 
   _renderCell(data) {
@@ -166,6 +164,14 @@ export default class App extends React.Component {
             <Text style={{ fontSize: 15, fontFamily: 'GR', fontWeight: 'bold' }}>Finish</Text>
           </AwesomeButton>
         </View>
+        <TouchableOpacity
+          style={styles.backButtonContainer}
+          onPress={() => {
+            this.props.navigation.pop()
+          }}
+        >
+          <Image source={require('../assets/icons/back.png')} />
+        </TouchableOpacity>
       </View>
     )
   }
@@ -200,6 +206,20 @@ const styles = StyleSheet.create({
     borderRadius: wRatio(72) / 2,
     marginRight: wRatio(24),
     marginLeft: wRatio(18),
+  },
+  backButtonContainer: {
+    position: 'absolute',
+    top: 60,
+    left: 30,
+    borderRadius: 30,
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    shadowColor: '#000000',
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
   },
   nameBox: {
     flex: 1,

@@ -42,7 +42,7 @@ export default class TaskListScreen extends React.Component {
     return (
       <View style={styles.container}>
         <View style={{ marginBottom: 10 }}>
-          <Text style={styles.titleText}>Tasks</Text>
+          <Text style={styles.titleText}>Missions</Text>
         </View>
         <FlatList
           data={this.state.task}
@@ -66,7 +66,24 @@ export default class TaskListScreen extends React.Component {
   }
 
   _handlePress = item => {
-    this.props.navigation.navigate('JoinTaskScreen', { task: item })
+    this.props.navigation.navigate('JoinTaskScreen', {
+      taskID: item.id,
+      remove: taskID => {
+        this._removeItem(taskID)
+      },
+    })
+  }
+
+  _removeItem = taskID => {
+    let task = this.state.task
+    for (let i = 0; i < task.length; ++i) {
+      if (taskID.toString() == task[i].id.toString()) {
+        task.splice(i, 1)
+        break
+      }
+    }
+    console.log('newList', task)
+    this.setState({ task })
   }
 
   _renderListItem = ({ item }) => <TaskItem item={item} onPressItem={this._handlePress} />
@@ -98,7 +115,11 @@ class TaskItem extends React.PureComponent {
                 {item.where.name}, {item.when.toString()}
               </Text>
             </View>
-            <View style={{ flex: 0.5 }}>{generateSmallCircles(item.users)}</View>
+            {/*
+            <View style={{flex: 0.5}}>
+              {generateSmallCircles(item.users)}
+            </View>
+            */}
           </View>
         </View>
       </TouchableOpacity>
@@ -129,6 +150,7 @@ const styles = StyleSheet.create({
   cardDescription: {
     flexDirection: 'row',
     backgroundColor: 'white',
+    paddingVertical: 5,
   },
   container: {
     flex: 1,

@@ -13,6 +13,7 @@ import {
   AppRegistry,
   Button,
   ImageBackground,
+  TouchableWithoutFeedback,
 } from 'react-native'
 import { WebBrowser, Constants, Location, Permissions, LinearGradient } from 'expo'
 import Touchable from 'react-native-platform-touchable'
@@ -26,11 +27,13 @@ import { RandomCircles } from '../components/KiVisual'
 import { BlurView, VibrancyView } from 'react-native-blur'
 import ActionButton from 'react-native-action-button'
 import DateTimePicker from 'react-native-modal-datetime-picker'
+import { NavigationEvents } from 'react-navigation'
+import Carousel, { Pagination } from 'react-native-snap-carousel'
 
 const { width, height } = Dimensions.get('window')
 
 const CARD_HEIGHT = (212 / 812) * height
-const CARD_WIDTH = width / 1.1
+const CARD_WIDTH = width / 1.25
 
 //https://codedaily.io/tutorials/9/Build-a-Map-with-Custom-Animated-Markers-and-Region-Focus-when-Content-is-Scrolled-in-React-Native
 
@@ -39,10 +42,12 @@ export default class HomeScreen extends React.Component {
     header: null,
   }
 
-  constructor() {
-    super()
+  constructor(props) {
+    super(props)
     this.mountState = false
+    this.updatePool = false
     this.location = null
+    this.updatePool = false
     this.state = {
       location: { coords: { latitude: 0, longitude: 0 } },
       errorMessage: null,
@@ -51,6 +56,9 @@ export default class HomeScreen extends React.Component {
       pool: [],
       markers: [],
       loaded: false,
+      poolLoaded: false,
+      is_updated: false,
+      activeSlide: 0,
     }
     this.index = 0
     this.loadingMarkers = false
@@ -58,6 +66,20 @@ export default class HomeScreen extends React.Component {
   }
 
   componentDidMount() {
+    this.updatePool = this.props.navigation.addListener('willFocus', payload => {
+      // console.log("checking params", this.props.navigation.state.params);
+      // console.log("top addlistener is called", payload.state);
+      if (this.props.navigation.getParam('shouldUpdate', false)) {
+        this.props.navigation.setParams({ shouldUpdate: false })
+        console.log('we want to refetch to pool')
+        this.setState({ poolLoaded: false })
+        this.fetchPool()
+      }
+      // this.setState(
+      //   { is_updated: this.props.navigation.getParam("shouldUpdate", false) },
+      //   function() {this.props.navigation.setParams({shouldUpdate:false})}
+      // );
+    })
     this.somefunction()
     this.mountState = true
   }
@@ -67,6 +89,10 @@ export default class HomeScreen extends React.Component {
     if (this.location) {
       this.location.remove()
       this.location = null
+    }
+    if (this.updatePool) {
+      this.updatePool.remove()
+      this.updatePool = null
     }
   }
 
@@ -84,6 +110,7 @@ export default class HomeScreen extends React.Component {
   }
 
   _getLocationAsync = async () => {
+    // console.log('inside getlocationasync')
     //https://docs.expo.io/versions/v30.0.0/sdk/location
     let { status } = await Permissions.askAsync(Permissions.LOCATION)
     if (status !== 'granted') {
@@ -106,12 +133,14 @@ export default class HomeScreen extends React.Component {
       latitudeDelta: 0.004,
       longitudeDelta: 0.002,
     }
+    // console.log("region has been retrieved", region)
     if (!this.mountState) return
     let v0 = new Date().getTime()
     if (!this.loadingMarkers) {
       this.loadingMarkers = true
       this.fetchMarkerData(location)
         .then(markers => {
+          // console.log('this is were venues are fetched', markers);
           return Promise.all(
             markers.map((marker, index) => {
               return Fire.shared.getPlaceURI(marker.id, marker).then(uri => {
@@ -121,6 +150,7 @@ export default class HomeScreen extends React.Component {
                     uri: uri,
                     name: marker.name,
                     location: marker.location,
+                    that: this,
                   }
                 } else {
                   return this.fetchMarkerPhoto(marker.id).then(url => {
@@ -131,6 +161,7 @@ export default class HomeScreen extends React.Component {
                         uri: url,
                         name: marker.name,
                         location: marker.location,
+                        that: this,
                       }
                     } else {
                       return null
@@ -142,15 +173,21 @@ export default class HomeScreen extends React.Component {
           )
         })
         .then(markersInfo => {
+          // console.log('we are at markersInfo', typeof markersInfo);
           if (this.mountState)
-            this.setState({ location, region, markers: markersInfo.filter(obj => obj) })
+            this.setState({
+              location,
+              region,
+              markers: markersInfo.filter(obj => obj),
+            })
           this.loadingMarkers = false
-          console.log('total promise time', new Date().getTime() - v0)
+          // console.log("total promise time", new Date().getTime() - v0);
         })
     }
   }
 
   async fetchPool() {
+    // console.log('inside fetch pool')
     Fire.shared
       .getPersonalPool()
       .then(Data => {
@@ -173,9 +210,9 @@ export default class HomeScreen extends React.Component {
       })
       .then(updatedData => {
         if (updatedData) {
-          console.log('personalpool Data has been pulled', updatedData)
-          let checkinSum = updatedData.reduce((prev, next) => prev + next.value, 0)
-          this.setState({ pool: updatedData, sum: checkinSum })
+          // console.log("personalpool Data has been pulled", typeof updatedData);
+          // let checkinSum = updatedData.reduce((prev,next) => prev + next.value,0);
+          this.setState({ pool: updatedData, poolLoaded: true })
         } else {
           console.log('personalpool Data fetch has failed')
         }
@@ -222,7 +259,7 @@ export default class HomeScreen extends React.Component {
     try {
       let response = await fetch(fetchurl)
       let data = await response.json()
-      console.log('foursquare photo data: ', data.response.venue.bestPhoto)
+      // console.log("foursquare photo data: ", data.response.venue.bestPhoto);
       return (
         data.response.venue.bestPhoto.prefix + 'original' + data.response.venue.bestPhoto.suffix
       )
@@ -239,10 +276,10 @@ export default class HomeScreen extends React.Component {
   drawKiView() {
     // follows this tutorial:
     // https://www.youtube.com/watch?v=XATr_jdh-44
-    if (this.mountState) {
+    if (this.mountState && this.state.poolLoaded) {
       // let friendSum = this.state.pool.reduce((prev,next) => prev + next.value,0);
       return (
-        <View style={styles.kiContainer}>
+        <View>
           <RandomCircles pool={this.state.pool} navigation={this.props.navigation} />
         </View>
       )
@@ -252,63 +289,102 @@ export default class HomeScreen extends React.Component {
     }
   }
 
+  drawMarkers() {
+    if (this.mountState && this.state.markers.length) {
+      return (
+        <View>
+          {this.pagination}
+          <Carousel
+            data={this.state.markers}
+            renderItem={this._renderItem}
+            sliderWidth={width}
+            itemWidth={0.75 * width + 0.04 * width}
+            containerCustomStyle={styles.slider}
+            contentContainerCustomStyle={styles.sliderContentContainer}
+            onSnapToItem={index => this.setState({ activeSlide: index })}
+            layout={'stack'}
+            loop={true}
+          />
+        </View>
+      )
+    } else {
+      return null
+    }
+  }
+
+  _renderItem({ item, index }) {
+    // console.log(item);
+    return (
+      <TouchableWithoutFeedback
+        key={index}
+        onPress={() =>
+          item.that.setState({ showOption: false }, function() {
+            item.that.props.navigation.navigate('CheckIn', {
+              shouldUpdate: false,
+              uri: item.uri,
+              name: item.name,
+              placeID: item.id,
+              location: item.location.formattedAddress.slice(0, -1),
+            })
+          })
+        }
+      >
+        <View style={styles.card}>
+          <AsyncImageAnimated
+            style={styles.cardImage}
+            source={{
+              uri: item.uri,
+            }}
+            placeholderColor="#cfd8dc"
+            animationStyle="fade"
+          />
+          <LinearGradient colors={['rgba(0,0,0,0)', 'rgba(0,0,0,1)']} style={styles.blurView} />
+          <View style={styles.textContent}>
+            <Text numberOfLines={1} style={styles.cardtitle}>
+              {item.name}
+            </Text>
+            <Text numberOfLines={1} style={styles.cardDescription}>
+              {item.location.formattedAddress.slice(0, -1)}
+            </Text>
+          </View>
+          <View style={styles.handle} />
+        </View>
+      </TouchableWithoutFeedback>
+    )
+  }
+
+  get pagination() {
+    const { markers, activeSlide } = this.state
+    return (
+      <Pagination
+        dotsLength={markers.length}
+        activeDotIndex={activeSlide}
+        containerStyle={{ paddingVertical: 2, backgroundColor: 'rgba(0, 0, 0, 0)' }}
+        dotContainerStyle={{ height: 12 }}
+        dotStyle={{
+          marginHorizontal: -4,
+          paddingVertical: 0,
+          backgroundColor: 'rgba(0, 0, 0, 1)',
+        }}
+        inactiveDotOpacity={0.4}
+        inactiveDotScale={0.4}
+      />
+    )
+  }
+
   render() {
-    let stationaryurl = 'https://s3.amazonaws.com/exp-brand-assets/ExponentEmptyManifest_192.png'
     return (
       <View style={styles.container}>
-        <View style={styles.particlesContainer}>{this.drawKiView()}</View>
-        <ScrollView
-          horizontal
-          scrollEventThrottle={1}
-          showsHorizontalScrollIndicator={false}
-          snapToInterval={CARD_WIDTH + 5}
-          style={styles.scrollView}
-          contentContainerStyle={styles.endPadding}
-          decelerationRate="fast"
-        >
-          {this.state.markers.map((marker, index) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() =>
-                this.props.navigation.navigate('CheckIn', {
-                  uri: marker.uri,
-                  name: marker.name,
-                  placeID: marker.id,
-                  location: marker.location.formattedAddress.slice(0, -1),
-                })
-              }
-            >
-              <View style={styles.card}>
-                <AsyncImageAnimated
-                  style={styles.cardImage}
-                  source={{
-                    uri: marker.uri,
-                  }}
-                  placeholderColor="#cfd8dc"
-                  animationStyle="fade"
-                />
-                <LinearGradient
-                  colors={['rgba(0,0,0,0)', 'rgba(0,0,0,1)']}
-                  style={styles.blurView}
-                />
-                <View style={styles.textContent}>
-                  <Text numberOfLines={1} style={styles.cardtitle}>
-                    {marker.name}
-                  </Text>
-                  <Text numberOfLines={1} style={styles.cardDescription}>
-                    {marker.location.formattedAddress.slice(0, -1)}
-                  </Text>
-                </View>
-                <View style={styles.handle} />
-              </View>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
+        <View style={styles.kiContainer}>{this.drawKiView()}</View>
+        <View style={styles.cardContainer}>{this.drawMarkers()}</View>
         <TouchableOpacity
           style={styles.notificationContainer}
           onPress={() => {
-            this.props.navigation.navigate('Notification')
+            this.setState({ showOption: false }, function() {
+              this.props.navigation.navigate('Notification', {
+                shouldUpdate: false,
+              })
+            })
           }}
         >
           <Image source={require('../assets/icons/notification.png')} />
@@ -330,7 +406,9 @@ export default class HomeScreen extends React.Component {
         <TouchableOpacity
           style={styles.drawerContainer}
           onPress={() => {
-            this.props.navigation.openDrawer()
+            this.setState({ showOption: false }, function() {
+              this.props.navigation.openDrawer()
+            })
           }}
         >
           <Image source={require('../assets/icons/drawer.png')} />
@@ -355,18 +433,31 @@ export default class HomeScreen extends React.Component {
             <TouchableOpacity
               style={{ paddingVertical: 10 }}
               onPress={() => {
-                this.props.navigation.navigate('CreateTask', {
-                  pool: this.state.pool,
+                this.setState({ showOption: false }, function() {
+                  this.props.navigation.navigate('CreateTask', {
+                    shouldUpdate: false,
+                    pool: this.state.pool,
+                  })
                 })
               }}
             >
               <Text style={styles.optionText}>Create Task</Text>
             </TouchableOpacity>
-            <View style={{ borderBottomWidth: 1, borderBottomColor: '#ccc', height: 1 }} />
+            <View
+              style={{
+                borderBottomWidth: 1,
+                borderBottomColor: '#ccc',
+                height: 1,
+              }}
+            />
             <TouchableOpacity
               style={{ paddingVertical: 10 }}
               onPress={() => {
-                this.props.navigation.navigate('QRScanner')
+                this.setState({ showOption: false }, function() {
+                  this.props.navigation.navigate('QRScanner', {
+                    shouldUpdate: false,
+                  })
+                })
               }}
             >
               <Text style={styles.optionText}>Scan QR Code</Text>
@@ -420,7 +511,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     // borderWidth: 1,
     // borderRadius: 10,
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
     paddingHorizontal: 5,
     backgroundColor: '#fff',
     shadowColor: '#000000',
@@ -449,14 +540,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { x: 0, y: 10 },
   },
-  particlesContainer: {
-    marginTop: height / 8,
-    height: (height * 2) / 3,
-    width: width,
-  },
   kiContainer: {
+    height: height - CARD_HEIGHT,
     width: width,
-    height: (1 - 212 / height) * height + 20,
+    backgroundColor: 'transparent',
   },
   itemContainer: {
     marginBottom: 15,
@@ -503,8 +590,9 @@ const styles = StyleSheet.create({
     elevation: 2,
     backgroundColor: '#FFF',
     marginHorizontal: 2.5,
-    borderTopLeftRadius: 5,
-    borderTopRightRadius: 5,
+    // borderTopLeftRadius: 5,
+    // borderTopRightRadius: 5,
+    borderRadius: 5,
     shadowColor: '#000000',
     shadowRadius: 1.5,
     shadowOpacity: 0.1,
@@ -544,7 +632,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     color: 'white',
     textAlign: 'left',
-    fontFamily: 'GSB',
+    fontFamily: 'GR',
     fontSize: (22 / 812) * height,
     fontWeight: 'bold',
   },
@@ -564,5 +652,18 @@ const styles = StyleSheet.create({
     flex: 1,
     width: width,
     height: height,
+  },
+  cardContainer: {
+    position: 'absolute',
+    bottom: 0,
+    backgroundColor: 'transparent',
+    // paddingVertical: 30
+  },
+  slider: {
+    // marginTop: 15,
+    // overflow: 'visible' // for custom animations
+  },
+  sliderContentContainer: {
+    // paddingVertical: 10 // for custom animation
   },
 })

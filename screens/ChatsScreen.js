@@ -8,6 +8,14 @@ import { generateCirclesRow } from '../components/KiVisual'
 
 const { width, height } = Dimensions.get('window')
 
+const hRatio = value => {
+  return (value / 812) * height
+}
+
+const wRatio = value => {
+  return (value / 375) * width
+}
+
 export default class ChatsScreen extends React.Component {
   static navigationOptions = {
     header: null,
@@ -78,7 +86,7 @@ export default class ChatsScreen extends React.Component {
         />
         <FlatList
           showsVerticalScrollIndicator={false}
-          style={styles.friendList}
+          style={{ marginLeft: wRatio(18) }}
           data={this.state.friends}
           keyExtractor={(item, index) => {
             return 'friend' + index
@@ -189,8 +197,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 100,
-    paddingLeft: 15,
-    paddingRight: 15,
     backgroundColor: '#FAFBFD',
   },
   kiContainer: {
@@ -219,6 +225,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontSize: 32,
+    marginLeft: wRatio(18),
     color: '#313254',
     fontWeight: 'bold',
     letterSpacing: 0.5,

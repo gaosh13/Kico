@@ -31,19 +31,30 @@ export default class CheckInScreen extends React.Component {
 
   constructor(props) {
     super(props)
+    this.actionTaken = false
+    this.mountState = false
     this.state = {
       pool: [],
+      poolLoaded: false,
       isVisited: true,
       circles: [],
     }
+
+    console.log('checking params', this.props.navigation.state.params)
 
     // this.props.navigation.setParams({ jump: this._onPress });
     //this.fetchdata();
   }
 
   componentDidMount() {
+    this.mountState = true
     this.fetchdata()
     // await this.fetchVenueData();
+  }
+
+  componentWillUnmount() {
+    this.mountState = false
+    this.actionTaken = false
   }
 
   fetchdata() {
@@ -51,7 +62,8 @@ export default class CheckInScreen extends React.Component {
     // console.log("begin fetching");
     Promise.all([Fire.shared.getPlacePool(place), Fire.shared.isVisited(place)]).then(
       ([pool, isVisited]) => {
-        this.setState({ pool, isVisited })
+        // console.log("changed", isVisited);
+        if (this.mountState) this.setState({ pool, isVisited, poolLoaded: true })
       }
     )
   }
@@ -60,7 +72,7 @@ export default class CheckInScreen extends React.Component {
     // follows this tutorial:
     // https://www.youtube.com/watch?v=XATr_jdh-44
     // console.log(this.state.pool)
-    if (this.state.pool.length) {
+    if (this.state.poolLoaded) {
       //console.log('ZZZZZZZZ',this.state.sum);
       return <View style={styles.kiContainer}>{generateCirclesRow(this.state.pool)}</View>
     } else {
@@ -89,6 +101,7 @@ export default class CheckInScreen extends React.Component {
               backgroundColor="#FFFFFF"
               borderRadius={(34 / 812) * height}
               onPress={next => {
+                this.actionTaken = true
                 ;(this.state.isVisited
                   ? Fire.shared.checkout(place)
                   : Fire.shared.checkin(place)
@@ -107,7 +120,7 @@ export default class CheckInScreen extends React.Component {
         <TouchableOpacity
           style={styles.closeButtonContainer}
           onPress={() => {
-            this.props.navigation.navigate('Home')
+            this.props.navigation.navigate('Home', { shouldUpdate: this.actionTaken })
           }}
         >
           <Image source={require('../assets/icons/close.png')} />
