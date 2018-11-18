@@ -364,7 +364,7 @@ export default class HomeScreen extends React.Component {
             {item.location.formattedAddress.slice(0, -1)}
           </Text>
         </View>
-        <View style={styles.handle} />
+        {/* <View style={styles.handle} /> */}
       </View>
     </TouchableWithoutFeedback>
     );
@@ -391,6 +391,7 @@ get pagination () {
 
   render() {
     return (
+      <ImageBackground style={{width: '100%', height: '100%'}} source={require('../assets/images/particles.jpg')}>
       <View style={styles.container}>
         <View style={styles.kiContainer}>
           {this.drawKiView()}
@@ -436,6 +437,7 @@ get pagination () {
         </TouchableOpacity>
         {this._renderOption()}
       </View>
+      </ImageBackground>
     );
   }
 
@@ -493,9 +495,10 @@ get pagination () {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white"
+    backgroundColor: "transparent"
   },
   notificationContainer: {
+    opacity:0.5,
     position: "absolute",
     top: 60,
     right: 30,
@@ -511,6 +514,7 @@ const styles = StyleSheet.create({
   },
   showOptionContainer: {
     position: "absolute",
+    opacity:0.5,
     top: 60,
     right: 80,
     borderRadius: 30,
@@ -525,6 +529,7 @@ const styles = StyleSheet.create({
   },
   optionContainer: {
     position: "absolute",
+    opacity:0.75,
     top: 110,
     right: 30,
     width: 160,
@@ -583,11 +588,13 @@ const styles = StyleSheet.create({
   },
   drawerContainer: {
     position: "absolute",
+    opacity:0.5,
     top: 60,
     left: 30,
     borderRadius: 30,
     width: 30,
     height: 30,
+    opacity:0.5,
     alignItems: "center",
     backgroundColor: "#fff",
     shadowColor: "#000000",

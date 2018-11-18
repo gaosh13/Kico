@@ -22,7 +22,7 @@ export class RandomCircles extends React.PureComponent {
     var overlapping = false;
 
     while(NumCircles<15){
-      pool.push({uid:null,name:'AI',source:require('../assets/images/AI.jpeg'),value:0.5});
+      pool.push({uid:null,name:'AI',source:require('../assets/images/AI.jpeg'),value:0.65});
       NumCircles ++;
     }
 
@@ -39,10 +39,10 @@ export class RandomCircles extends React.PureComponent {
          counter < protection) {
 
       var randomX = 25+Math.round(Math.random() * (width-50));
-      var randomY = 40+Math.round(Math.random() * ((600/812)*height-80));
+      var randomY = 60+Math.round(Math.random() * ((600/812)*height-120));
       //perhaps better algorithm here
-      var size = Math.sqrt(Math.pow(pool[savedCirclesCounter].value/newSum,2)*(area));
-      var opacity = 0.2 + 0.8 * (Math.max(0,8 - savedCirclesCounter)/8);  
+      var size = Math.sqrt(Math.pow(pool[savedCirclesCounter].value/newSum,2)*(area/1.25));
+      var opacity = 0.5 + 0.5 * (Math.max(0,8 - savedCirclesCounter)/8);  
       var uri = pool[savedCirclesCounter].uri;
       var name = pool[savedCirclesCounter].name;
       var uid = pool[savedCirclesCounter].uid;
