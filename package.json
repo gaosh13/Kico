@@ -40,6 +40,7 @@
     "react-native-canvas": "^0.1.24",
     "react-native-fbsdk": "^0.8.0",
     "react-native-foursquare-api": "0.0.4",
+    "react-native-gifted-chat": "^0.4.3",
     "react-native-global-props": "^1.1.5",
     "react-native-maps": "^0.22.0",
     "react-native-picker-select": "^5.1.0",
