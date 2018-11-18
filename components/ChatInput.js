@@ -97,13 +97,14 @@ export default class ChatInput extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    bottom: 50,
+    bottom: 0,
     left: 0,
     right: 0,
   },
   primary: {
     flexDirection: 'row',
     alignItems: 'flex-end',
+    backgroundColor: 'white',
   },
   accessory: {
     height: 65,

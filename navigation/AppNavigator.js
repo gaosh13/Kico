@@ -40,8 +40,9 @@ import OtherProfileScreen from '../screens/OtherProfileScreen'
 import JoinTaskScreen from '../screens/JoinTask'
 import TaskListScreen from '../screens/TaskListScreen'
 import CreateTaskScreen from '../screens/CreateTask'
-import Congratulations from '../screens/Congratulations.js'
-import FriendListScreen from '../screens/FriendListScreen.js'
+import Congratulations from '../screens/Congratulations'
+import FriendListScreen from '../screens/FriendListScreen'
+import FriendsScreen from '../screens/FriendsScreen'
 
 const { width, height } = Dimensions.get('window')
 
@@ -78,6 +79,7 @@ const PersonalDrawer = createDrawerNavigator(
         CreateTask: CreateTaskScreen,
         Congrats: Congratulations,
         InviteFriends: FriendListScreen,
+        FriendsScreen,
         Profile: ProfileScreen,
         // Edit: EditScreen,
         ChatScreen,

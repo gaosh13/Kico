@@ -1,5 +1,13 @@
 import React from 'react'
-import { StyleSheet, View, TouchableOpacity, Text, ScrollView, Image } from 'react-native'
+import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  Text,
+  ScrollView,
+  Image,
+  Dimensions,
+} from 'react-native'
 
 import Fire from '../components/Fire'
 
@@ -10,6 +18,16 @@ import { GiftedChat, Bubble, Message, Send, Actions, utils } from 'react-native-
 import AwesomeButton from 'react-native-really-awesome-button'
 
 import { Ionicons } from '@expo/vector-icons'
+
+const { width, height } = Dimensions.get('window')
+
+const hRatio = value => {
+  return (value / 812) * height
+}
+
+const wRatio = value => {
+  return (value / 375) * width
+}
 
 export default class ChatScreen extends React.Component {
   static navigationOptions = {
@@ -47,7 +65,7 @@ export default class ChatScreen extends React.Component {
           .collection('messages')
           .doc(uid)
           .collection('messages')
-          .limit(10)
+          .limit(20)
           .orderBy('createdAt', 'desc')
           .onSnapshot(snap => {
             const docs = snap
@@ -131,11 +149,11 @@ export default class ChatScreen extends React.Component {
           left: {
             backgroundColor: '#fff',
             borderRadius: 20,
-            padding: 10,
+            padding: 2,
           },
           right: {
             borderRadius: 20,
-            padding: 10,
+            padding: 2,
           },
         }}
       />
@@ -245,16 +263,20 @@ export default class ChatScreen extends React.Component {
             renderMessage={props => this.renderMessage(props)}
             renderInputToolbar={props => this.renderInputToolbar(props)}
             renderAccessory={isFriend ? null : props => this.renderAccessory(props)}
+            showAvatarForEveryMessage={true}
             renderSend={isFriend ? null : props => this.renderSend(props)}
             renderActions={isFriend ? null : props => this.renderActions(props)}
+            isAnimated
             onSend={messages => this.onSend(messages)}
-            minInputToolbarHeight={80}
+            // bottomOffset={200}
+            // minInputToolbarHeight={120}
+            alwaysShowSend={true}
             keyboardShouldPersistTaps="never"
             textInputStyle={{
               borderColor: '#DDDDDF',
               borderWidth: 1,
               borderRadius: 24,
-              height: 50,
+              // height: 50,
               fontSize: 14,
               marginLeft: 20,
               marginRight: 20,
@@ -264,22 +286,30 @@ export default class ChatScreen extends React.Component {
             }}
             textInputProps={{
               editable: isFriend,
-              placeholder: '',
+              // placeholder: '',
             }}
             listViewProps={{
               contentContainerStyle: { flexGrow: 1, justifyContent: 'flex-start' },
             }}
-            showUserAvatar
+            // showUserAvatar
             user={user}
           />
         </View>
         <TouchableOpacity
           style={styles.closeButtonContainer}
           onPress={() => {
-            goBack()
+            this.props.navigation.navigate('Home')
           }}
         >
           <Image source={require('../assets/icons/close.png')} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.backButtonContainer}
+          onPress={() => {
+            goBack()
+          }}
+        >
+          <Image source={require('../assets/icons/back.png')} />
         </TouchableOpacity>
       </View>
     )
@@ -292,8 +322,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   chatHeader: {
-    height: 112,
-    paddingBottom: 24,
+    height: hRatio(112),
+    // backgroundColor:'#262626',
+    paddingBottom: hRatio(24),
     paddingLeft: 90,
     paddingRight: 80,
     alignItems: 'center',
@@ -309,8 +340,8 @@ const styles = StyleSheet.create({
   },
   closeButtonContainer: {
     position: 'absolute',
-    top: 60,
-    right: 30,
+    top: hRatio(60),
+    right: wRatio(30),
     borderRadius: 30,
     width: 30,
     height: 30,
@@ -325,7 +356,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontFamily: 'GSB',
     fontSize: 18,
-    color: '#072B4F',
+    // color: 'white',
+    color: 'rgb(7,43,79)',
   },
   iconWrapper: {
     flex: 1,
@@ -334,5 +366,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 20,
     textAlign: 'center',
+  },
+  backButtonContainer: {
+    position: 'absolute',
+    top: hRatio(60),
+    left: wRatio(30),
+    borderRadius: 30,
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    shadowColor: '#000000',
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
   },
 })

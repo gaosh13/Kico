@@ -177,6 +177,7 @@ export default class App extends React.Component {
               }}
               style={{ ...pickerSelectStyles }}
               value={this.state.where}
+              placeholderTextColor="rgb(217,217,217)"
               ref={el => {
                 this.inputRefs.picker = el
               }}
@@ -217,7 +218,7 @@ export default class App extends React.Component {
           >
             {this.state.selectedDate ? (
               <View style={styles.timeContainer}>
-                <Text style={styles.timeText}>
+                <Text style={styles.selectedTimeText}>
                   {this.state.selectedDate.toString().slice(0, 21)}
                 </Text>
               </View>
@@ -232,6 +233,7 @@ export default class App extends React.Component {
             isVisible={this.state.isDateTimePickerVisible}
             onConfirm={this._handleDatePicked}
             onCancel={this._hideDateTimePicker}
+            minuteInterval={15}
             mode="datetime"
           />
 
@@ -408,6 +410,12 @@ const styles = StyleSheet.create({
     paddingTop: 11,
     color: 'rgb(217,217,217)',
   },
+  selectedTimeText: {
+    fontSize: 14,
+    fontFamily: 'GR',
+    paddingTop: 11,
+    color: 'rgb(7,43,79)',
+  },
   buttonContainer: {
     alignItems: 'center',
     marginTop: hRatio(24),
@@ -431,7 +439,7 @@ const pickerSelectStyles = StyleSheet.create({
     borderColor: 'rgba(148,148,148,0.16)',
     borderRadius: 8,
     backgroundColor: 'white',
-    color: 'rgb(217,217,217)',
+    color: 'rgb(7,43,79)',
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
     shadowColor: 'rgb(148,148,148)',

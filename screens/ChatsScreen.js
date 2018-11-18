@@ -52,13 +52,13 @@ export default class ChatsScreen extends React.Component {
 
   componentWillUnmount() {}
 
-  drawKiView() {
-    if (this.state.strangers.length) {
-      return <View style={styles.kiContainer}>{generateCirclesRow(this.state.strangers)}</View>
-    } else {
-      return <View style={styles.kiContainer} />
-    }
-  }
+  // drawKiView() {
+  //   if (this.state.strangers.length) {
+  //     return <View style={styles.kiContainer}>{generateCirclesRow(this.state.strangers)}</View>
+  //   } else {
+  //     return <View style={styles.kiContainer} />
+  //   }
+  // }
 
   render() {
     return (
@@ -66,16 +66,18 @@ export default class ChatsScreen extends React.Component {
         <View style={{ marginBottom: 10 }}>
           <Text style={styles.titleText}>Recent</Text>
         </View>
-        <FlatList
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          style={styles.strangerList}
-          data={this.state.strangers}
-          keyExtractor={(item, index) => {
-            return 'stranger' + index
-          }}
-          renderItem={this._renderStrangerListItem}
-        />
+        <View style={{ height: 64 }}>
+          <FlatList
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            style={styles.strangerList}
+            data={this.state.strangers}
+            keyExtractor={(item, index) => {
+              return 'stranger' + index
+            }}
+            renderItem={this._renderStrangerListItem}
+          />
+        </View>
         <View
           style={{
             borderBottomColor: '#ccc',
@@ -87,7 +89,7 @@ export default class ChatsScreen extends React.Component {
         />
         <FlatList
           showsVerticalScrollIndicator={false}
-          style={{ marginHorizontal: 15 }}
+          // style={{ marginHorizontal: 15 , backgroundColor:'pink'}}
           data={this.state.friends}
           keyExtractor={(item, index) => {
             return 'friend' + index
@@ -102,6 +104,15 @@ export default class ChatsScreen extends React.Component {
         >
           <Image source={require('../assets/icons/close.png')} />
         </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.backButtonContainer}
+          onPress={() => {
+            this.props.navigation.navigate('Home')
+            this.props.navigation.openDrawer()
+          }}
+        >
+          <Image source={require('../assets/icons/back.png')} />
+        </TouchableOpacity>
       </View>
     )
   }
@@ -109,6 +120,7 @@ export default class ChatsScreen extends React.Component {
   _renderStrangerListItem = ({ item }) => {
     return (
       <TouchableOpacity
+        style={{ marginRight: wRatio(12) }}
         onPress={() => {
           this.props.navigation.navigate('ChatScreen', {
             uri: item.uri,
@@ -117,9 +129,7 @@ export default class ChatsScreen extends React.Component {
           })
         }}
       >
-        <View style={{ marginRight: 15 }}>
-          <Image style={styles.userImage} source={{ uri: item.uri }} />
-        </View>
+        <Image style={styles.userImage} source={{ uri: item.uri }} />
       </TouchableOpacity>
     )
   }
@@ -241,12 +251,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  messageTextContainer: {
-    height: '60%',
-    // justifyContent: 'center',
-    // borderWidth: 1,
-    // borderColor: '#f00',
-  },
+  // messageTextContainer: {
+  //   height: '60%',
+  //   // justifyContent: 'center',
+  //   // borderWidth: 1,
+  //   // borderColor: '#f00',
+  // },
   friendList: {
     flex: 1,
     // marginTop: 10,
@@ -254,15 +264,15 @@ const styles = StyleSheet.create({
     // borderTopColor: '#ccc',
   },
   strangerList: {
-    height: 90,
+    // height: 90,
     paddingHorizontal: 15,
     // borderWidth: 1,
     // marginBottom: 10,
   },
   closeButtonContainer: {
     position: 'absolute',
-    top: 60,
-    right: 30,
+    top: hRatio(60),
+    right: wRatio(30),
     borderRadius: 30,
     width: 30,
     height: 30,
@@ -272,5 +282,19 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { x: 0, y: 10 },
     // backgroundColor: '#fff',
+  },
+  backButtonContainer: {
+    position: 'absolute',
+    top: hRatio(60),
+    left: wRatio(30),
+    borderRadius: 30,
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    shadowColor: '#000000',
+    shadowRadius: 15,
+    shadowOpacity: 0.2,
+    shadowOffset: { x: 0, y: 10 },
   },
 })

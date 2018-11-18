@@ -107,6 +107,27 @@ class DrawerView extends Component {
 
           <TouchableHighlight
             onPress={() => {
+              navigate('FriendsScreen')
+              this.props.navigation.closeDrawer()
+            }}
+            underlayColor="#CCC"
+            style={styles.menuTouchable}
+          >
+            <View style={styles.navBar}>
+              <View style={styles.leftContainer}>
+                <Image
+                  style={{ width: wRatio(72), height: wRatio(72) }}
+                  source={require('../assets/icons/task.png')}
+                />
+              </View>
+              <View style={styles.rightContainer}>
+                <Text style={styles.navTextStyle}>Friends</Text>
+              </View>
+            </View>
+          </TouchableHighlight>
+
+          <TouchableHighlight
+            onPress={() => {
               navigate('TaskListScreen')
               this.props.navigation.closeDrawer()
             }}
