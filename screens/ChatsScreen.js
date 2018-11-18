@@ -1,52 +1,48 @@
-import React from 'react';
-import { FlatList, StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native';
-import { WebBrowser } from 'expo';
-import { Ionicons } from '@expo/vector-icons';
-import Touchable from 'react-native-platform-touchable';
-import Fire from '../components/Fire';
+import React from 'react'
+import { FlatList, StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
+import Fire from '../components/Fire'
+import moment from 'moment'
 
 export default class ChatsScreen extends React.Component {
   static navigationOptions = {
     header: null,
-  };
+  }
 
-  constructor(){
-    super();
-    this.mountState = false;
+  constructor() {
+    super()
     this.state = {
       strangers: [],
       friends: [],
-    };
-    let timestamp = Fire.shared.timestamp;
-    Fire.shared.getFriends().then((data) => {
-      if (this.mountState && data.length) {
-        // this.setState({notification: data});
-        data.forEach((element) => {
-          element.time = Fire.shared.timeSince(timestamp) + " ago";
-        });
-        let strangersList = [];
-        let friendsList = [];
-        for (let i = 0; i < 10; ++i) {
-          strangersList.push(data[i % data.length]);
-          friendsList.push(data[i % data.length]);
-        }
-        this.setState({strangers: strangersList, friends: friendsList});
-      }
-    });
+    }
   }
 
   componentDidMount() {
-    this.mountState = true;
+    Fire.shared.getChatHistory().then(chatList => {
+      if (chatList && chatList.length) {
+        const friends = [],
+          strangers = []
+        chatList.forEach(chat => {
+          if (chat.isFriend) {
+            friends.push(chat)
+          } else {
+            strangers.push(chat)
+          }
+        })
+        this.setState({
+          strangers,
+          friends,
+        })
+      }
+    })
   }
 
-  componentWillUnmount() {
-    this.mountState = false;
-  }
+  componentWillUnmount() {}
 
   render() {
     return (
       <View style={styles.container}>
-        <View style={{marginBottom: 10}}>
+        <View style={{ marginBottom: 10 }}>
           <Text style={styles.titleText}>Recent</Text>
         </View>
         <FlatList
@@ -54,61 +50,107 @@ export default class ChatsScreen extends React.Component {
           showsHorizontalScrollIndicator={false}
           style={styles.strangerList}
           data={this.state.strangers}
-          keyExtractor={(item, index) => {return "stranger" + index}}
-          renderItem={this._renderStrangerListItem}>
-        </FlatList>
-        <View style={{borderBottomColor: '#ccc', borderBottomWidth: 1, marginTop: 10, marginBottom: 10,}}/>
+          keyExtractor={(item, index) => {
+            return 'stranger' + index
+          }}
+          renderItem={this._renderStrangerListItem}
+        />
+        <View
+          style={{
+            borderBottomColor: '#ccc',
+            borderBottomWidth: 1,
+            marginTop: 10,
+            marginBottom: 10,
+            height: 1,
+          }}
+        />
         <FlatList
           showsVerticalScrollIndicator={false}
           style={styles.friendList}
           data={this.state.friends}
-          keyExtractor={(item, index) => {return "friend" + index}}
-          renderItem={this._renderFriendListItem}>
-        </FlatList>
+          keyExtractor={(item, index) => {
+            return 'friend' + index
+          }}
+          renderItem={this._renderFriendListItem}
+        />
         <TouchableOpacity
           style={styles.backButtonContainer}
-          onPress={() => {this.props.navigation.openDrawer()}}>
-          <Ionicons name='ios-close' size={25} color="#000"/>
+          onPress={() => {
+            this.props.navigation.openDrawer()
+          }}
+        >
+          <Ionicons name="ios-close" size={25} color="#000" />
         </TouchableOpacity>
       </View>
-    );
+    )
   }
 
-  _renderStrangerListItem = ({item}) => {
+  _renderStrangerListItem = ({ item }) => {
     return (
-      <View style={{marginRight: 15}}>
-        <Image
-          style={styles.userImage}
-          source={{uri: item.uri}}
-        />
-      </View>
-    );
-  }
-
-  _renderFriendListItem = ({item}) => {
-    let displayText = 'Here comes a new message';
-    // console.log("item.uri", item.uri);
-    return (
-      <View style={styles.itemContainer}>
-        <View style={{flex: 0.25,
-          // borderWidth: 1, borderColor: '#000'
-        }}>
-          <Image
-            style={styles.userImage}
-            source={{uri: item.uri}}
-          />
+      <TouchableOpacity
+        onPress={() => {
+          this.props.navigation.navigate('Chat', {
+            uri: item.uri,
+            name: item.name,
+            uid: item.uid,
+          })
+        }}
+      >
+        <View style={{ marginRight: 15 }}>
+          <Image style={styles.userImage} source={{ uri: item.uri }} />
         </View>
-        <View style={{flex: 0.75, justifyContent: 'center',
-          // borderWidth: 1, borderColor: '#000',
-        }}>
-          <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
-            <Text style={styles.usernameText}>{item.name}</Text>
-            <Text style={styles.timestampText}>{item.time}</Text>
+      </TouchableOpacity>
+    )
+  }
+
+  _renderFriendListItem = ({ item }) => {
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          this.props.navigation.navigate('Chat', {
+            uri: item.uri,
+            name: item.name,
+            uid: item.uid,
+          })
+        }}
+      >
+        <View style={styles.itemContainer}>
+          <View
+            style={{
+              flex: 0.25,
+            }}
+          >
+            <Image style={styles.userImage} source={{ uri: item.uri }} />
           </View>
-          <Text style={styles.messageText}>Lorem ipsum dolor sit ameta....</Text>
+          <View
+            style={{
+              flex: 0.75,
+              justifyContent: 'center',
+            }}
+          >
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <Text style={styles.usernameText}>{item.name}</Text>
+              <Text style={styles.timestampText}>
+                {item.updatedAt
+                  ? moment(item.updatedAt)
+                      .locale(this.props.context.getLocale())
+                      .fromNow()
+                  : ''}
+              </Text>
+            </View>
+            <Text style={styles.messageText} numberOfLines={1}>
+              {item.text || ''}
+            </Text>
+          </View>
         </View>
-      </View>
-    );
+      </TouchableOpacity>
+    )
   }
 }
 
@@ -161,6 +203,7 @@ const styles = StyleSheet.create({
     // borderColor: '#f00',
   },
   friendList: {
+    flex: 1,
     // marginTop: 10,
     // borderTopWidth: 2,
     // borderTopColor: '#ccc',
@@ -178,9 +221,9 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     width: 30,
     height: 30,
-    alignItems:'center',
+    alignItems: 'center',
     borderWidth: 1.5,
     borderColor: '#000',
     // backgroundColor: '#fff',
   },
-});
+})

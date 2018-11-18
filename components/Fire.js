@@ -305,6 +305,35 @@ class Fire extends React.Component {
       .collection('friends')
       .doc(this.uid)
       .set({ tag: 'friend', nick: '' })
+
+    this.profile
+      .doc(this.uid)
+      .collection('messages')
+      .doc(uid)
+      .get()
+      .then(doc => {
+        if (doc.exists) {
+          doc.ref.update({
+            isFriend: true,
+          })
+        } else {
+          doc.ref.set({ isFriend: true })
+        }
+      })
+    this.profile
+      .doc(uid)
+      .collection('messages')
+      .doc(this.uid)
+      .get()
+      .then(doc => {
+        if (doc.exists) {
+          doc.ref.update({
+            isFriend: true,
+          })
+        } else {
+          doc.ref.set({ isFriend: true })
+        }
+      })
   }
 
   removeFriend = (uid, type = 'passive') => {
@@ -672,6 +701,25 @@ class Fire extends React.Component {
     return seconds < time
   }
 
+  getChatHistory = async () => {
+    const historys = await this.profile
+      .doc(this.uid)
+      .collection('messages')
+      .get()
+    const chatList = []
+    historys.forEach(history => {
+      chatList.push({ uid: history.id, ...history.data() })
+    })
+    return await Promise.all(
+      chatList.map(chat => {
+        return this.getNameNAvatar(chat.uid).then(profile => ({
+          ...chat,
+          ...profile,
+        }))
+      })
+    )
+  }
+
   getMessages = async docIds => {
     return Promise.all(
       docIds.map(id => {
@@ -680,7 +728,7 @@ class Fire extends React.Component {
     )
   }
 
-  addMessage = async (msg, toUid) => {
+  addMessage = async (msg, toUid, isFriend) => {
     const msgId = (await this.messages.add(msg)).id
     this.profile
       .doc(this.uid)
@@ -696,9 +744,14 @@ class Fire extends React.Component {
       .doc(this.uid)
     toDocRef.get().then(doc => {
       if (doc.exists) {
-        doc.ref.update({ unreadCount: doc.data().unreadCount + 1, updatedAt: msg.createdAt })
+        doc.ref.update({
+          unreadCount: (doc.data().unreadCount || 0) + 1,
+          updatedAt: msg.createdAt,
+          text: msg.text,
+          isFriend,
+        })
       } else {
-        doc.ref.set({ unreadCount: 1, updatedAt: msg.createdAt })
+        doc.ref.set({ unreadCount: 1, updatedAt: msg.createdAt, text: msg.text, isFriend })
       }
     })
     toDocRef

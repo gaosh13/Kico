@@ -109,7 +109,8 @@ export default class ChatScreen extends React.Component {
             createdAt: message.createdAt.getTime(),
             uid: message.user._id,
           },
-          getParam('uid')
+          getParam('uid'),
+          this.state.isFriend
         )
         .then(id => {
           message._id = id
