@@ -1,35 +1,18 @@
 import React from 'react';
 import {
-  Animated,
   ScrollView,
   StyleSheet,
   View,
   Text,
   Image,
-  Button,
-  TextInput,
-  Platform,
-  Icon,
-  ImageBackground,
-  FlatList,
   Dimensions,
   TouchableOpacity,
+  TouchableWithoutFeedback,
 } from 'react-native';
-import {
-  TabViewAnimated,
-  TabBar,
-  TabViewPagerScroll,
-  TabViewPagerPan,
-} from 'react-native-tab-view'
 import Fire from '../components/Fire';
-import { Ionicons } from '@expo/vector-icons';
-import KiVisual from '../components/KiVisual';
-import AwesomeButton from 'react-native-really-awesome-button';
 import GenericScreen from '../components/GenericScreen';
 
-const isOdd=require('is-odd')
 const { width, height } = Dimensions.get("window");
-const sum=7;
 
 export default class ProfileScreen extends React.Component {
   static navigationOptions = {
@@ -131,6 +114,7 @@ export default class ProfileScreen extends React.Component {
   }
 
   render() {
+    const totalKi = 100;
     return (
       <ScrollView 
       scrollEventThrottle={1}
@@ -147,12 +131,14 @@ export default class ProfileScreen extends React.Component {
             friends={this.state.friends}
             ki={this.state.ki}>
             <View style={{flexDirection:'row',justifyContent: 'space-evenly'}}>
+              <TouchableOpacity onPress={()=>{this.props.navigation.navigate('ChatsScreen')}}>
+                <View>
+                  <Text style={styles.numberText}> {this.state.friends} </Text>
+                  <Text style={styles.descriptionText}> # of Friends </Text> 
+                </View>
+              </TouchableOpacity>
               <View>
-                <Text style={styles.numberText}> {this.state.friends} </Text>
-                <Text style={styles.descriptionText}> # of Friends </Text> 
-              </View>
-              <View>
-                <Text style={styles.numberText}> {this.state.ki-1}/300 </Text>
+                <Text style={styles.numberText}> {totalKi-this.state.friends-this.state.pool.length}/{totalKi} </Text>
                 <Text style={styles.descriptionText}> # of Ki Left</Text> 
               </View>
               <View>

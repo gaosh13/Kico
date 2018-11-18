@@ -25,6 +25,7 @@ export default class CheckInScreen extends React.Component {
   constructor(props) {
     super(props);
     this.actionTaken = false;
+    this.mountState = false;
     this.state = {
       pool: [],
       poolLoaded:false,
@@ -39,11 +40,13 @@ export default class CheckInScreen extends React.Component {
   }
 
   componentDidMount() {
+    this.mountState = true;
     this.fetchdata();
    // await this.fetchVenueData();
   }
 
   componentWillUnmount(){
+    this.mountState = false;
     this.actionTaken = false;
   }
 
@@ -55,7 +58,8 @@ export default class CheckInScreen extends React.Component {
       Fire.shared.isVisited(place),
     ]).then( ([pool, isVisited])=>{
       // console.log("changed", isVisited);
-      this.setState({pool, isVisited,poolLoaded:true});
+      if (this.mountState)
+        this.setState({pool, isVisited,poolLoaded:true});
     });
   }
 

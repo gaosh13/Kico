@@ -10,7 +10,7 @@
     "orientation": "portrait",
     "icon": "./assets/images/appicon.png",
     "splash": {
-      "image": "./assets/images/appicon.png",
+      "image": "./assets/images/PlayerX_logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
