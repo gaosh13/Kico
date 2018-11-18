@@ -63,7 +63,7 @@ const PersonalDrawer = createDrawerNavigator({
     InviteFriends:FriendListScreen,
     Profile: ProfileScreen, 
     // Edit: EditScreen,
-    Chat: ChatsScreen,
+    ChatsScreen,
     TaskListScreen, 
     JoinTaskScreen,
   }, {
