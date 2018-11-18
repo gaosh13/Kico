@@ -1,63 +1,60 @@
-import React, { Component } from 'react';
-import { View, StyleSheet, Text, TouchableHighlight } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import { globalStyles } from '../globals/styles';
+import React, { Component } from 'react'
+import { View, StyleSheet, Text, TouchableHighlight } from 'react-native'
+import Icon from 'react-native-vector-icons/FontAwesome'
+import { globalStyles } from '../globals/styles'
 
-const iconName = 'google';
+const iconName = 'google'
 
-export default GoogleSignInButton = (props) => {
-    let renderable = (
-        <TouchableHighlight
-            underlayColor='#99d9f4'
-            onPress={props.onPress}>
-            <View style={styles.buttonContainer}>
-                <Icon name={iconName} color="white" size={25} />
-                <Text style={styles.btnText}>Log in with Google</Text>
-            </View>
-        </TouchableHighlight>
+export default (GoogleSignInButton = props => {
+  let renderable = (
+    <TouchableHighlight underlayColor="#99d9f4" onPress={props.onPress}>
+      <View style={styles.buttonContainer}>
+        <Icon name={iconName} color="white" size={25} />
+        <Text style={styles.btnText}>Log in with Google</Text>
+      </View>
+    </TouchableHighlight>
+  )
+  if (props.type === 'small') {
+    renderable = (
+      <TouchableHighlight underlayColor="#99d9f4" onPress={props.onPress}>
+        <View style={styles.buttonContainerSmall}>
+          <Icon name={iconName} color="white" size={25} />
+        </View>
+      </TouchableHighlight>
     )
-    if (props.type === 'small') {
-        renderable = (
-            <TouchableHighlight
-                underlayColor='#99d9f4'
-                onPress={props.onPress}>
-                <View style={styles.buttonContainerSmall}>
-                    <Icon name={iconName} color="white" size={25} />
-                </View>
-            </TouchableHighlight>
-        )
-    }
+  }
 
-    return renderable
-}
+  return renderable
+})
 
-const backgroundColor = 'red';
-const styles = StyleSheet.create(Object.assign({}, globalStyles, {
-        buttonContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor,
-        paddingVertical: 7,
-        paddingHorizontal: 7,
-        borderRadius: 5,
-        justifyContent: 'center'
+const backgroundColor = 'red'
+const styles = StyleSheet.create(
+  Object.assign({}, globalStyles, {
+    buttonContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor,
+      paddingVertical: 7,
+      paddingHorizontal: 7,
+      borderRadius: 5,
+      justifyContent: 'center',
     },
-        buttonContainerSmall: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor,
-        paddingVertical: 7,
-        paddingHorizontal: 7,
-        borderRadius: 5,
-        width: 48,
-        height: 48,
+    buttonContainerSmall: {
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor,
+      paddingVertical: 7,
+      paddingHorizontal: 7,
+      borderRadius: 5,
+      width: 48,
+      height: 48,
     },
     btnText: {
-        fontFamily :"GR",
-        fontSize: 14,
-        color: '#FAFAFA',
-        marginLeft: 10,
-        marginTop: 2,
-    }
-}
-));
+      fontFamily: 'GR',
+      fontSize: 14,
+      color: '#FAFAFA',
+      marginLeft: 10,
+      marginTop: 2,
+    },
+  })
+)

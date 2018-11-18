@@ -1,28 +1,27 @@
-
-import React, { Component } from 'react';
-import { View, Text, FlatList, ActivityIndicator } from 'react-native';
-import { List, ListItem, SearchBar } from 'react-native-elements';
+import React, { Component } from 'react'
+import { View, Text, FlatList, ActivityIndicator } from 'react-native'
+import { List, ListItem, SearchBar } from 'react-native-elements'
 
 export default class FriendListScreen extends Component {
   constructor(props) {
-    super(props);
+    super(props)
 
     this.state = {
       loading: false,
       data: [],
       error: null,
-    };
+    }
 
-    this.arrayholder = [];
+    this.arrayholder = []
   }
 
   componentDidMount() {
-    this.makeRemoteRequest();
+    this.makeRemoteRequest()
   }
 
   makeRemoteRequest = () => {
-    const url = `https://randomuser.me/api/?&results=20`;
-    this.setState({ loading: true });
+    const url = `https://randomuser.me/api/?&results=20`
+    this.setState({ loading: true })
 
     fetch(url)
       .then(res => res.json())
@@ -31,13 +30,13 @@ export default class FriendListScreen extends Component {
           data: res.results,
           error: res.error || null,
           loading: false,
-        });
-        this.arrayholder = res.results;
+        })
+        this.arrayholder = res.results
       })
       .catch(error => {
-        this.setState({ error, loading: false });
-      });
-  };
+        this.setState({ error, loading: false })
+      })
+  }
 
   renderSeparator = () => {
     return (
@@ -49,20 +48,20 @@ export default class FriendListScreen extends Component {
           marginLeft: '14%',
         }}
       />
-    );
-  };
+    )
+  }
 
   searchFilterFunction = text => {
-    console.log(this.arrayholder);
+    console.log(this.arrayholder)
     const newData = this.arrayholder.filter(item => {
-      const itemData = `${item.toUpperCase()}`;
-      const textData = text.toUpperCase();
-      return itemData.indexOf(textData) > -1;
-    });
+      const itemData = `${item.toUpperCase()}`
+      const textData = text.toUpperCase()
+      return itemData.indexOf(textData) > -1
+    })
     this.setState({
       data: newData,
-    });
-  };
+    })
+  }
 
   renderHeader = () => {
     return (
@@ -73,8 +72,8 @@ export default class FriendListScreen extends Component {
         onChangeText={text => this.searchFilterFunction(text)}
         autoCorrect={false}
       />
-    );
-  };
+    )
+  }
 
   render() {
     if (this.state.loading) {
@@ -82,7 +81,7 @@ export default class FriendListScreen extends Component {
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
           <ActivityIndicator />
         </View>
-      );
+      )
     }
     return (
       <List containerStyle={{ borderTopWidth: 0, borderBottomWidth: 0 }}>
@@ -102,6 +101,6 @@ export default class FriendListScreen extends Component {
           ListHeaderComponent={this.renderHeader}
         />
       </List>
-    );
+    )
   }
 }

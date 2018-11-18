@@ -17,15 +17,13 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.gix.playerX",
       "config": {
-        "googleSignIn":{
-          "reservedClientId":"com.googleusercontent.apps.170596970815-nfcgnsf62ukg9g4q7vroetaefuk73jdf",
+        "googleSignIn": {
+          "reservedClientId": "com.googleusercontent.apps.170596970815-nfcgnsf62ukg9g4q7vroetaefuk73jdf"
         }
       }
     }
