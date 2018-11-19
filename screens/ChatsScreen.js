@@ -104,7 +104,7 @@ export default class ChatsScreen extends React.Component {
         >
           <Image source={require('../assets/icons/close.png')} />
         </TouchableOpacity>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.backButtonContainer}
           onPress={() => {
             this.props.navigation.navigate('Home')
@@ -112,7 +112,7 @@ export default class ChatsScreen extends React.Component {
           }}
         >
           <Image source={require('../assets/icons/back.png')} />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     )
   }

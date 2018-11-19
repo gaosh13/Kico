@@ -713,6 +713,28 @@ class Fire extends React.Component {
   // development tootls:
   // for debug
 
+  fixFriendList = () => {
+    this.profile
+      .doc(this.uid)
+      .collection('friends')
+      .get()
+      .then(snapshot => {
+        return Promise.all(
+          snapshot.docs.map(doc => {
+            return this.addFriend(doc.id).then(
+              () => {},
+              () => {
+                console.log('fix friend', doc.id)
+              }
+            )
+          })
+        )
+      })
+      .then(() => {
+        console.log('successfully fix the friend list')
+      })
+  }
+
   transferAllImages = () => {
     this.auth
       .get()

@@ -41,8 +41,22 @@ export default class ChatScreen extends React.Component {
       user: { _id: 0 },
       isFriend: false,
     }
-    this.preSetQuestions = ['Are you a student?', 'Do you drink?', 'Been abroad?']
-    this.preSetAnswer = ['Yea!', 'Nah!']
+    this.preSetQuestions = [
+      {
+        q: 'Are you a student?',
+        a: ['Yea!', 'Nah!'],
+      },
+      {
+        q: 'Do you drink?',
+        a: ['Yea!', 'Nah!'],
+      },
+      {
+        q: 'Been abroad?',
+        a: ['Yea!', 'Nah!'],
+      },
+    ]
+    this.emojis = ['😊', '😆', '🤣', '😅', '😢', '😯', '😵', '🙄']
+    // this.emojis = ['😊']
   }
 
   componentDidMount() {
@@ -202,19 +216,33 @@ export default class ChatScreen extends React.Component {
     )
   }
 
+  _renderQuestionBtn(messages, user) {
+    if (messages.length && messages[0].user._id !== user._id) {
+      // console.log("questions", messages[0].user._id, user._id)
+      let flag = -1
+      for (let i = 0; i < this.preSetQuestions.length; ++i) {
+        if (this.preSetQuestions[i].q == messages[0].text) {
+          return this.preSetQuestions[i].a.map((answer, idx) =>
+            this.renderAccessoryBtn(answer, idx)
+          )
+        }
+      }
+      return this.preSetQuestions.map((question, idx) => this.renderAccessoryBtn(question.q, idx))
+    } else {
+      return this.preSetQuestions.map((question, idx) => this.renderAccessoryBtn(question.q, idx))
+    }
+  }
+
   renderAccessory() {
     const { messages, user } = this.state
+    // console.log("user", user)
     return (
       <ScrollView
         style={styles.scrollViewStyle}
         horizontal={true}
         showsHorizontalScrollIndicator={false}
       >
-        {messages.length &&
-        this.preSetQuestions.includes(messages[0].text) &&
-        messages[0].user._id !== user._id
-          ? this.preSetAnswer.map((answer, idx) => this.renderAccessoryBtn(answer, idx))
-          : this.preSetQuestions.map((question, idx) => this.renderAccessoryBtn(question, idx))}
+        {this._renderQuestionBtn(messages, user)}
       </ScrollView>
     )
   }
@@ -225,25 +253,40 @@ export default class ChatScreen extends React.Component {
 
   renderActions() {
     return this.state.isFriend ? null : (
-      <Actions
-        {...this.props}
-        containerStyle={{ position: 'absolute', top: 10, right: 25 }}
-        onPressActionButton={() => {
-          this.onSend([
-            { _id: new Date().getTime(), text: '😊', user: this.state.user, createdAt: new Date() },
-          ])
-        }}
-        icon={() => (
-          <View style={styles.iconWrapper}>
-            <Text style={styles.iconText}>😊</Text>
-          </View>
-        )}
-      />
+      <ScrollView
+        style={{ flexDirection: 'row', position: 'absolute', left: 25, top: 0, right: 25 }}
+        horizontal={true}
+        showsHorizontalScrollIndicator={false}
+      >
+        {this.emojis.map((text, index) => {
+          return (
+            <Actions
+              key={index}
+              {...this.props}
+              // containerStyle={{ position: 'absolute', top: 10, right: 25 }}
+              onPressActionButton={() => {
+                this.onSend([
+                  { _id: new Date().getTime(), text, user: this.state.user, createdAt: new Date() },
+                ])
+              }}
+              icon={() => (
+                <View style={styles.iconWrapper}>
+                  <Text style={styles.iconText}>{text}</Text>
+                </View>
+              )}
+            />
+          )
+        })}
+      </ScrollView>
     )
   }
 
   renderInputToolbar(props) {
     return <ChatInput {...props} />
+  }
+
+  renderComposer(props) {
+    return <View style={{ height: 40 }} />
   }
 
   render() {
@@ -263,6 +306,7 @@ export default class ChatScreen extends React.Component {
             renderMessage={props => this.renderMessage(props)}
             renderInputToolbar={props => this.renderInputToolbar(props)}
             renderAccessory={isFriend ? null : props => this.renderAccessory(props)}
+            renderComposer={isFriend ? null : props => this.renderComposer(props)}
             showAvatarForEveryMessage={true}
             renderSend={isFriend ? null : props => this.renderSend(props)}
             renderActions={isFriend ? null : props => this.renderActions(props)}
@@ -295,14 +339,14 @@ export default class ChatScreen extends React.Component {
             user={user}
           />
         </View>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.closeButtonContainer}
           onPress={() => {
             this.props.navigation.navigate('Home')
           }}
         >
           <Image source={require('../assets/icons/close.png')} />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <TouchableOpacity
           style={styles.backButtonContainer}
           onPress={() => {

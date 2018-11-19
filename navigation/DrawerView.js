@@ -117,7 +117,7 @@ class DrawerView extends Component {
               <View style={styles.leftContainer}>
                 <Image
                   style={{ width: wRatio(72), height: wRatio(72) }}
-                  source={require('../assets/icons/task.png')}
+                  source={require('../assets/icons/friends.png')}
                 />
               </View>
               <View style={styles.rightContainer}>

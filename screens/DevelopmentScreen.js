@@ -105,6 +105,12 @@ export default class DevelopmentScreen extends React.Component {
           }}
         />
         <Button title="fetch list information" onPress={() => createVenue()} />
+        <Button
+          title="friends chat fix"
+          onPress={() => {
+            Fire.shared.fixFriendList()
+          }}
+        />
       </View>
     )
   }
