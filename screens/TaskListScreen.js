@@ -30,7 +30,7 @@ export default class TaskListScreen extends React.Component {
   componentDidMount() {
     this.mountState = true
     Fire.shared.getTaskList().then(data => {
-      this.setState({ task: data })
+      if (this.mountState) this.setState({ task: data })
     })
   }
 

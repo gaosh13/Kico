@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons'
 import Touchable from 'react-native-platform-touchable'
 import Fire from '../components/Fire'
 import { generateCirclesRow } from '../components/KiVisual'
-import moment from 'moment'
+import moment, { relativeTimeThreshold } from 'moment'
 
 const { width, height } = Dimensions.get('window')
 
@@ -31,8 +31,7 @@ export default class ChatsScreen extends React.Component {
     }
   }
 
-  componentDidMount() {
-    this.mountState = true
+  refreshChat() {
     Fire.shared.getChatHistory().then(chatList => {
       if (chatList && chatList.length) {
         const friends = [],
@@ -52,6 +51,11 @@ export default class ChatsScreen extends React.Component {
         }
       }
     })
+  }
+
+  componentDidMount() {
+    this.mountState = true
+    this.refreshChat()
   }
 
   componentWillUnmount() {
@@ -132,6 +136,7 @@ export default class ChatsScreen extends React.Component {
             uri: item.uri,
             name: item.name,
             uid: item.uid,
+            refresh: () => this.refreshChat(),
           })
         }}
       >
@@ -150,6 +155,7 @@ export default class ChatsScreen extends React.Component {
             uri: item.uri,
             name: item.name,
             uid: item.uid,
+            refresh: () => this.refreshChat(),
           })
         }}
       >

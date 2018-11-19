@@ -565,6 +565,7 @@ class Fire extends React.Component {
         )
       })
     try {
+      taskInfo.time = taskInfo.when.seconds
       taskInfo.when = formatDate(taskInfo.when)
     } catch (e) {
       console.log('not a date')
@@ -589,7 +590,11 @@ class Fire extends React.Component {
         )
         // console.log("taskList", taskList)
         return taskList
-      })).filter(e => e.what)
+      }))
+      .filter(e => e.what)
+      .sort((a, b) => {
+        return (b.time || 0) - (a.time || 0)
+      })
   }
 
   deleteTask = async taskID => {
@@ -721,13 +726,46 @@ class Fire extends React.Component {
       .get()
       .then(snapshot => {
         return Promise.all(
-          snapshot.docs.map(doc => {
-            return this.addFriend(doc.id).then(
-              () => {},
-              () => {
-                console.log('fix friend', doc.id)
-              }
-            )
+          snapshot.docs.map(docf => {
+            let uid = docf.id
+            this.profile
+              .doc(this.uid)
+              .collection('messages')
+              .doc(uid)
+              .get()
+              .then(doc => {
+                if (doc.exists) {
+                  doc.ref.update({
+                    isFriend: true,
+                  })
+                } else {
+                  doc.ref.set({ isFriend: true })
+                }
+              })
+            this.profile
+              .doc(uid)
+              .collection('messages')
+              .doc(this.uid)
+              .get()
+              .then(doc => {
+                if (doc.exists) {
+                  doc.ref.update({
+                    isFriend: true,
+                  })
+                } else {
+                  doc.ref.set({ isFriend: true })
+                }
+              })
+            this.profile
+              .doc(this.uid)
+              .collection('friends')
+              .doc(uid)
+              .set({ tag: 'friend', nick: '' })
+            this.profile
+              .doc(uid)
+              .collection('friends')
+              .doc(this.uid)
+              .set({ tag: 'friend', nick: '' })
           })
         )
       })
@@ -866,14 +904,17 @@ class Fire extends React.Component {
     historys.forEach(history => {
       chatList.push({ uid: history.id, ...history.data() })
     })
-    return await Promise.all(
+    // console.log(chatList)
+    return (await Promise.all(
       chatList.map(chat => {
         return this.getNameNAvatar(chat.uid).then(profile => ({
           ...chat,
           ...profile,
         }))
       })
-    )
+    )).sort((a, b) => {
+      return (b.updatedAt || 0) - (a.updatedAt || 0)
+    })
   }
 
   getMessages = async docIds => {

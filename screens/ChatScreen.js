@@ -381,6 +381,7 @@ export default class ChatScreen extends React.Component {
         <TouchableOpacity
           style={styles.backButtonContainer}
           onPress={() => {
+            getParam('refresh', () => {})()
             goBack()
           }}
         >

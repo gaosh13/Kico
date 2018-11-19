@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "KiCo",
+    "name": "PlayerX",
     "description": "A very interesting project.",
-    "slug": "KiCo",
+    "slug": "PlayerX",
     "privacy": "public",
     "sdkVersion": "30.0.0",
     "platforms": ["ios"],
@@ -20,7 +20,7 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "buildNumber": "1.0.2.4",
+      "buildNumber": "2",
       "bundleIdentifier": "com.gix.playerX",
       "config": {
         "googleSignIn": {

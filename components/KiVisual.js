@@ -39,7 +39,7 @@ export class RandomCircles extends React.PureComponent {
 
     while (circles.length < NumCircles && counter < protection) {
       var randomX = 25 + Math.round(Math.random() * (width - 50))
-      var randomY = 60 + Math.round(Math.random() * ((600 / 812) * height - 120))
+      var randomY = 120 + Math.round(Math.random() * ((480 / 812) * height - 60))
       //perhaps better algorithm here
       var size = Math.sqrt(Math.pow(pool[savedCirclesCounter].value / newSum, 2) * (area / 1.25))
       var opacity = 0.5 + 0.5 * (Math.max(0, 8 - savedCirclesCounter) / 8)
