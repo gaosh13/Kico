@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import {
+  Alert,
   Image,
   Platform,
   ScrollView,
@@ -15,7 +16,7 @@ import {
   ImageBackground,
   TouchableWithoutFeedback,
 } from 'react-native'
-import { WebBrowser, Constants, Location, Permissions, LinearGradient } from 'expo'
+import { WebBrowser, Constants, Location, Permissions, LinearGradient, Notifications } from 'expo'
 import Touchable from 'react-native-platform-touchable'
 import { MonoText } from '../components/StyledText'
 import { MapView, MapContainer } from 'expo'

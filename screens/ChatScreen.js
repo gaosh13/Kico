@@ -64,13 +64,14 @@ export default class ChatScreen extends React.Component {
       uid = getParam('uid'),
       name = getParam('name'),
       avatar = getParam('uri')
-    Promise.all([Fire.shared.readInfo(), Fire.shared.getFriend(getParam('uid'))]).then(
+    Promise.all([Fire.shared.readAuth(), Fire.shared.getFriend(getParam('uid'))]).then(
       ([user, friend]) => {
         this.setState({
           user: {
             _id: user.uid,
             name: user.name,
             avatar: user.photoURL,
+            token: user.pushNotificationToken,
           },
           isFriend: friend.exists,
         })
@@ -147,11 +148,28 @@ export default class ChatScreen extends React.Component {
         .then(id => {
           message._id = id
         })
+      this.sendPushNotification()
       this.setState(previousState => {
         return {
           messages: GiftedChat.append(previousState.messages, message),
         }
       })
+    })
+  }
+
+  sendPushNotification(token = this.state.user.token, title = 'Someone', body = 'sent to message') {
+    console.log('LALALALALAALAAALLALAAL', token)
+    return fetch('https://exp.host/--/api/v2/push/send', {
+      body: JSON.stringify({
+        to: token,
+        title: title,
+        body: body,
+        data: { message: `${title} - ${body}` },
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
     })
   }
 
@@ -204,7 +222,7 @@ export default class ChatScreen extends React.Component {
         width={150}
         height={40}
         raiseLevel={2}
-        style={{ marginRight: 20 }}
+        style={{ marginRight: 20, marginTop: -10 }}
         onPress={() => {
           this.onSend([
             { _id: new Date().getTime(), text, user: this.state.user, createdAt: new Date() },
@@ -254,7 +272,7 @@ export default class ChatScreen extends React.Component {
   renderActions() {
     return this.state.isFriend ? null : (
       <ScrollView
-        style={{ flexDirection: 'row', position: 'absolute', left: 25, top: 0, right: 25 }}
+        style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: hRatio(10) }}
         horizontal={true}
         showsHorizontalScrollIndicator={false}
       >
@@ -263,7 +281,7 @@ export default class ChatScreen extends React.Component {
             <Actions
               key={index}
               {...this.props}
-              // containerStyle={{ position: 'absolute', top: 10, right: 25 }}
+              containerStyle={{ marginHorizontal: wRatio(10) }}
               onPressActionButton={() => {
                 this.onSend([
                   { _id: new Date().getTime(), text, user: this.state.user, createdAt: new Date() },

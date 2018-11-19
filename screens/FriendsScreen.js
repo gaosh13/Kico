@@ -151,7 +151,7 @@ export default class App extends React.Component {
         {/* <TouchableOpacity
           style={styles.backButtonContainer}
           onPress={() => {
-            this.props.navigation.navigate('Home')
+            // this.props.navigation.navigate('FriendScreen')
             this.props.navigation.openDrawer()
           }}
         >

@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   accessory: {
-    height: 65,
+    height: 40,
   },
 })
 

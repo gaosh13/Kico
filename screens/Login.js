@@ -2,6 +2,7 @@ import React from 'react'
 //import ReadyPage from '../screens/ReadyPage';
 import ReadyPage from '../screens/ReadyPage'
 import {
+  Alert,
   StyleSheet,
   View,
   Button,
@@ -12,6 +13,7 @@ import {
   TouchableHighlight,
 } from 'react-native'
 import * as firebase from 'firebase'
+import { Permissions, Notifications } from 'expo'
 
 import Fire from '../components/Fire'
 
@@ -41,7 +43,15 @@ export default class Login extends React.Component {
         const credential = await firebase.auth.GoogleAuthProvider.credential(idToken, accessToken)
         await firebase.auth().signInAndRetrieveDataWithCredential(credential)
         console.log('google signed in, userID: ', Fire.shared.uid)
-        await this.upload(result.user.name, result.user.photoUrl, result.user.id, 'google')
+        const pushNotificationToken = await this.registerForPushNotificationsAsync()
+        console.log('push notification token: ', pushNotificationToken)
+        await this.upload(
+          result.user.name,
+          result.user.photoUrl,
+          result.user.id,
+          'google',
+          pushNotificationToken
+        )
         await console.log('firebase has been updated')
         if (this.mountedState)
           this.setState({
@@ -55,12 +65,47 @@ export default class Login extends React.Component {
     }
   }
 
-  async upload(name, photoUrl, userid, method) {
+  async registerForPushNotificationsAsync() {
+    const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS)
+    let finalStatus = existingStatus
+    // only ask if permissions have not already been determined, because
+    // iOS won't necessarily prompt the user a second time.
+    if (existingStatus !== 'granted') {
+      // Android remote notification permissions are granted during the app
+      // install, so this will only ask on iOS
+      Alert.alert(
+        'Player Attention',
+        'you will not receive push notifications if you do not grant permission',
+        [
+          {
+            text: 'OK',
+            onPress: async () => {
+              console.log('OK Pressed')
+              const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS)
+              finalStatus = status
+            },
+          },
+        ]
+      )
+    }
+    // Stop here if the user did not grant permissions
+    if (finalStatus !== 'granted') {
+      return null
+    }
+    // console.log('Push Notification access has been granted')
+    // Get the token that uniquely identifies this device
+    let token = await Notifications.getExpoPushTokenAsync()
+    console.log('User Token: ', token)
+    return token
+  }
+
+  async upload(name, photoUrl, userid, method, pushNotificationToken) {
     var docData = {
       name: name,
       photoUrl: photoUrl,
       userid: userid,
       method: method,
+      pushNotificationToken: pushNotificationToken,
     }
     await Fire.shared.setAuth(docData)
     await Fire.shared.setInfo(docData)

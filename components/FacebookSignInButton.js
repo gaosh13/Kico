@@ -6,7 +6,7 @@ import { globalStyles } from '../globals/styles'
 const iconName = 'facebook'
 export default (FaceBookSignInButton = props => {
   let renderable = (
-    <TouchableHighlight underlayColor="#99d9f4" onPress={props.onPress}>
+    <TouchableHighlight onPress={props.onPress}>
       <View style={styles.buttonContainer}>
         <Icon name={iconName} color="white" size={25} />
         <Text style={styles.btnText}>Log in with Facebook</Text>
@@ -15,7 +15,7 @@ export default (FaceBookSignInButton = props => {
   )
   if (props.type === 'small') {
     renderable = (
-      <TouchableHighlight underlayColor="#99d9f4" onPress={props.onPress}>
+      <TouchableHighlight onPress={props.onPress}>
         <View style={styles.buttonContainerSmall}>
           <Icon name={iconName} color="white" size={25} />
         </View>
