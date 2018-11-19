@@ -160,7 +160,7 @@ export default class App extends React.Component {
     return (
       <ScrollView bounces={false}>
         <View style={styles.container}>
-          <Text style={styles.titleText}>Create Task</Text>
+          <Text style={styles.titleText}>Create Mission</Text>
           <Text style={styles.subTitleText}>Where?</Text>
           <View style={{ paddingVertical: hRatio(12) }} />
           <View style={{ paddingHorizontal: 20 }}>

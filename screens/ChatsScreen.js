@@ -24,6 +24,7 @@ export default class ChatsScreen extends React.Component {
 
   constructor() {
     super()
+    this.mountState = false
     this.state = {
       strangers: [],
       friends: [],
@@ -31,6 +32,7 @@ export default class ChatsScreen extends React.Component {
   }
 
   componentDidMount() {
+    this.mountState = true
     Fire.shared.getChatHistory().then(chatList => {
       if (chatList && chatList.length) {
         const friends = [],
@@ -42,15 +44,19 @@ export default class ChatsScreen extends React.Component {
             strangers.push(chat)
           }
         })
-        this.setState({
-          strangers,
-          friends,
-        })
+        if (this.mountState) {
+          this.setState({
+            strangers,
+            friends,
+          })
+        }
       }
     })
   }
 
-  componentWillUnmount() {}
+  componentWillUnmount() {
+    this.mountState = false
+  }
 
   // drawKiView() {
   //   if (this.state.strangers.length) {

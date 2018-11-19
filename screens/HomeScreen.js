@@ -175,11 +175,24 @@ export default class HomeScreen extends React.Component {
         })
         .then(markersInfo => {
           // console.log('we are at markersInfo', typeof markersInfo);
+          markersInfo = markersInfo.filter(obj => obj)
+          if (markersInfo.length === 0) {
+            markersInfo = [
+              {
+                id: -1,
+                uri:
+                  'https://fastly.4sqi.net/img/general/original/12663058_yYaUf_8928od9lFGD3RJAipi1V76TuYJHSeQNONcmmA.jpg',
+                name: 'No Place Around You Right Now',
+                location: 'walk around or wait for a while',
+                that: this,
+              },
+            ]
+          }
           if (this.mountState)
             this.setState({
               location,
               region,
-              markers: markersInfo.filter(obj => obj),
+              markers: markersInfo,
             })
           this.loadingMarkers = false
           // console.log("total promise time", new Date().getTime() - v0);
@@ -226,18 +239,21 @@ export default class HomeScreen extends React.Component {
       Radius to search within, in meters. If radius is not specified, a suggested radius will be used based on the density of venues in the area. The maximum supported radius is currently 100,000 meters.
       */
     let fetchurl =
-      'https://api.foursquare.com/v2/venues/search?client_id=' +
+      'https://api.foursquare.com/v2/venues/explore?client_id=' +
       REACT_APP_FOURSQUARE_ID +
       '&client_secret=' +
       REACT_APP_FOURSQUARE_SECRET +
-      '&v=20180323&radius=250&limit=12&ll=' +
+      '&v=20180323&radius=200&limit=6&ll=' +
       location.coords.latitude +
       ',' +
       location.coords.longitude
+    console.log('fetchurl', fetchurl)
     try {
       let response = await fetch(fetchurl)
       let data = await response.json()
-      return data.response.venues
+      // console.log(data)
+      // return data.response.venues
+      return data.response.groups[0].items.map(item => item.venue)
       // the following code is for recommended search, research search in fetchurl with recommended return data.response.groups[0].items
     } catch (err) {
       console.log('Marker Data Fetching Failed')
@@ -303,8 +319,8 @@ export default class HomeScreen extends React.Component {
             containerCustomStyle={styles.slider}
             contentContainerCustomStyle={styles.sliderContentContainer}
             onSnapToItem={index => this.setState({ activeSlide: index })}
-            layout={'stack'}
-            loop={true}
+            layout={'default'}
+            // loop={true}
           />
         </View>
       )
@@ -318,17 +334,19 @@ export default class HomeScreen extends React.Component {
     return (
       <TouchableWithoutFeedback
         key={index}
-        onPress={() =>
-          item.that.setState({ showOption: false }, function() {
-            item.that.props.navigation.navigate('CheckIn', {
-              shouldUpdate: false,
-              uri: item.uri,
-              name: item.name,
-              placeID: item.id,
-              location: item.location.formattedAddress.slice(0, -1),
+        onPress={() => {
+          if (item.id !== -1) {
+            item.that.setState({ showOption: false }, function() {
+              item.that.props.navigation.navigate('CheckIn', {
+                shouldUpdate: false,
+                uri: item.uri,
+                name: item.name,
+                placeID: item.id,
+                location: item.location.formattedAddress.slice(0, -1),
+              })
             })
-          })
-        }
+          }
+        }}
       >
         <View style={styles.card}>
           <AsyncImageAnimated
@@ -345,10 +363,10 @@ export default class HomeScreen extends React.Component {
               {item.name}
             </Text>
             <Text numberOfLines={1} style={styles.cardDescription}>
-              {item.location.formattedAddress.slice(0, -1)}
+              {item.id === -1 ? item.location : item.location.formattedAddress.slice(0, -1)}
             </Text>
           </View>
-          <View style={styles.handle} />
+          {/* <View style={styles.handle} /> */}
         </View>
       </TouchableWithoutFeedback>
     )
@@ -375,52 +393,52 @@ export default class HomeScreen extends React.Component {
 
   render() {
     return (
-      <ImageBackground
-        style={{ width: '100%', height: '100%' }}
-        source={require('../assets/images/particles.jpg')}
-      >
-        <View style={styles.container}>
-          <View style={styles.kiContainer}>{this.drawKiView()}</View>
-          <View style={styles.cardContainer}>{this.drawMarkers()}</View>
-          <TouchableOpacity
-            style={styles.notificationContainer}
-            onPress={() => {
-              this.setState({ showOption: false }, function() {
-                this.props.navigation.navigate('Notification', {
-                  shouldUpdate: false,
-                })
+      // <ImageBackground
+      //   style={{ width: '100%', height: '100%' }}
+      //   source={require('../assets/images/particles.jpg')}
+      // >
+      <View style={styles.container}>
+        <View style={styles.kiContainer}>{this.drawKiView()}</View>
+        <View style={styles.cardContainer}>{this.drawMarkers()}</View>
+        <TouchableOpacity
+          style={styles.notificationContainer}
+          onPress={() => {
+            this.setState({ showOption: false }, function() {
+              this.props.navigation.navigate('Notification', {
+                shouldUpdate: false,
               })
-            }}
-          >
-            <Image source={require('../assets/icons/notification.png')} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.showOptionContainer}
-            onPress={() => {
-              this.setState({ showOption: !this.state.showOption })
-            }}
-          >
-            <Image
-              source={
-                this.state.showOption
-                  ? require('../assets/icons/close.png')
-                  : require('../assets/icons/addTask.png')
-              }
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.drawerContainer}
-            onPress={() => {
-              this.setState({ showOption: false }, function() {
-                this.props.navigation.openDrawer()
-              })
-            }}
-          >
-            <Image source={require('../assets/icons/drawer.png')} />
-          </TouchableOpacity>
-          {this._renderOption()}
-        </View>
-      </ImageBackground>
+            })
+          }}
+        >
+          <Image source={require('../assets/icons/notification.png')} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.showOptionContainer}
+          onPress={() => {
+            this.setState({ showOption: !this.state.showOption })
+          }}
+        >
+          <Image
+            source={
+              this.state.showOption
+                ? require('../assets/icons/close.png')
+                : require('../assets/icons/addTask.png')
+            }
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.drawerContainer}
+          onPress={() => {
+            this.setState({ showOption: false }, function() {
+              this.props.navigation.openDrawer()
+            })
+          }}
+        >
+          <Image source={require('../assets/icons/drawer.png')} />
+        </TouchableOpacity>
+        {this._renderOption()}
+      </View>
+      // </ImageBackground>
     )
   }
 
@@ -447,7 +465,7 @@ export default class HomeScreen extends React.Component {
                 })
               }}
             >
-              <Text style={styles.optionText}>Create Task</Text>
+              <Text style={styles.optionText}>Create Mission</Text>
             </TouchableOpacity>
             <View
               style={{
@@ -481,7 +499,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   notificationContainer: {
-    opacity: 0.5,
+    // opacity: 0.5,
     position: 'absolute',
     top: 60,
     right: 30,
@@ -497,7 +515,7 @@ const styles = StyleSheet.create({
   },
   showOptionContainer: {
     position: 'absolute',
-    opacity: 0.5,
+    // opacity: 0.5,
     top: 60,
     right: 80,
     borderRadius: 30,
@@ -512,7 +530,7 @@ const styles = StyleSheet.create({
   },
   optionContainer: {
     position: 'absolute',
-    opacity: 0.75,
+    // opacity: 0.75,
     top: 110,
     right: 30,
     width: 160,
@@ -571,13 +589,12 @@ const styles = StyleSheet.create({
   },
   drawerContainer: {
     position: 'absolute',
-    opacity: 0.5,
     top: 60,
     left: 30,
     borderRadius: 30,
     width: 30,
     height: 30,
-    opacity: 0.5,
+    // opacity: 0.5,
     alignItems: 'center',
     backgroundColor: '#fff',
     shadowColor: '#000000',

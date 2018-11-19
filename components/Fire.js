@@ -42,7 +42,7 @@ class Fire extends React.Component {
         photoURL: param.photoUrl,
         method: param.method,
         methodID: param.userid,
-        pushNotificationToken: param.pushNotificationToken,
+        pushNotificationToken: param.pushNotificationToken || '',
       }
       this.auth
         .doc(this.uid)

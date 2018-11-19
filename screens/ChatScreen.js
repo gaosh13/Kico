@@ -17,8 +17,6 @@ import { GiftedChat, Bubble, Message, Send, Actions, utils } from 'react-native-
 
 import AwesomeButton from 'react-native-really-awesome-button'
 
-import { Ionicons } from '@expo/vector-icons'
-
 const { width, height } = Dimensions.get('window')
 
 const hRatio = value => {
@@ -43,16 +41,30 @@ export default class ChatScreen extends React.Component {
     }
     this.preSetQuestions = [
       {
-        q: 'Are you a student?',
-        a: ['Yea!', 'Nah!'],
+        q: 'Are you keeping dogs or cats?',
+        a: ['Yes', 'No', 'I was'],
       },
       {
-        q: 'Do you drink?',
-        a: ['Yea!', 'Nah!'],
+        q: 'DC or Marvel?',
+        a: ['DC', 'Marvel', 'Seahawks'],
       },
       {
-        q: 'Been abroad?',
-        a: ['Yea!', 'Nah!'],
+        q: 'How do you like this app?',
+        a: ['Just so-so', 'A little bit', 'Very much'],
+      },
+      {
+        q: 'How much alcohol can you drink?',
+        a: ['Not at all', 'a little bit', 'quite much', 'I can drink all the time'],
+      },
+      {
+        q: 'How is your boss?',
+        a: [
+          'Noooooo!',
+          'just fine',
+          'pretty good',
+          "don't want to mention it",
+          "don't have a boss",
+        ],
       },
     ]
     this.emojis = ['😊', '😆', '🤣', '😅', '😢', '😯', '😵', '🙄']
@@ -272,7 +284,8 @@ export default class ChatScreen extends React.Component {
   renderActions() {
     return this.state.isFriend ? null : (
       <ScrollView
-        style={{ flexDirection: 'row', justifyContent: 'space-around', marginTop: hRatio(10) }}
+        style={{ flexDirection: 'row', marginTop: hRatio(10) }}
+        contentContainerStyle={{ justifyContent: 'space-around' }}
         horizontal={true}
         showsHorizontalScrollIndicator={false}
       >

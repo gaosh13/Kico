@@ -148,7 +148,7 @@ class DrawerView extends Component {
           </TouchableHighlight>
         </View>
 
-        <TouchableHighlight
+        {/* <TouchableHighlight
           onPress={() => navigate('Development')}
           underlayColor="#CCC"
           style={styles.menuTouchable}
@@ -156,7 +156,7 @@ class DrawerView extends Component {
           <View style={{ alignItems: 'center', justifyContent: 'center' }}>
             <Text style={{ color: 'blue' }}>Development</Text>
           </View>
-        </TouchableHighlight>
+        </TouchableHighlight> */}
 
         <TouchableHighlight onPress={this.Logout} underlayColor="#CCC" style={styles.menuTouchable}>
           <View style={{ alignItems: 'center', justifyContent: 'center' }}>

@@ -150,14 +150,14 @@ export default class CheckInScreen extends React.Component {
         >
           <Image source={require('../assets/icons/back.png')} />
         </TouchableOpacity>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.deleteButtonContainer}
           onPress={() => {
             this._removeTask(this._taskID)
           }}
         >
           <Image source={require('../assets/icons/remove.png')} />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </ScrollView>
     )
   }
