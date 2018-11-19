@@ -64,6 +64,7 @@ export default class HomeScreen extends React.Component {
       poolLoaded: false,
       is_updated: false,
       activeSlide: 0,
+      notification: {},
     }
     this.index = 0
     this.loadingMarkers = false
@@ -85,6 +86,7 @@ export default class HomeScreen extends React.Component {
       //   function() {this.props.navigation.setParams({shouldUpdate:false})}
       // );
     })
+    // this.subscription = Notifications.addListener(this.handleNotification);
     this.somefunction()
     this.mountState = true
   }
@@ -100,6 +102,14 @@ export default class HomeScreen extends React.Component {
       this.updatePool = null
     }
   }
+
+  // handleNotification = notification => {
+  //   Alert.alert('title')
+  //   console.log(notification)
+  //   this.setState({
+  //     notification:notification,
+  //   });
+  // }
 
   somefunction() {
     if (Platform.OS === 'android' && !Constants.isDevice) {

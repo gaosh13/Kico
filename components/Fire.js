@@ -83,6 +83,17 @@ class Fire extends React.Component {
     }
   }
 
+  readOtherAuth = async UID => {
+    // console.log('ready to download data, userID: ',this.uid)
+    let doc = await this.auth.doc(UID).get()
+    // console.log('retrieved from readProfile:', doc.data())
+    if (!doc.exists) {
+      console.log('No such document!')
+    } else {
+      return doc.data()
+    }
+  }
+
   readUserInfo = async UID => {
     console.log('ready to download data, userID: ', UID)
     let doc = await this.profile.doc(UID).get()

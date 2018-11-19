@@ -157,7 +157,11 @@ export default class App extends React.Component {
               console.log('www:', www)
               console.log('who:', users)
               Fire.shared.startTasks(users, www)
-              this.props.navigation.navigate('Congrats', { friends: this.state.pool, ...www })
+              this.props.navigation.navigate('Congrats', {
+                friends: this.state.pool,
+                ...www,
+                who: users,
+              })
               next()
             }}
           >

@@ -132,7 +132,9 @@ export default class Login extends React.Component {
         )
         const { picture, name, id } = await response.json()
         console.log('facebook signed in, userID: ', Fire.shared.uid)
-        await this.upload(name, picture.data.url, id, 'facebook')
+        const pushNotificationToken = await this.registerForPushNotificationsAsync()
+        console.log('push notification token: ', pushNotificationToken)
+        await this.upload(name, picture.data.url, id, 'facebook', pushNotificationToken)
         await console.log('firebase has been updated')
         if (this.mountedState)
           this.setState({

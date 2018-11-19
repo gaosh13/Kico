@@ -98,7 +98,7 @@ export default class App extends React.Component {
       selectedWho: new Set(),
       whatItems: [
         {
-          activity: 'Exchange Ki',
+          activity: 'Ki Exchange',
           source: require('../assets/images/particles2.jpg'),
         },
         {
@@ -110,7 +110,7 @@ export default class App extends React.Component {
           source: require('../assets/images/workout.jpg'),
         },
         {
-          activity: 'Library',
+          activity: 'Library Session',
           source: require('../assets/images/library.jpg'),
         },
       ],

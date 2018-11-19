@@ -91,7 +91,7 @@ export default class ReadyPage extends React.Component {
           <AwesomeButtonRick type="secondary" height={50} onPress={() => this.Logout(this.props)}>
             <Text style={styles.h3}>{'Switch Account'}</Text>
           </AwesomeButtonRick>
-          <Text style={styles.h4}>Kico wishes you best of luck finding other Humains</Text>
+          <Text style={styles.h4}>Kico wishes you best of luck finding other Humans</Text>
         </View>
       </ImageBackground>
     )

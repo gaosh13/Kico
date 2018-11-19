@@ -76,63 +76,65 @@ export default class ChatScreen extends React.Component {
       uid = getParam('uid'),
       name = getParam('name'),
       avatar = getParam('uri')
-    Promise.all([Fire.shared.readAuth(), Fire.shared.getFriend(getParam('uid'))]).then(
-      ([user, friend]) => {
-        this.setState({
-          user: {
-            _id: user.uid,
-            name: user.name,
-            avatar: user.photoURL,
-            token: user.pushNotificationToken,
-          },
-          isFriend: friend.exists,
-        })
-        this.onSnapshot = Fire.shared.profile
-          .doc(user.uid)
-          .collection('messages')
-          .doc(uid)
-          .collection('messages')
-          .limit(20)
-          .orderBy('createdAt', 'desc')
-          .onSnapshot(snap => {
-            const docs = snap
-              .docChanges()
-              .filter(changes => changes.type === 'added')
-              .map(changes => changes.doc.id)
-            Fire.shared.getMessages(docs).then(messages => {
-              this.setState(previousState => {
-                if (
-                  messages.length === 1 &&
-                  previousState.messages.filter(msg => msg._id === messages[0].id).length > 0
-                ) {
-                  return null
-                }
-                return {
-                  messages: GiftedChat.append(
-                    previousState.messages,
-                    messages
-                      .filter(msg => msg.exists)
-                      .map(msg => {
-                        const msgData = msg.data()
-                        return {
-                          _id: msg.id,
-                          text: msgData.text,
-                          createdAt: msgData.createdAt,
-                          user: {
-                            _id: msgData.uid,
-                            name: msgData.uid === uid ? name : user.name,
-                            avatar: msgData.uid === uid ? avatar : user.photoURL,
-                          },
-                        }
-                      })
-                  ),
-                }
-              })
+    Promise.all([
+      Fire.shared.readAuth(),
+      Fire.shared.readOtherAuth(getParam('uid')),
+      Fire.shared.getFriend(getParam('uid')),
+    ]).then(([user, otherAuth, friend]) => {
+      this.setState({
+        user: {
+          _id: user.uid,
+          name: user.name,
+          avatar: user.photoURL,
+          token: otherAuth.pushNotificationToken,
+        },
+        isFriend: friend.exists,
+      })
+      this.onSnapshot = Fire.shared.profile
+        .doc(user.uid)
+        .collection('messages')
+        .doc(uid)
+        .collection('messages')
+        .limit(20)
+        .orderBy('createdAt', 'desc')
+        .onSnapshot(snap => {
+          const docs = snap
+            .docChanges()
+            .filter(changes => changes.type === 'added')
+            .map(changes => changes.doc.id)
+          Fire.shared.getMessages(docs).then(messages => {
+            this.setState(previousState => {
+              if (
+                messages.length === 1 &&
+                previousState.messages.filter(msg => msg._id === messages[0].id).length > 0
+              ) {
+                return null
+              }
+              return {
+                messages: GiftedChat.append(
+                  previousState.messages,
+                  messages
+                    .filter(msg => msg.exists)
+                    .map(msg => {
+                      const msgData = msg.data()
+                      return {
+                        _id: msg.id,
+                        text: msgData.text,
+                        createdAt: msgData.createdAt,
+                        user: {
+                          _id: msgData.uid,
+                          name: msgData.uid === uid ? name : user.name,
+                          avatar: msgData.uid === uid ? avatar : user.photoURL,
+                        },
+                      }
+                    })
+                ),
+              }
             })
           })
-        Fire.shared.readMessage(uid)
-      }
-    )
+        })
+      Fire.shared.readMessage(uid)
+    })
   }
 
   componentWillUnmount() {
@@ -169,14 +171,16 @@ export default class ChatScreen extends React.Component {
     })
   }
 
-  sendPushNotification(token = this.state.user.token, title = 'Someone', body = 'sent to message') {
-    console.log('LALALALALAALAAALLALAAL', token)
+  sendPushNotification(token = this.state.user.token) {
+    let title = this.state.user.name
+    let body = 'sent you a message'
+    if (!this.state.isFriend) title = 'An unknown Ki source'
+    if (!this.state.isFriend) body = 'Is attempting to connect with you'
     return fetch('https://exp.host/--/api/v2/push/send', {
       body: JSON.stringify({
         to: token,
         title: title,
         body: body,
-        data: { message: `${title} - ${body}` },
       }),
       headers: {
         'Content-Type': 'application/json',

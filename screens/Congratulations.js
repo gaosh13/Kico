@@ -44,9 +44,23 @@ export default class Congratulations extends React.Component {
       })
     }
     if (this.props.navigation.getParam('where')) {
+      console.log('we have entered here')
+      const invitees = this.props.navigation.getParam('who')
+      const name = await Fire.shared.readInfo().name
+      console.log('????', name)
+      console.log('!!!!!', invitees)
       Fire.shared.getPlaceInfo(this.props.navigation.getParam('where')).then(data => {
+        const textString = this.props.navigation.getParam('what') + '@' + data.description
+        Promise.all(
+          invitees.map((invitee, index) => {
+            Fire.shared.readOtherAuth(invitee).then(otherAuth => {
+              console.log(otherAuth.pushNotificationToken)
+              this.sendPushNotification(otherAuth.pushNotificationToken, textString, name)
+            })
+          })
+        )
         this.setState({
-          item: this.props.navigation.getParam('what') + '@' + data.description,
+          item: textString,
           uri: data.uri,
           friendmode: false,
         })
@@ -54,6 +68,22 @@ export default class Congratulations extends React.Component {
     } else {
       console.log('somedata has not been passing correctly')
     }
+  }
+
+  sendPushNotification(token, string, name) {
+    let title = name
+    let body = 'Invites you for a ' + string
+    return fetch('https://exp.host/--/api/v2/push/send', {
+      body: JSON.stringify({
+        to: token,
+        title: title,
+        body: body,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    })
   }
 
   textOption() {
