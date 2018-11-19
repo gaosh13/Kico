@@ -45,6 +45,10 @@ export default class HomeScreen extends React.Component {
 
   constructor(props) {
     super(props)
+    const channel = Math.floor(Math.random() * 2)
+    // console.log('!!!!!',JSON.parse(REACT_APP_FOURSQUARE_SECRET)[0],typeof JSON.parse(REACT_APP_FOURSQUARE_SECRET)[0]);
+    this.Key = JSON.parse(REACT_APP_FOURSQUARE_ID)[channel]
+    this.Secret = JSON.parse(REACT_APP_FOURSQUARE_SECRET)[channel]
     this.mountState = false
     this.updatePool = false
     this.location = null
@@ -238,11 +242,16 @@ export default class HomeScreen extends React.Component {
       If authenticated, the method will personalize the ranking based on you and your friends.
       Radius to search within, in meters. If radius is not specified, a suggested radius will be used based on the density of venues in the area. The maximum supported radius is currently 100,000 meters.
       */
+
+    const channel = Math.floor(Math.random() * 6)
+    this.Key = Object.values(JSON.parse(REACT_APP_FOURSQUARE_ID))[channel]
+    this.Secret = Object.values(JSON.parse(REACT_APP_FOURSQUARE_SECRET))[channel]
+
     let fetchurl =
       'https://api.foursquare.com/v2/venues/explore?client_id=' +
-      REACT_APP_FOURSQUARE_ID +
+      this.Key +
       '&client_secret=' +
-      REACT_APP_FOURSQUARE_SECRET +
+      this.Secret +
       '&v=20180323&radius=200&limit=6&ll=' +
       location.coords.latitude +
       ',' +
@@ -269,9 +278,9 @@ export default class HomeScreen extends React.Component {
       'https://api.foursquare.com/v2/venues/' +
       ID +
       '?client_id=' +
-      REACT_APP_FOURSQUARE_ID +
+      this.Key +
       '&client_secret=' +
-      REACT_APP_FOURSQUARE_SECRET +
+      this.Secret +
       '&v=20180323'
     try {
       let response = await fetch(fetchurl)
