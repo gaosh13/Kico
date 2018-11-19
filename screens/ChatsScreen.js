@@ -99,7 +99,7 @@ export default class ChatsScreen extends React.Component {
         />
         <FlatList
           showsVerticalScrollIndicator={false}
-          // style={{ marginHorizontal: 15 , backgroundColor:'pink'}}
+          style={{ paddingRight: 15 }}
           data={this.state.friends}
           keyExtractor={(item, index) => {
             return 'friend' + index
