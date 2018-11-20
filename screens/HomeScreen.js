@@ -15,6 +15,7 @@ import {
   Button,
   ImageBackground,
   TouchableWithoutFeedback,
+  RefreshControl,
 } from 'react-native'
 import { WebBrowser, Constants, Location, Permissions, LinearGradient, Notifications } from 'expo'
 import Touchable from 'react-native-platform-touchable'
@@ -30,6 +31,7 @@ import ActionButton from 'react-native-action-button'
 import DateTimePicker from 'react-native-modal-datetime-picker'
 import { NavigationEvents } from 'react-navigation'
 import Carousel, { Pagination } from 'react-native-snap-carousel'
+import PTRView from 'react-native-pull-to-refresh'
 
 const { width, height } = Dimensions.get('window')
 
@@ -65,10 +67,18 @@ export default class HomeScreen extends React.Component {
       is_updated: false,
       activeSlide: 0,
       notification: {},
+      refreshing: false,
     }
     this.index = 0
     this.loadingMarkers = false
     this.animation = new Animated.Value(0)
+  }
+
+  _onRefresh = () => {
+    this.setState({ refreshing: true })
+    Promise.all([this.fetchPool(), this._getLocationAsync()]).then(() => {
+      this.setState({ refreshing: false })
+    })
   }
 
   componentDidMount() {
@@ -135,7 +145,7 @@ export default class HomeScreen extends React.Component {
         })
     }
     this.location = await Location.watchPositionAsync(
-      { enableHighAccuracy: false, timeInterval: 60000, distanceInterval: 100 },
+      { enableHighAccuracy: false, timeInterval: 60000, distanceInterval: 25 },
       this.locationChanged
     )
     //this.locationChanged is called on each location update;
@@ -259,21 +269,21 @@ export default class HomeScreen extends React.Component {
     // console.log("channel", channel, this.Key, this.Secret)
 
     let fetchurl =
-      'https://api.foursquare.com/v2/venues/explore?client_id=' +
+      'https://api.foursquare.com/v2/venues/search?client_id=' +
       this.Key +
       '&client_secret=' +
       this.Secret +
-      '&v=20180323&radius=100&limit=6&ll=' +
+      '&v=20180323&radius=25&limit=6&ll=' +
       location.coords.latitude +
       ',' +
       location.coords.longitude
-    // console.log('fetchurl', fetchurl)
+    console.log('fetchurl: ', fetchurl)
     try {
       let response = await fetch(fetchurl)
       let data = await response.json()
       // console.log(data)
-      // return data.response.venues
-      return data.response.groups[0].items.map(item => item.venue)
+      return data.response.venues
+      // return data.response.groups[0].items.map(item => item.venue)
       // the following code is for recommended search, research search in fetchurl with recommended return data.response.groups[0].items
     } catch (err) {
       console.log('Marker Data Fetching Failed')
@@ -417,7 +427,13 @@ export default class HomeScreen extends React.Component {
       //   style={{ width: '100%', height: '100%' }}
       //   source={require('../assets/images/particles.jpg')}
       // >
-      <View style={styles.container}>
+      <ScrollView
+        style={styles.container}
+        refreshControl={
+          <RefreshControl refreshing={this.state.refreshing} onRefresh={this._onRefresh} />
+        }
+      >
+        {/* <View style={styles.container}> */}
         <View style={styles.kiContainer}>{this.drawKiView()}</View>
         <View style={styles.cardContainer}>{this.drawMarkers()}</View>
         <TouchableOpacity
@@ -457,7 +473,8 @@ export default class HomeScreen extends React.Component {
           <Image source={require('../assets/icons/drawer.png')} />
         </TouchableOpacity>
         {this._renderOption()}
-      </View>
+        {/* </View> */}
+      </ScrollView>
       // </ImageBackground>
     )
   }
@@ -703,7 +720,7 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     position: 'absolute',
-    bottom: 0,
+    bottom: -CARD_HEIGHT,
     backgroundColor: 'transparent',
     // paddingVertical: 30
   },
