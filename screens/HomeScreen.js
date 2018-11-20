@@ -166,6 +166,7 @@ export default class HomeScreen extends React.Component {
       this.fetchMarkerData(location)
         .then(markers => {
           // console.log('this is were venues are fetched', markers);
+          if (markers === undefined) return []
           return Promise.all(
             markers.map((marker, index) => {
               return Fire.shared.getPlaceURI(marker.id, marker).then(uri => {

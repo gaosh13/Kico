@@ -1,11 +1,7 @@
 import React from 'react'
 import { FlatList, StyleSheet, View, Text, Image, TouchableOpacity, Dimensions } from 'react-native'
-import { WebBrowser } from 'expo'
-import { Ionicons } from '@expo/vector-icons'
-import Touchable from 'react-native-platform-touchable'
 import Fire from '../components/Fire'
-import { generateCirclesRow } from '../components/KiVisual'
-import moment, { relativeTimeThreshold } from 'moment'
+import moment from 'moment'
 
 const { width, height } = Dimensions.get('window')
 

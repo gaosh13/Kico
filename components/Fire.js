@@ -68,6 +68,7 @@ class Fire extends React.Component {
         .get()
         .then(doc => {
           if (!doc.exists) doc.ref.set(data)
+          else doc.ref.update({ photoURL: param.photoUrl })
         })
     }
   }
