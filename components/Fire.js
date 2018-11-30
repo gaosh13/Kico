@@ -324,6 +324,7 @@ class Fire extends React.Component {
         name: param.name,
         age: Number(param.age) || 0,
         gender: param.gender,
+        intro: param.intro || '',
       }
       await this.profile.doc(this.uid).update(data)
     }

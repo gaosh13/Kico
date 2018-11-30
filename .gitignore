@@ -1,8 +1,5 @@
 node_modules/**/*
 .expo/**/*
 .env
-<<<<<<< Updated upstream
 *.DS_Store
-=======
->>>>>>> Stashed changes
 .DS_Store

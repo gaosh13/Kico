@@ -6,11 +6,14 @@ import {
   Text,
   Image,
   Dimensions,
+  TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
 } from 'react-native'
 import Fire from '../components/Fire'
 import GenericScreen from '../components/GenericScreen'
+import { MaterialIcons } from '@expo/vector-icons'
+import AwesomeButton from 'react-native-really-awesome-button'
 
 const { width, height } = Dimensions.get('window')
 
@@ -25,6 +28,8 @@ export default class ProfileScreen extends React.Component {
       name: 'Player',
       gender: 'undefined',
       age: '18',
+      intro: '',
+      onEdit: false,
       ki: undefined,
       friendsLoaded: false,
       photoUrl: '../assets/images/icon.png',
@@ -38,25 +43,26 @@ export default class ProfileScreen extends React.Component {
   }
 
   async fetchdata() {
-    let [data, frienddata, pool] = await Promise.all([
+    let [data, frienddata, pool = []] = await Promise.all([
       Fire.shared.readInfo(),
       Fire.shared.getFriends(),
       Fire.shared.getCheckedPlaces(),
     ])
     if (data && frienddata) {
-      const { name, gender, age, ki, photoURL } = data
+      const { name, gender, age, intro = '', ki, photoURL } = data
       pool = pool.sort((a, b) => {
         return b.rawTime - a.rawTime
       })
       console.log('pool & data', pool)
       this.setState({
-        name: name,
-        gender: gender,
+        name,
+        gender,
+        intro,
         friends: frienddata.length,
         age: age.toString(),
-        ki: ki,
+        ki,
         photoUrl: photoURL,
-        pool: pool || [],
+        pool,
       })
     }
   }
@@ -70,10 +76,78 @@ export default class ProfileScreen extends React.Component {
       gender = text
     } else if (number === 2) {
       age = Number(text) || -1
+    } else if (number === 3) {
+      intro = text
     }
-    const info = { name, gender, age }
+    const info = { name, gender, age, intro }
     this.setState(info)
     Fire.shared.updateInfo(info)
+  }
+
+  renderIntroText() {
+    if (this.state.onEdit) {
+      return (
+        <View style={styles.introText}>
+          <View
+            style={{
+              borderBottomWidth: 1,
+              borderBottomColor: '#ccc',
+              paddingBottom: 5,
+              marginBottom: 10,
+            }}
+          >
+            <TextInput
+              value={this.state.intro}
+              onChangeText={intro => this.setState({ intro })}
+              multiline={true}
+              numberOfLines={4}
+            />
+          </View>
+          <AwesomeButton
+            backgroundColor="#FFFFFF"
+            backgroundShadow="#FEFEFE"
+            borderColor="#E0E0E0"
+            borderWidth={1}
+            borderRadius={34}
+            width={150}
+            height={40}
+            raiseLevel={2}
+            onPress={() => {
+              this.onSet(3, this.state.intro)
+              this.setState({ onEdit: false })
+            }}
+          >
+            <Text style={{ fontSize: 14 }}>Finish</Text>
+          </AwesomeButton>
+        </View>
+      )
+    } else {
+      return (
+        <TouchableWithoutFeedback
+          onPress={() => {
+            this.setState({ onEdit: true })
+          }}
+        >
+          <View style={styles.introText}>
+            <Text>{this.state.intro}</Text>
+            {this.state.intro ? (
+              <MaterialIcons name="edit" size={20} color="black" style={{ paddingTop: 10 }} />
+            ) : (
+              <Text style={{ color: 'blue', fontSize: 15 }}>Write something about yourself</Text>
+            )}
+          </View>
+        </TouchableWithoutFeedback>
+      )
+    }
+  }
+
+  renderIntro() {
+    return (
+      <View>
+        <Text style={styles.aboutText}>About myself</Text>
+        <View style={{ paddingTop: 10 }}>{this.renderIntroText()}</View>
+      </View>
+    )
   }
 
   drawNode() {
@@ -183,6 +257,7 @@ export default class ProfileScreen extends React.Component {
                 <Text style={styles.descriptionText}> # of CheckIns </Text>
               </View>
             </View>
+            {this.renderIntro()}
             {this.drawNode()}
             <View style={styles.bottomImage}>
               <Image source={require('../assets/images/bottom.png')} />
@@ -220,6 +295,14 @@ const styles = StyleSheet.create({
     marginTop: (25 / 812) * height,
     marginLeft: (25 / 812) * height,
     marginBottom: (25 / 812) * height,
+  },
+  aboutText: {
+    color: 'black',
+    textAlign: 'left',
+    fontSize: 30,
+    fontFamily: 'GSB',
+    marginTop: (25 / 812) * height,
+    marginLeft: (25 / 812) * height,
   },
   closeButtonContainer: {
     position: 'absolute',
@@ -328,6 +411,12 @@ const styles = StyleSheet.create({
     color: 'rgb(7,43,79)',
     opacity: 0.5,
     textAlign: 'center',
+  },
+  introText: {
+    // flexDirection: 'row',
+    paddingHorizontal: (25 / 812) * height,
+    // paddingTop: 10,
+    // borderWidth: 1,
   },
   kiContainer: {
     width: width,

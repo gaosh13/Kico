@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types'
 import React, { Component } from 'react'
 import { Constants, Svg, LinearGradient } from 'expo'
-import { Ionicons } from '@expo/vector-icons'
+import { MaterialIcons } from '@expo/vector-icons'
 import { withNavigation, ScrollView } from 'react-navigation'
 import {
   Text,
@@ -55,28 +55,39 @@ class GenericScreen extends Component {
     const { name, description, note, onSet } = this.props
     if (onSet) {
       return (
-        <View>
+        <View style={{ marginTop: (24 / 812) * height }}>
           <TouchableWithoutFeedback
             onPress={() => {
               this.onSet(0)
             }}
           >
-            <View>
-              <Text numberOfLines={1} style={styles.cardtitle}>
-                {name}
-              </Text>
+            <View style={{ flexDirection: 'row' }}>
+              <Text style={styles.cardtitle}>{name + '  '}</Text>
+              <MaterialIcons name="edit" size={15} color="white" style={{ alignSelf: 'center' }} />
             </View>
           </TouchableWithoutFeedback>
-          <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'center',
+              marginTop: (4 / 812) * height,
+            }}
+          >
             <TouchableWithoutFeedback
               onPress={() => {
                 this.onSet(1)
               }}
             >
-              <View>
+              <View style={{ flexDirection: 'row' }}>
                 <Text numberOfLines={1} style={styles.cardInfoDescription}>
-                  {description},
+                  {description + ' '}
                 </Text>
+                <MaterialIcons
+                  name="edit"
+                  size={10}
+                  color="white"
+                  style={{ alignSelf: 'center', opacity: 0.6 }}
+                />
               </View>
             </TouchableWithoutFeedback>
             <TouchableWithoutFeedback
@@ -84,10 +95,16 @@ class GenericScreen extends Component {
                 this.onSet(2)
               }}
             >
-              <View>
+              <View style={{ flexDirection: 'row' }}>
                 <Text numberOfLines={1} style={styles.cardInfoDescription}>
-                  {note}
+                  {',  ' + note + ' '}
                 </Text>
+                <MaterialIcons
+                  name="edit"
+                  size={10}
+                  color="white"
+                  style={{ alignSelf: 'center', opacity: 0.6 }}
+                />
               </View>
             </TouchableWithoutFeedback>
           </View>
@@ -95,11 +112,14 @@ class GenericScreen extends Component {
       )
     } else {
       return (
-        <View>
+        <View style={{ marginTop: (24 / 812) * height }}>
           <Text numberOfLines={1} style={styles.cardtitle}>
             {name}
           </Text>
-          <Text numberOfLines={1} style={styles.cardDescription}>
+          <Text
+            numberOfLines={1}
+            style={[styles.cardDescription, { marginTop: (4 / 812) * height }]}
+          >
             {description},{note}
           </Text>
         </View>
@@ -136,7 +156,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   cardtitle: {
-    marginTop: (24 / 812) * height,
+    // marginTop: (24 / 812) * height,
     color: '#FFFFFF',
     textAlign: 'center',
     fontFamily: 'GR',
@@ -144,7 +164,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   cardDescription: {
-    marginTop: (4 / 812) * height,
+    // marginTop: (4 / 812) * height,
     fontFamily: 'GR',
     textAlign: 'center',
     color: '#FFFFFF',
@@ -152,7 +172,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   cardInfoDescription: {
-    marginTop: (4 / 812) * height,
+    // marginTop: (4 / 812) * height,
     fontFamily: 'GR',
     color: '#FFFFFF',
     opacity: 0.6,
