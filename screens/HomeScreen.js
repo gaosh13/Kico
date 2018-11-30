@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import {
-  Alert,
   Image,
   Platform,
   ScrollView,
@@ -10,28 +9,16 @@ import {
   View,
   Animated,
   Dimensions,
-  FlatList,
-  AppRegistry,
-  Button,
   ImageBackground,
   TouchableWithoutFeedback,
   RefreshControl,
 } from 'react-native'
-import { WebBrowser, Constants, Location, Permissions, LinearGradient, Notifications } from 'expo'
-import Touchable from 'react-native-platform-touchable'
-import { MonoText } from '../components/StyledText'
-import { MapView, MapContainer } from 'expo'
-import { Ionicons } from '@expo/vector-icons'
+import { Constants, Location, Permissions, LinearGradient } from 'expo'
 import Fire from '../components/Fire'
 import { REACT_APP_FOURSQUARE_ID, REACT_APP_FOURSQUARE_SECRET } from 'react-native-dotenv'
 import AsyncImageAnimated from '../components/AsyncImageAnimated'
 import { RandomCircles } from '../components/KiVisual'
-import { BlurView, VibrancyView } from 'react-native-blur'
-import ActionButton from 'react-native-action-button'
-import DateTimePicker from 'react-native-modal-datetime-picker'
-import { NavigationEvents } from 'react-navigation'
 import Carousel, { Pagination } from 'react-native-snap-carousel'
-import PTRView from 'react-native-pull-to-refresh'
 
 const { width, height } = Dimensions.get('window')
 

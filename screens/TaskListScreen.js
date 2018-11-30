@@ -2,7 +2,6 @@ import React from 'react'
 import { FlatList, StyleSheet, View, Text, Image, TouchableOpacity, Dimensions } from 'react-native'
 import { WebBrowser } from 'expo'
 import { Ionicons } from '@expo/vector-icons'
-import { generateSmallCircles } from '../components/KiVisual'
 import Touchable from 'react-native-platform-touchable'
 import Fire from '../components/Fire'
 
@@ -82,7 +81,7 @@ export default class TaskListScreen extends React.Component {
         break
       }
     }
-    console.log('newList', task)
+    // console.log('newList', task)
     this.setState({ task })
   }
 
@@ -92,7 +91,7 @@ export default class TaskListScreen extends React.Component {
 class TaskItem extends React.PureComponent {
   render() {
     const item = this.props.item
-    console.log('item', item)
+    // console.log('item', item)
     return (
       <TouchableOpacity onPress={() => this.props.onPressItem(item)} style={styles.card}>
         <View>

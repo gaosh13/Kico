@@ -88,7 +88,7 @@ const PersonalDrawer = createDrawerNavigator(
         JoinTaskScreen,
       },
       {
-        initialRouteName: 'Profile',
+        initialRouteName: 'Home',
       }
     ),
     Development: createStackNavigator({ DevelopmentScreen }),

@@ -13,11 +13,13 @@ import {
   Alert,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
+import { Location, Permissions } from 'expo'
 import Fire from '../components/Fire'
 import { generateCirclesRow } from '../components/KiVisual'
 import GenericScreen from '../components/GenericScreen'
 import AwesomeButton from 'react-native-really-awesome-button'
 import QRCode from 'react-native-qrcode-svg'
+import { REACT_APP_FOURSQUARE_ID, REACT_APP_FOURSQUARE_SECRET } from 'react-native-dotenv'
 
 const { width, height } = Dimensions.get('window')
 
@@ -45,19 +47,47 @@ export default class CheckInScreen extends React.Component {
     }
   }
 
+  onSnapshot(uid, time) {
+    if (Fire.shared.timeLimit(time, 60)) {
+      this.setState(state => {
+        // console.log("old pool", state.pool)
+        let pool = Array.from(state.pool)
+        for (let i = 0; i < pool.length; ++i) {
+          if (pool[i].uid == uid) {
+            pool[i].hidden = false
+          }
+        }
+        // console.log("new pool", pool)
+        return { pool }
+      })
+    }
+  }
+
   async componentDidMount() {
     await this.fetchdata(false)
+    // console.log("mypool", this.state.pool)
+    this.unsubscribe = Fire.shared.listenTaskUsers(this._taskID, (uid, time) => {
+      this.onSnapshot(uid, time)
+    })
+    TaskLocation.prototype.checkLocation(this.state.where.id).then(local => {
+      if (local) Fire.shared.taskCheckin(this._taskID)
+    })
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe()
   }
 
   async fetchdata(refresh = false) {
     if (!this.props.navigation.getParam('task') || refresh) {
       const task = this._taskID
-      Fire.shared.getTaskInfo(task).then(taskInfo => {
-        const { users: pool = {}, where = {}, what, when, isGoing } = taskInfo
+      return Fire.shared.getTaskInfo(task).then(taskInfo => {
+        const { users: pool = [], where = {}, what, when, isGoing } = taskInfo
+        for (let i = 0; i < pool.length; ++i) pool[i].hidden = true
         this.setState({ pool, where, what, when, isGoing })
       })
     } else {
-      const { users: pool = {}, where = {}, what, when, isGoing } = this.props.navigation.getParam(
+      const { users: pool = [], where = {}, what, when, isGoing } = this.props.navigation.getParam(
         'task'
       )
       this.setState({ pool, where, what, when, isGoing })
@@ -136,6 +166,7 @@ export default class CheckInScreen extends React.Component {
             >
               <Text style={styles.text}>{displayText}</Text>
             </AwesomeButton>
+            {/* <Text style={{marginTop: 10, alignSelf: 'flex-end', opacity: 0.3}}>{this._taskID}</Text> */}
           </View>
         </GenericScreen>
         <TouchableOpacity
@@ -201,6 +232,49 @@ export default class CheckInScreen extends React.Component {
         console.log('promise cancelled', ret)
       }
     )
+  }
+}
+
+class TaskLocation {
+  async checkLocation(placeID) {
+    // return true
+    let { status } = await Permissions.askAsync(Permissions.LOCATION)
+    if (status !== 'granted') {
+      console.log('no location granted')
+    }
+    let location = await Location.getCurrentPositionAsync({})
+    return await this.fetchMarkerData(location).then(markers => {
+      for (let i = 0; i < markers.length; ++i) {
+        // console.log("ids", markers[i].id, placeID)
+        if (markers[i].id == placeID) return true
+      }
+      return false
+    })
+  }
+
+  async fetchMarkerData(location) {
+    const channel = Math.floor(Math.random() * 7)
+    // console.log("cn", channel)
+    let Key = Object.values(JSON.parse(REACT_APP_FOURSQUARE_ID))[channel]
+    let Secret = Object.values(JSON.parse(REACT_APP_FOURSQUARE_SECRET))[channel]
+    let fetchurl =
+      'https://api.foursquare.com/v2/venues/search?client_id=' +
+      Key +
+      '&client_secret=' +
+      Secret +
+      '&v=20180323&radius=25&limit=6&ll=' +
+      location.coords.latitude +
+      ',' +
+      location.coords.longitude
+    // console.log('fetchurl: ', fetchurl)
+    try {
+      let response = await fetch(fetchurl)
+      let data = await response.json()
+      return data.response.venues
+      // return data.response.groups[0].items.map(item => item.venue)
+    } catch (err) {
+      console.log('Marker Data Fetching Failed')
+    }
   }
 }
 

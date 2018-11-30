@@ -224,9 +224,9 @@ class Fire extends React.Component {
       .set({ data: saved })
   }
 
-  getCheckedPlaces = async () => {
+  getCheckedPlaces = async (uid = this.uid) => {
     return await this.profile
-      .doc(this.uid)
+      .doc(uid)
       .collection('places')
       .get()
       .then(data => {
@@ -241,6 +241,15 @@ class Fire extends React.Component {
           }
         })
       })
+  }
+
+  getCommonPlaces = async uid => {
+    let [places0, places1] = await Promise.all([
+      this.getCheckedPlaces(),
+      this.getCheckedPlaces(uid),
+    ])
+    let a = new Set(places0.map(d => d.id))
+    return places1.filter(d => a.has(d.id))
   }
 
   getName = async uid => {
@@ -488,6 +497,29 @@ class Fire extends React.Component {
       })
   }
 
+  taskCheckin = taskID => {
+    return this.task
+      .doc(taskID)
+      .collection('users')
+      .doc(this.uid)
+      .set({ time: this.timestamp })
+  }
+
+  listenTaskUsers = (taskID, refreshFunc) => {
+    return this.task
+      .doc(taskID)
+      .collection('users')
+      .onSnapshot(snapshot => {
+        snapshot.docChanges().forEach(change => {
+          const doc = change.doc
+          // console.log("listen", doc.data(), change.type)
+          if (change.type == 'added' || change.type == 'modified') {
+            refreshFunc(doc.id, doc.get('time'))
+          }
+        })
+      })
+  }
+
   getTaskInfo = async taskID => {
     const doc = await this.task.doc(taskID).get()
     if (!doc.exists) {
@@ -510,7 +542,7 @@ class Fire extends React.Component {
         })
       ),
       this.getPlaceInfo(taskInfo.where).then(data => {
-        return { name: data.description, uri: data.uri }
+        return { id: taskInfo.where, name: data.description, uri: data.uri }
       }),
     ])
     formatDate = when => {
@@ -905,6 +937,7 @@ class Fire extends React.Component {
   timeLimit = (date, time = 0) => {
     var seconds = Math.floor((this.timestamp.toDate() - date.toDate()) / 1000)
     // 1 day = 86400 seconds, 1 hour = 3600 seconds
+    // console.log("limit", seconds, time)
     return seconds < time
   }
 
