@@ -44,8 +44,15 @@ export default class App extends React.Component {
     let rawData = await Fire.shared.getFriends()
     // friends = _.forEach(friends,function(friend){_.assign(friend,{that:this.state.loading})})
     let friends = []
+    friends = friends.sort()
     rawData.forEach((oneData, index) => {
       friends.push(Object.assign(oneData, { that: this, index }))
+    })
+    // changing the case (to upper or lower) ensures a case insensitive sort
+    friends = friends.sort(function(a, b) {
+      var textA = a.name.toUpperCase()
+      var textB = b.name.toUpperCase()
+      return textA < textB ? -1 : textA > textB ? 1 : 0
     })
     this.dataArray = friends
     let res = _.groupBy(friends, friend => friend.name[0].toUpperCase())

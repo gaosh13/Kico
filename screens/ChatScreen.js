@@ -7,6 +7,7 @@ import {
   ScrollView,
   Image,
   Dimensions,
+  Alert,
 } from 'react-native'
 
 import Fire from '../components/Fire'
@@ -38,6 +39,8 @@ export default class ChatScreen extends React.Component {
       messages: [],
       user: { _id: 0 },
       isFriend: false,
+      limit: null,
+      remainingMessages: 0,
     }
     this.preSetQuestions = [
       {
@@ -67,7 +70,7 @@ export default class ChatScreen extends React.Component {
         ],
       },
     ]
-    this.emojis = ['😊', '😆', '🤣', '😅', '😢', '😯', '😵', '🙄']
+    // this.emojis = ['😊', '😆', '🤣', '😅', '😢', '😯', '😵', '🙄']
     // this.emojis = ['😊']
   }
 
@@ -80,7 +83,10 @@ export default class ChatScreen extends React.Component {
       Fire.shared.readAuth(),
       Fire.shared.readOtherAuth(getParam('uid')),
       Fire.shared.getFriend(getParam('uid')),
-    ]).then(([user, otherAuth, friend]) => {
+      Fire.shared.getCommonPlaces(getParam('uid')),
+    ]).then(([user, otherAuth, friend, pool]) => {
+      if (!friend.exists) limit = pool.length
+      // console.log(limit)
       this.setState({
         user: {
           _id: user.uid,
@@ -89,6 +95,7 @@ export default class ChatScreen extends React.Component {
           token: otherAuth.pushNotificationToken,
         },
         isFriend: friend.exists,
+        limit: limit,
       })
       this.onSnapshot = Fire.shared.profile
         .doc(user.uid)
@@ -103,6 +110,23 @@ export default class ChatScreen extends React.Component {
             .filter(changes => changes.type === 'added')
             .map(changes => changes.doc.id)
           Fire.shared.getMessages(docs).then(messages => {
+            formattedMessages = messages
+              .filter(msg => msg.exists)
+              .map(msg => {
+                const msgData = msg.data()
+                return {
+                  _id: msg.id,
+                  text: msgData.text,
+                  createdAt: msgData.createdAt,
+                  user: {
+                    _id: msgData.uid,
+                    name: msgData.uid === uid ? name : user.name,
+                    avatar: msgData.uid === uid ? avatar : user.photoURL,
+                  },
+                }
+              })
+            let ouput = Fire.shared.calculateRemainingMessages(formattedMessages, limit)
+            // console.log('AAAA', currentMessageCount)
             this.setState(previousState => {
               if (
                 messages.length === 1 &&
@@ -111,24 +135,8 @@ export default class ChatScreen extends React.Component {
                 return null
               }
               return {
-                messages: GiftedChat.append(
-                  previousState.messages,
-                  messages
-                    .filter(msg => msg.exists)
-                    .map(msg => {
-                      const msgData = msg.data()
-                      return {
-                        _id: msg.id,
-                        text: msgData.text,
-                        createdAt: msgData.createdAt,
-                        user: {
-                          _id: msgData.uid,
-                          name: msgData.uid === uid ? name : user.name,
-                          avatar: msgData.uid === uid ? avatar : user.photoURL,
-                        },
-                      }
-                    })
-                ),
+                remainingMessages: ouput,
+                messages: GiftedChat.append(previousState.messages, formattedMessages),
               }
             })
           })
@@ -145,30 +153,44 @@ export default class ChatScreen extends React.Component {
 
   onSend(messages) {
     const { getParam } = this.props.navigation
-    if (!Array.isArray(messages)) {
-      messages = [messages]
-    }
-    messages.forEach(message => {
-      Fire.shared
-        .addMessage(
-          {
-            text: message.text,
-            createdAt: message.createdAt.getTime(),
-            uid: message.user._id,
-          },
-          getParam('uid'),
-          this.state.isFriend
-        )
-        .then(id => {
-          message._id = id
+    const { remainingMessages, limit } = this.state
+    if (remainingMessages) {
+      const { getParam } = this.props.navigation
+      if (!Array.isArray(messages)) {
+        messages = [messages]
+      }
+      messages.forEach(message => {
+        Fire.shared
+          .addMessage(
+            {
+              text: message.text,
+              createdAt: message.createdAt.getTime(),
+              uid: message.user._id,
+            },
+            getParam('uid'),
+            this.state.isFriend
+          )
+          .then(id => {
+            message._id = id
+          })
+        this.sendPushNotification()
+        this.setState(previousState => {
+          return {
+            remainingMessages: previousState.remainingMessages - 1,
+            messages: GiftedChat.append(previousState.messages, message),
+          }
         })
-      this.sendPushNotification()
-      this.setState(previousState => {
-        return {
-          messages: GiftedChat.append(previousState.messages, message),
-        }
       })
-    })
+    } else {
+      Alert.alert(
+        'Texting limit passed',
+        `You have used all ${limit} messages today with ${getParam('name')}.
+        Either: 
+        1) Come back again in 24 hours,
+        2) Find more common checkins or
+        3) Add this person as friend by inviting him to a mission for more messages!`
+      )
+    }
   }
 
   sendPushNotification(token = this.state.user.token) {
@@ -326,7 +348,7 @@ export default class ChatScreen extends React.Component {
 
   render() {
     const { getParam, goBack } = this.props.navigation
-    const { user, isFriend } = this.state
+    const { user, isFriend, limit, remainingMessages } = this.state
     return (
       <View style={styles.container}>
         <View style={styles.chatHeader}>
@@ -334,17 +356,38 @@ export default class ChatScreen extends React.Component {
             {getParam('name')}
           </Text>
         </View>
+        {isFriend ? null : (
+          <Text style={styles.reminderText}>
+            {' '}
+            You and {getParam('name')} are not yet friends, you can send {limit} texts today
+          </Text>
+        )}
         <View style={styles.chatContainer}>
           <GiftedChat
             messages={this.state.messages}
             renderBubble={props => this.renderBubble(props)}
             renderMessage={props => this.renderMessage(props)}
+            onPressAvatar={
+              isFriend
+                ? () =>
+                    this.props.navigation.navigate('FriendsProfileScreen', {
+                      uid: getParam('uid'),
+                      uri: getParam('uri'),
+                      name: getParam('name'),
+                    })
+                : () =>
+                    this.props.navigation.navigate('ViewOther', {
+                      uid: getParam('uid'),
+                      uri: getParam('uri'),
+                      name: getParam('name'),
+                    })
+            }
             renderInputToolbar={props => this.renderInputToolbar(props)}
             renderAccessory={isFriend ? null : props => this.renderAccessory(props)}
-            renderComposer={isFriend ? null : props => this.renderComposer(props)}
+            // renderComposer={isFriend ? null : props => this.renderComposer(props)}
             showAvatarForEveryMessage={true}
-            renderSend={isFriend ? null : props => this.renderSend(props)}
-            renderActions={isFriend ? null : props => this.renderActions(props)}
+            // renderSend={isFriend ? null : props => this.renderSend(props)}
+            // renderActions={isFriend ? null : props => this.renderActions(props)}
             isAnimated
             onSend={messages => this.onSend(messages)}
             // bottomOffset={200}
@@ -363,8 +406,11 @@ export default class ChatScreen extends React.Component {
               paddingTop: 8,
               paddingRight: 20,
             }}
+            placeholder={
+              isFriend ? 'Type a message...' : `You can send ${remainingMessages} more messages...`
+            }
             textInputProps={{
-              editable: isFriend,
+              editable: true,
               // placeholder: '',
             }}
             listViewProps={{
@@ -413,6 +459,15 @@ const styles = StyleSheet.create({
   chatContainer: {
     flex: 1,
     backgroundColor: '#FBFCFE',
+  },
+  reminderText: {
+    paddingHorizontal: 20,
+    height: hRatio(20),
+    backgroundColor: 'transparent',
+    fontFamily: 'GR',
+    fontSize: 12,
+    color: 'grey',
+    opacity: 0.4,
   },
   scrollViewStyle: {
     flexDirection: 'row',

@@ -31,8 +31,6 @@ export default class App extends React.Component {
       error: null,
       pool: [],
     }
-    // this.arrayholder = names;
-    // console.log('Blah????',  names);
     this.dataArray = []
   }
 
@@ -47,7 +45,15 @@ export default class App extends React.Component {
     rawData.forEach((oneData, index) => {
       friends.push(Object.assign(oneData, { that: this, index }))
     })
+    // changing the case (to upper or lower) ensures a case insensitive sort
+    friends = friends.sort(function(a, b) {
+      var textA = a.name.toUpperCase()
+      var textB = b.name.toUpperCase()
+      return textA < textB ? -1 : textA > textB ? 1 : 0
+    })
+    // console.log('?????',newfriends)
     this.dataArray = friends
+    // console.log('!!!!!', this.dataArray);
     let res = _.groupBy(friends, friend => friend.name[0].toUpperCase())
     // console.log('BOOOO', res);
     this.setState({

@@ -1019,6 +1019,27 @@ class Fire extends React.Component {
       })
   }
 
+  calculateRemainingMessages = (messages, limit, refreshTime = 86400000) => {
+    // 1 day = 86400 seconds, 1 hour = 3600 seconds, numbers we are currently considering is in milliseconds
+    count = 0
+    console.log('limit: ', limit, 'count: ', count)
+    let currentTime = new Date().getTime()
+    console.log('current time: ', currentTime)
+    console.log(messages)
+    let ceiling = limit
+    if (messages.length < limit) ceiling = messages.length
+    while (count < ceiling) {
+      if (currentTime - messages[count].createdAt > refreshTime) {
+        console.log('while loop broken immaturely')
+        break
+      } else {
+        count++
+      }
+    }
+    console.log('AAAAAAQQ', count)
+    return limit - count
+  }
+
   toTimeStamp = date => {
     return firebase.firestore.Timestamp(date)
   }
