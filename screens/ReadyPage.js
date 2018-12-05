@@ -83,13 +83,13 @@ export default class ReadyPage extends React.Component {
             type="primary"
             progress={true}
             height={50}
-            onPress={() => this.props.navigation.navigate('PersonalDrawer')}
+            onPress={() => this.props.navigation.navigate('Onboarding')}
           >
-            <Text style={styles.h3}>{'Synchronize to Game'}</Text>
+            <Text style={styles.h3}>Synchronize to Game</Text>
           </AwesomeButtonRick>
           <View style={{ marginTop: 10 }} />
           <AwesomeButtonRick type="secondary" height={50} onPress={() => this.Logout(this.props)}>
-            <Text style={styles.h3}>{'Switch Account'}</Text>
+            <Text style={styles.h3}>Switch Account</Text>
           </AwesomeButtonRick>
           <Text style={styles.h4}>Kico wishes you best of luck finding other Humans</Text>
         </View>

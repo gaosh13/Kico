@@ -149,12 +149,12 @@ class DrawerView extends Component {
         </View>
 
         {/* <TouchableHighlight
-          onPress={() => navigate('Development')}
+          onPress={() => navigate('Onboarding')}
           underlayColor="#CCC"
           style={styles.menuTouchable}
         >
           <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ color: 'blue' }}>Development</Text>
+            <Text style={{ color: 'blue' }}>Onboarding</Text>
           </View>
         </TouchableHighlight> */}
 

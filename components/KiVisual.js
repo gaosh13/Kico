@@ -38,10 +38,10 @@ export class RandomCircles extends React.PureComponent {
     circles = []
 
     while (circles.length < NumCircles && counter < protection) {
-      var randomX = 25 + Math.round(Math.random() * (width - 50))
-      var randomY = 120 + Math.round(Math.random() * ((480 / 812) * height - 60))
-      //perhaps better algorithm here
-      var size = Math.sqrt(Math.pow(pool[savedCirclesCounter].value / newSum, 2) * (area / 1.25))
+      //perhaps better algorithm here, like if circles.lenght<NumCircles && counter > protection, redo the while loop with larger denomicator beneath area
+      var size = Math.sqrt((pool[savedCirclesCounter].value / newSum) * (area / 8))
+      var randomX = size + Math.round(Math.random() * (2 * width - size * 2))
+      var randomY = size + Math.round(Math.random() * ((292 / 812) * height - size * 2))
       var opacity = 0.5 + 0.5 * (Math.max(0, 8 - savedCirclesCounter) / 8)
       var uri = pool[savedCirclesCounter].uri
       var name = pool[savedCirclesCounter].name
@@ -115,10 +115,10 @@ function clickBox(circles, navigation) {
           width: element.width * 2,
           height: element.width * 2,
           borderRadius: element.width,
-          shadowOffset: { width: 0, height: 10 },
-          shadowRadius: 20,
-          shadowColor: 'rgba(0,0,0,1)',
-          shadowOpacity: 0.4,
+          // shadowOffset: { width: 0, height: 10 },
+          // shadowRadius: 20,
+          // shadowColor: 'rgba(0,0,0,1)',
+          // shadowOpacity: 0.4,
           top: element.yPos - element.width,
           left: element.xPos - element.width,
         }}
@@ -129,7 +129,7 @@ function clickBox(circles, navigation) {
             width: element.width * 2,
             height: element.width * 2,
             borderRadius: element.width,
-            opacity: element.opacity,
+            // opacity: element.opacity,
           }}
           source={element.source}
           placeholderColor="purple"

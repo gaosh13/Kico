@@ -18,6 +18,7 @@ import {
   TouchableHighlight,
   Dimensions,
 } from 'react-native'
+import { Notifications } from 'expo'
 import Expo from 'expo'
 import GoogleSignInButton from '../components/GoogleSignInButton'
 import FacebookSignInButton from '../components/FacebookSignInButton'
@@ -45,6 +46,7 @@ import FriendListScreen from '../screens/FriendListScreen'
 import FriendsScreen from '../screens/FriendsScreen'
 import FriendsProfileScreen from '../screens/FriendsProfileScreen'
 import TaskChatScreen from '../screens/TaskChatScreen'
+import Onboarding from '../screens/Onboarding'
 
 const { width, height } = Dimensions.get('window')
 
@@ -60,10 +62,13 @@ class AuthLoadingScreen extends React.Component {
     }
   }
   componentDidMount() {
+    this._notificationSubscription = Notifications.addListener(this._handleNotification)
     firebase.auth().onAuthStateChanged(user => {
       this.props.navigation.navigate(user ? 'Ready' : 'Auth')
     })
   }
+
+  _handleNotification() {}
   render() {
     return null
   }
@@ -92,7 +97,7 @@ const PersonalDrawer = createDrawerNavigator(
         TaskChatScreen,
       },
       {
-        initialRouteName: 'TaskListScreen',
+        initialRouteName: 'Home',
       }
     ),
     Development: createStackNavigator({ DevelopmentScreen }),
@@ -161,6 +166,7 @@ export default createSwitchNavigator(
     Auth: Login,
     Ready: ReadyPage,
     PersonalDrawer,
+    Onboarding,
     // CheckInStack,
   },
   {
