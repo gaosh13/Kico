@@ -44,6 +44,7 @@ import Congratulations from '../screens/Congratulations'
 import FriendListScreen from '../screens/FriendListScreen'
 import FriendsScreen from '../screens/FriendsScreen'
 import FriendsProfileScreen from '../screens/FriendsProfileScreen'
+import TaskChatScreen from '../screens/TaskChatScreen'
 
 const { width, height } = Dimensions.get('window')
 
@@ -88,9 +89,10 @@ const PersonalDrawer = createDrawerNavigator(
         ChatsScreen,
         TaskListScreen,
         JoinTaskScreen,
+        TaskChatScreen,
       },
       {
-        initialRouteName: 'Home',
+        initialRouteName: 'TaskListScreen',
       }
     ),
     Development: createStackNavigator({ DevelopmentScreen }),

@@ -566,6 +566,7 @@ class Fire extends React.Component {
       )
     }
     try {
+      taskInfo.time = taskInfo.when.toDate()
       taskInfo.when = formatDate(taskInfo.when)
     } catch (e) {
       console.log('not a date')
@@ -941,6 +942,12 @@ class Fire extends React.Component {
     return seconds < time
   }
 
+  timeLimit_date = (date, time = 0) => {
+    var seconds = Math.abs(Math.floor((this.timestamp.toDate() - date) / 1000))
+    console.log('seconds', seconds)
+    return seconds < time
+  }
+
   getChatHistory = async () => {
     const historys = await this.profile
       .doc(this.uid)
@@ -998,6 +1005,16 @@ class Fire extends React.Component {
       }
     })
     toDocRef
+      .collection('messages')
+      .doc(msgId)
+      .set({ createdAt: msg.createdAt })
+    return msgId
+  }
+
+  addMessageFromTask = async (msg, taskID) => {
+    const msgId = (await this.messages.add(msg)).id
+    this.task
+      .doc(taskID)
       .collection('messages')
       .doc(msgId)
       .set({ createdAt: msg.createdAt })

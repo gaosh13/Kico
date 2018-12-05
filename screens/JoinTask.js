@@ -43,6 +43,7 @@ export default class CheckInScreen extends React.Component {
       where: {},
       what: '',
       when: '',
+      time: 0,
       isGoing: false,
     }
   }
@@ -82,9 +83,9 @@ export default class CheckInScreen extends React.Component {
     if (!this.props.navigation.getParam('task') || refresh) {
       const task = this._taskID
       return Fire.shared.getTaskInfo(task).then(taskInfo => {
-        const { users: pool = [], where = {}, what, when, isGoing } = taskInfo
+        const { users: pool = [], where = {}, what, when, isGoing, time } = taskInfo
         for (let i = 0; i < pool.length; ++i) pool[i].hidden = true
-        this.setState({ pool, where, what, when, isGoing })
+        this.setState({ pool, where, what, when, isGoing, time })
       })
     } else {
       const { users: pool = [], where = {}, what, when, isGoing } = this.props.navigation.getParam(
@@ -180,6 +181,23 @@ export default class CheckInScreen extends React.Component {
           }}
         >
           <Image source={require('../assets/icons/back.png')} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.notificationContainer}
+          onPress={() =>
+            this.props.navigation.navigate('TaskChatScreen', {
+              task: {
+                id: this._taskID,
+                pool: this.state.pool,
+                where: this.state.where,
+                what: this.state.what,
+                when: this.state.when,
+                time: this.state.time,
+              },
+            })
+          }
+        >
+          <Image source={require('../assets/icons/notification.png')} />
         </TouchableOpacity>
         {/* <TouchableOpacity
           style={styles.deleteButtonContainer}
@@ -317,6 +335,17 @@ const styles = StyleSheet.create({
     borderColor: '#000',
     backgroundColor: '#fff',
     // backgroundColor: '#fff',
+  },
+  notificationContainer: {
+    // opacity: 0.5,
+    position: 'absolute',
+    top: 60,
+    right: 30,
+    borderRadius: 30,
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    backgroundColor: '#fff',
   },
   deleteButtonContainer: {
     position: 'absolute',

@@ -26,15 +26,15 @@ class GenericScreen extends Component {
   }
 
   render = () => {
-    const { source, children } = this.props
+    const { source, children, imageHeight = 0.6403 } = this.props
     return (
       <View style={styles.container}>
-        <View style={{ width: '100%', height: 0.6403 * height }}>
+        <View style={{ width: '100%', height: imageHeight * height }}>
           <Image
             source={{
               uri: source,
             }}
-            style={{ width: '100%', height: 0.6403 * height }}
+            style={{ width: '100%', height: imageHeight * height }}
             resizeMode="cover"
           />
           <LinearGradient colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.6)']} style={styles.blurView} />
@@ -136,6 +136,7 @@ const styles = StyleSheet.create({
   cardContainer: {
     marginTop: (-23 / 812) * height,
     // paddingBottom: (20 / 812) * height,
+    flex: 1,
     left: 0,
     right: 0,
     backgroundColor: '#FFFFFF',
