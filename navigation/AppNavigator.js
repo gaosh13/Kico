@@ -44,6 +44,7 @@ import Congratulations from '../screens/Congratulations'
 import FriendListScreen from '../screens/FriendListScreen'
 import FriendsScreen from '../screens/FriendsScreen'
 import FriendsProfileScreen from '../screens/FriendsProfileScreen'
+import Onboarding from '../screens/Onboarding'
 
 const { width, height } = Dimensions.get('window')
 
@@ -159,6 +160,7 @@ export default createSwitchNavigator(
     Auth: Login,
     Ready: ReadyPage,
     PersonalDrawer,
+    Onboarding,
     // CheckInStack,
   },
   {
