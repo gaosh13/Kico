@@ -85,6 +85,7 @@ export default class ChatScreen extends React.Component {
       Fire.shared.getFriend(getParam('uid')),
       Fire.shared.getCommonPlaces(getParam('uid')),
     ]).then(([user, otherAuth, friend, pool]) => {
+      let limit = undefined
       if (!friend.exists) limit = pool.length
       // console.log(limit)
       this.setState({
@@ -154,7 +155,7 @@ export default class ChatScreen extends React.Component {
   onSend(messages) {
     const { getParam } = this.props.navigation
     const { remainingMessages, limit } = this.state
-    if (remainingMessages) {
+    if (remainingMessages || this.state.isFriend) {
       const { getParam } = this.props.navigation
       if (!Array.isArray(messages)) {
         messages = [messages]

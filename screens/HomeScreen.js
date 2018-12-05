@@ -19,11 +19,20 @@ import { REACT_APP_FOURSQUARE_ID, REACT_APP_FOURSQUARE_SECRET } from 'react-nati
 import AsyncImageAnimated from '../components/AsyncImageAnimated'
 import { RandomCircles } from '../components/KiVisual'
 import Carousel, { Pagination } from 'react-native-snap-carousel'
+import MapView, { Marker } from 'react-native-maps'
 
 const { width, height } = Dimensions.get('window')
 
-const CARD_HEIGHT = (212 / 812) * height
-const CARD_WIDTH = width / 1.25
+const hRatio = value => {
+  return (value / 812) * height
+}
+
+const wRatio = value => {
+  return (value / 375) * width
+}
+
+const CARD_HEIGHT = hRatio(230)
+const CARD_WIDTH = wRatio(230)
 
 //https://codedaily.io/tutorials/9/Build-a-Map-with-Custom-Animated-Markers-and-Region-Focus-when-Content-is-Scrolled-in-React-Native
 
@@ -132,7 +141,11 @@ export default class HomeScreen extends React.Component {
         })
     }
     this.location = await Location.watchPositionAsync(
-      { enableHighAccuracy: false, timeInterval: 60000, distanceInterval: 25 },
+      {
+        enableHighAccuracy: false,
+        // timeInterval: 60000,
+        distanceInterval: 25,
+      },
       this.locationChanged
     )
     //this.locationChanged is called on each location update;
@@ -142,8 +155,8 @@ export default class HomeScreen extends React.Component {
     let region = {
       latitude: location.coords.latitude,
       longitude: location.coords.longitude,
-      latitudeDelta: 0.004,
-      longitudeDelta: 0.002,
+      latitudeDelta: 0.0025,
+      longitudeDelta: 0.0025,
     }
     // console.log("region has been retrieved", region)
     if (!this.mountState) return
@@ -265,11 +278,11 @@ export default class HomeScreen extends React.Component {
       location.coords.latitude +
       ',' +
       location.coords.longitude
-    console.log('fetchurl: ', fetchurl)
+    // console.log('fetchurl: ', fetchurl)
     try {
       let response = await fetch(fetchurl)
       let data = await response.json()
-      // console.log(data)
+      // console.log('AAAa',data.response.venues)
       return data.response.venues
       // return data.response.groups[0].items.map(item => item.venue)
       // the following code is for recommended search, research search in fetchurl with recommended return data.response.groups[0].items
@@ -314,7 +327,7 @@ export default class HomeScreen extends React.Component {
     if (this.mountState && this.state.poolLoaded) {
       // let friendSum = this.state.pool.reduce((prev,next) => prev + next.value,0);
       return (
-        <View>
+        <View style={styles.kiContainer}>
           <RandomCircles pool={this.state.pool} navigation={this.props.navigation} />
         </View>
       )
@@ -328,18 +341,41 @@ export default class HomeScreen extends React.Component {
     if (this.mountState && this.state.markers.length) {
       return (
         <View>
-          {this.pagination}
           <Carousel
             data={this.state.markers}
             renderItem={this._renderItem}
-            sliderWidth={width}
-            itemWidth={0.75 * width + 0.04 * width}
+            sliderWidth={CARD_WIDTH * 1.2}
+            itemWidth={CARD_WIDTH}
             containerCustomStyle={styles.slider}
             contentContainerCustomStyle={styles.sliderContentContainer}
-            onSnapToItem={index => this.setState({ activeSlide: index })}
-            layout={'default'}
+            onSnapToItem={index => {
+              clearTimeout(this.regionTimeout)
+              this.regionTimeout = setTimeout(() => {
+                if (this.index !== index) {
+                  this.index = index
+                  const coordinate = {
+                    latitude: this.state.markers[index].location.lat,
+                    longitude: this.state.markers[index].location.lng,
+                  }
+                  this.map.animateToRegion(
+                    {
+                      ...coordinate,
+                      latitudeDelta: 0.0025,
+                      longitudeDelta: 0.0025,
+                    },
+                    350
+                  )
+                }
+              }, 10)
+              this.setState({
+                activeSlide: index,
+              })
+            }}
+            layout={'stack'}
+            layoutCardOffset={`9`}
             // loop={true}
           />
+          {this.pagination}
         </View>
       )
     } else {
@@ -422,8 +458,57 @@ export default class HomeScreen extends React.Component {
         }
       >
         {/* <View style={styles.container}> */}
-        <View style={styles.kiContainer}>{this.drawKiView()}</View>
-        <View style={styles.cardContainer}>{this.drawMarkers()}</View>
+        <Text style={styles.yourPoolText}> Your Pool</Text>
+        <ScrollView horizontal style={{ zIndex: 2 }}>
+          {this.drawKiView()}
+        </ScrollView>
+        <View style={{ height: hRatio(349), width: width * 1.61 }}>
+          <MapView
+            ref={map => (this.map = map)}
+            style={{ width: width * 1.61, height: hRatio(349), zIndex: 0 }}
+            region={this.state.region}
+            provider="google"
+            showsUserLocation
+            followsUserLocation
+            showsBuildings
+            showsIndoors
+            showsIndoorLevelPicker
+            rotateEnabled={false}
+            scrollEnabled={false}
+            pitchEnabled={false}
+            loadingEnabled={true}
+            onRegionChangeComplete={region => {
+              this.setState({
+                region: region,
+              })
+            }}
+          >
+            {this.state.markers.map(marker => (
+              <Marker
+                coordinate={{ latitude: marker.location.lat, longitude: marker.location.lng }}
+                // title={marker.title}
+                // description={marker.description}
+              />
+            ))}
+          </MapView>
+          <LinearGradient
+            colors={['rgba(255,255,255,1)', 'rgba(255,255,255,0)']}
+            style={{ height: hRatio(108), width: width, zIndex: 1, position: 'absolute', top: 0 }}
+          />
+          <LinearGradient
+            colors={['rgba(255,255,255,0)', 'rgba(255,255,255,1)']}
+            style={{
+              height: hRatio(108),
+              width: width,
+              zIndex: 1,
+              position: 'absolute',
+              bottom: 0,
+            }}
+          />
+          <View style={styles.cardContainer}>{this.drawMarkers()}</View>
+        </View>
+        <Text style={styles.venuesText}> Venues</Text>
+
         <TouchableOpacity
           style={styles.notificationContainer}
           onPress={() => {
@@ -470,7 +555,7 @@ export default class HomeScreen extends React.Component {
   _renderOption() {
     if (this.state.showOption) {
       return (
-        <ImageBackground style={styles.optionContainer}>
+        <View style={styles.optionContainer}>
           {/* <ImageBackground style={styles.optionContainer} source={require('../assets/icons/optionContainer.png')}> */}
           <View
             style={
@@ -480,7 +565,7 @@ export default class HomeScreen extends React.Component {
             }
           >
             <TouchableOpacity
-              style={{ paddingVertical: 10 }}
+              style={{ paddingVertical: 10, zIndex: 10 }}
               onPress={() => {
                 this.setState({ showOption: false }, function() {
                   this.props.navigation.navigate('CreateTask', {
@@ -500,7 +585,7 @@ export default class HomeScreen extends React.Component {
               }}
             />
             <TouchableOpacity
-              style={{ paddingVertical: 10 }}
+              style={{ paddingVertical: 10, zIndex: 10 }}
               onPress={() => {
                 this.setState({ showOption: false }, function() {
                   this.props.navigation.navigate('QRScanner', {
@@ -512,7 +597,7 @@ export default class HomeScreen extends React.Component {
               <Text style={styles.optionText}>Scan QR Code</Text>
             </TouchableOpacity>
           </View>
-        </ImageBackground>
+        </View>
       )
     } else return null
   }
@@ -521,7 +606,7 @@ export default class HomeScreen extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'transparent',
+    backgroundColor: 'white',
   },
   notificationContainer: {
     // opacity: 0.5,
@@ -539,6 +624,7 @@ const styles = StyleSheet.create({
     shadowOffset: { x: 0, y: 10 },
   },
   showOptionContainer: {
+    zIndex: 8,
     position: 'absolute',
     // opacity: 0.5,
     top: 60,
@@ -554,6 +640,7 @@ const styles = StyleSheet.create({
     shadowOffset: { x: 0, y: 10 },
   },
   optionContainer: {
+    zIndex: 9,
     position: 'absolute',
     // opacity: 0.75,
     top: 110,
@@ -592,10 +679,28 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { x: 0, y: 10 },
   },
+  yourPoolText: {
+    zIndex: 3,
+    marginTop: hRatio(121),
+    fontSize: hRatio(36),
+    fontFamily: 'GSB',
+    marginLeft: wRatio(16),
+  },
+  venuesText: {
+    zIndex: 3,
+    marginTop: -hRatio(341),
+    fontSize: hRatio(36),
+    fontFamily: 'GSB',
+    marginLeft: wRatio(16),
+  },
   kiContainer: {
-    height: height - CARD_HEIGHT,
-    width: width,
-    backgroundColor: 'transparent',
+    flex: 1,
+    marginTop: hRatio(8),
+    paddingLeft: -width * 0.5,
+    height: hRatio(292),
+    width: width * 2,
+    // backgroundColor: 'transparent',
+    overflow: 'visible',
   },
   itemContainer: {
     marginBottom: 15,
@@ -640,9 +745,8 @@ const styles = StyleSheet.create({
   },
   card: {
     alignItems: 'center',
-    elevation: 2,
     backgroundColor: '#FFF',
-    marginHorizontal: 2.5,
+    // marginHorizontal: 2.5,
     // borderTopLeftRadius: 5,
     // borderTopRightRadius: 5,
     borderRadius: 5,
@@ -653,6 +757,7 @@ const styles = StyleSheet.create({
     height: CARD_HEIGHT,
     width: CARD_WIDTH,
     overflow: 'hidden',
+    zIndex: 5,
   },
   cardImage: {
     width: CARD_WIDTH,
@@ -708,9 +813,9 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     position: 'absolute',
-    bottom: -CARD_HEIGHT,
-    backgroundColor: 'transparent',
-    // paddingVertical: 30
+    bottom: hRatio(47),
+    left: -23,
+    // backgroundColor: 'transparent',
   },
   slider: {
     // marginTop: 15,
