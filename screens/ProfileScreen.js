@@ -69,7 +69,7 @@ export default class ProfileScreen extends React.Component {
 
   onSet(number, text) {
     console.log('this', number, text)
-    let { name, gender, age } = this.state
+    let { name, gender, age, intro } = this.state
     if (number === 0) {
       name = text
     } else if (number === 1) {
@@ -79,7 +79,7 @@ export default class ProfileScreen extends React.Component {
     } else if (number === 3) {
       intro = text
     }
-    const info = { name, gender, age, intro }
+    const info = { name, gender, age: age.toString(), intro }
     this.setState(info)
     Fire.shared.updateInfo(info)
   }

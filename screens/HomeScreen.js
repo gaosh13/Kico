@@ -372,7 +372,7 @@ export default class HomeScreen extends React.Component {
               })
             }}
             layout={'stack'}
-            layoutCardOffset={`9`}
+            layoutCardOffset={9}
             // loop={true}
           />
           {this.pagination}
@@ -483,8 +483,9 @@ export default class HomeScreen extends React.Component {
               })
             }}
           >
-            {this.state.markers.map(marker => (
+            {this.state.markers.map((marker, index) => (
               <Marker
+                key={index}
                 coordinate={{ latitude: marker.location.lat, longitude: marker.location.lng }}
                 // title={marker.title}
                 // description={marker.description}
@@ -762,7 +763,7 @@ const styles = StyleSheet.create({
   cardImage: {
     width: CARD_WIDTH,
     height: CARD_HEIGHT,
-    resizeMode: 'cover',
+    // resizeMode: 'cover',
   },
   handle: {
     position: 'absolute',
