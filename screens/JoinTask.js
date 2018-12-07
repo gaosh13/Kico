@@ -148,25 +148,54 @@ export default class CheckInScreen extends React.Component {
           <Text style={styles.descriptionText}> # of Attenders </Text>
           {this.drawKiView()}
           <View style={styles.buttonContainer}>
+            <View style={{ width: width, flexDirection: 'row', justifyContent: 'center' }}>
+              <AwesomeButton
+                // progress
+                marginTop={hRatio(32)}
+                height={(68 / 812) * height}
+                width={wRatio(150)}
+                backgroundColor="#FFFFFF"
+                borderRadius={(34 / 812) * height}
+                onPress={next => {
+                  ;(this.state.isGoing
+                    ? Fire.shared.ungoingTask(task)
+                    : Fire.shared.joinTask(task)
+                  ).then(() => {
+                    this.fetchdata(true)
+                  })
+                  next()
+                }}
+              >
+                <Text style={styles.text}>{displayText}</Text>
+              </AwesomeButton>
+              <View style={{ width: wRatio(12) }} />
+              <AwesomeButton
+                // progress
+                marginTop={hRatio(32)}
+                height={(68 / 812) * height}
+                width={wRatio(150)}
+                backgroundColor="#FFFFFF"
+                borderRadius={(34 / 812) * height}
+                onPress={next => {
+                  this.props.navigation.navigate('TaskChatScreen', {
+                    task: {
+                      id: this._taskID,
+                      pool: this.state.pool,
+                      where: this.state.where,
+                      what: this.state.what,
+                      when: this.state.when,
+                      time: this.state.time,
+                    },
+                  })
+                  next()
+                }}
+              >
+                <Text style={styles.text}>View Group Chat</Text>
+              </AwesomeButton>
+              `
+            </View>
             {this._renderQRCode()}
-            <AwesomeButton
-              // progress
-              marginTop={hRatio(32)}
-              height={(68 / 812) * height}
-              backgroundColor="#FFFFFF"
-              borderRadius={(34 / 812) * height}
-              onPress={next => {
-                ;(this.state.isGoing
-                  ? Fire.shared.ungoingTask(task)
-                  : Fire.shared.joinTask(task)
-                ).then(() => {
-                  this.fetchdata(true)
-                })
-                next()
-              }}
-            >
-              <Text style={styles.text}>{displayText}</Text>
-            </AwesomeButton>
+
             {/* <Text style={{marginTop: 10, alignSelf: 'flex-end', opacity: 0.3}}>{this._taskID}</Text> */}
           </View>
         </GenericScreen>
@@ -182,7 +211,7 @@ export default class CheckInScreen extends React.Component {
         >
           <Image source={require('../assets/icons/back.png')} />
         </TouchableOpacity>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.notificationContainer}
           onPress={() =>
             this.props.navigation.navigate('TaskChatScreen', {
@@ -198,7 +227,7 @@ export default class CheckInScreen extends React.Component {
           }
         >
           <Image source={require('../assets/icons/notification.png')} />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         {/* <TouchableOpacity
           style={styles.deleteButtonContainer}
           onPress={() => {

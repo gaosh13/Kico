@@ -48,8 +48,13 @@ class Fire extends React.Component {
         .doc(this.uid)
         .get()
         .then(doc => {
-          // if (!doc.exists) doc.ref.set(data)
-          doc.ref.set(data)
+          if (!doc.exists) {
+            doc.ref.set(data)
+            return true
+          } else {
+            doc.ref.set(data)
+            return
+          }
         })
     }
   }

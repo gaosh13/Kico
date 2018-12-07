@@ -22,7 +22,14 @@ import Fire from '../components/Fire'
 export default class Login extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { signedIn: false, name: '', photoUrl: '', userid: '', method: '' }
+    this.state = {
+      signedIn: false,
+      name: '',
+      photoUrl: '',
+      userid: '',
+      method: '',
+      firsttimeuser: false,
+    }
     this.mountedState = false
   }
 
@@ -45,7 +52,7 @@ export default class Login extends React.Component {
         console.log('google signed in, userID: ', Fire.shared.uid)
         const pushNotificationToken = await this.registerForPushNotificationsAsync()
         console.log('push notification token: ', pushNotificationToken)
-        await this.upload(
+        const firsttimeuser = await this.upload(
           result.user.name,
           result.user.photoUrl,
           result.user.id,
@@ -56,6 +63,7 @@ export default class Login extends React.Component {
         if (this.mountedState)
           this.setState({
             signedIn: true,
+            firsttimeuser: firsttimeuser,
           })
       } else {
         console.log('cancelled')
@@ -134,11 +142,18 @@ export default class Login extends React.Component {
         console.log('facebook signed in, userID: ', Fire.shared.uid)
         const pushNotificationToken = await this.registerForPushNotificationsAsync()
         console.log('push notification token: ', pushNotificationToken)
-        await this.upload(name, picture.data.url, id, 'facebook', pushNotificationToken)
+        const firsttimeuser = await this.upload(
+          name,
+          picture.data.url,
+          id,
+          'facebook',
+          pushNotificationToken
+        )
         await console.log('firebase has been updated')
         if (this.mountedState)
           this.setState({
             signedIn: true,
+            firsttimeuser: firsttimeuser,
           })
       } else {
         console.log('cancelled')
@@ -157,7 +172,8 @@ export default class Login extends React.Component {
       >
         <View style={styles.container}>
           {this.state.signedIn ? (
-            <ReadyPage state={this.state} navigation={this.props.navigation} />
+            // ()=>{this.props.navigation.navigate('Ready',{checked:true})}
+            <ReadyPage stated={this.state} navigation={this.props.navigation} />
           ) : (
             <LoginPage GsignIn={this.GooglesignIn} FsignIn={this.FacebooksignIn} />
           )}

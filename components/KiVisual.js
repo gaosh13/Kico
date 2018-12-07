@@ -39,7 +39,7 @@ export class RandomCircles extends React.PureComponent {
 
     while (circles.length < NumCircles && counter < protection) {
       //perhaps better algorithm here, like if circles.lenght<NumCircles && counter > protection, redo the while loop with larger denomicator beneath area
-      var size = Math.sqrt((pool[savedCirclesCounter].value / newSum) * (area / 8))
+      var size = Math.sqrt((pool[savedCirclesCounter].value / newSum) * (area / 12))
       var randomX = size + Math.round(Math.random() * (2 * width - size * 2))
       var randomY = size + Math.round(Math.random() * ((292 / 812) * height - size * 2))
       var opacity = 0.5 + 0.5 * (Math.max(0, 8 - savedCirclesCounter) / 8)

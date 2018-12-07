@@ -18,17 +18,20 @@ import ButtonComponent, {
   RoundButton,
   RectangleButton,
 } from 'react-native-button-component'
+import { CheckBox } from 'react-native-elements'
 
 require('firebase/firestore')
 
 export default class ReadyPage extends React.Component {
   constructor(props) {
     super(props)
+    // console
     this.state = {
       FirebaseLoginStatus: true,
       name: '',
       photoUrl: '../assets/images/icon.png',
       loaded: false,
+      checked: props.checked,
     }
     this.Logout = this.Logout.bind(this)
     this.mountState = false
@@ -67,6 +70,7 @@ export default class ReadyPage extends React.Component {
   }
 
   render() {
+    console.log(this.props)
     return (
       <ImageBackground
         style={{ width: '100%', height: '100%' }}
@@ -79,11 +83,24 @@ export default class ReadyPage extends React.Component {
           <Text style={styles.h3}>{'\n'}</Text>
           <Image style={styles.image} source={{ uri: this.state.photoUrl }} />
           <Text style={styles.h3}>{'\n'}</Text>
+          <CheckBox
+            center
+            title="View Onboarding"
+            textStyle={{ fontFamily: 'GR', fontSize: 14, color: 'white' }}
+            containerStyle={{ backgroundColor: 'transparent', borderColor: 'transparent' }}
+            checkedColor="white"
+            checked={this.state.checked}
+            onPress={() => this.setState({ checked: !this.state.checked })}
+          />
           <AwesomeButtonRick
             type="primary"
             progress={true}
             height={50}
-            onPress={() => this.props.navigation.navigate('Onboarding')}
+            onPress={
+              this.state.checked
+                ? () => this.props.navigation.navigate('Onboarding')
+                : () => this.props.navigation.navigate('PersonalDrawer')
+            }
           >
             <Text style={styles.h3}>Synchronize to Game</Text>
           </AwesomeButtonRick>

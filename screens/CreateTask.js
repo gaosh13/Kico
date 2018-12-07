@@ -42,10 +42,14 @@ export default class App extends React.Component {
       where: undefined,
       whereItems: [
         {
-          label: 'Suzzallo Library',
-          // value: '12280 NE District Way, Bellevue, WA 98005',
-          value: '4a31cc4af964a5202b9a1fe3',
+          label: 'Global Innovation Exchange',
+          value: '59bb267a805e3f59823645a3',
         },
+        // {
+        //   label: 'Suzzallo Library',
+        //   // value: '12280 NE District Way, Bellevue, WA 98005',
+        //   value: '4a31cc4af964a5202b9a1fe3',
+        // },
         {
           label: 'Odegaard Library',
           // value: '4060 George Washington Lane Northeast, Seattle, WA 98195',
@@ -61,36 +65,36 @@ export default class App extends React.Component {
           // value: '3924 Montlake Blvd NE, Seattle, WA 98195',
           value: '4ad7da23f964a520710f21e3',
         },
-        {
-          label: 'Husky Stadium',
-          // value: '10214 NE 8th St Bellevue WA 98004',
-          value: '42a78680f964a52014251fe3',
-        },
+        // {
+        //   label: 'Husky Stadium',
+        //   // value: '10214 NE 8th St Bellevue WA 98004',
+        //   value: '42a78680f964a52014251fe3',
+        // },
         {
           label: 'Red square',
           // value: '1912 Pike Pl Seattle WA 98101',
           value: '4b06cf78f964a520a4f022e3',
         },
-        {
-          label: 'Kungfu Tea',
-          // value: '400 Broad St, Seattle, WA 98109',
-          value: '5789221b498e4bcb1f8c0beb',
-        },
-        {
-          label: 'Enkore',
-          // value: '2101 N Northlake Way, Seattle, WA 98103',
-          value: '4a7406b6f964a520b5dd1fe3',
-        },
+        // {
+        //   label: 'Kungfu Tea',
+        //   // value: '400 Broad St, Seattle, WA 98109',
+        //   value: '5789221b498e4bcb1f8c0beb',
+        // },
+        // {
+        //   label: 'Enkore',
+        //   // value: '2101 N Northlake Way, Seattle, WA 98103',
+        //   value: '4a7406b6f964a520b5dd1fe3',
+        // },
         {
           label: 'Drumheller Fountain',
           // value: '550 106th Ave NE #215 Bellevue WA 98004',
           value: '4beb11bf415e20a171d8e5bb',
         },
-        {
-          label: 'Starbucks @ Ave',
-          // value: '4147 University Way NE Seattle WA 98105',
-          value: '4470775ef964a52093331fe3',
-        },
+        // {
+        //   label: 'Starbucks @ Ave',
+        //   // value: '4147 University Way NE Seattle WA 98105',
+        //   value: '4470775ef964a52093331fe3',
+        // },
       ],
       whatIndex: undefined,
       selectedWhatBool: false,

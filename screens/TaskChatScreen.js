@@ -132,7 +132,8 @@ export default class CheckInScreen extends React.Component {
 
   onSend(messages) {
     const { getParam } = this.props.navigation
-    let canTalk = Fire.shared.timeLimit_date(this.state.time)
+    let canTalk = Fire.shared.timeLimit_date(this.state.time, 3600)
+    console.log('canTalk', canTalk)
     // messages.createdAt.getTime()
     if (canTalk) {
       if (!Array.isArray(messages)) {

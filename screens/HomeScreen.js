@@ -459,7 +459,7 @@ export default class HomeScreen extends React.Component {
       >
         {/* <View style={styles.container}> */}
         <Text style={styles.yourPoolText}> Your Pool</Text>
-        <ScrollView horizontal style={{ zIndex: 2 }}>
+        <ScrollView horizontal contentOffset={{ x: 0.5 * width }} style={{ zIndex: 2 }}>
           {this.drawKiView()}
         </ScrollView>
         <View style={{ height: hRatio(349), width: width * 1.61 }}>
@@ -694,9 +694,9 @@ const styles = StyleSheet.create({
     marginLeft: wRatio(16),
   },
   kiContainer: {
-    flex: 1,
+    // flex: 1,
     marginTop: hRatio(8),
-    paddingLeft: -width * 0.5,
+    // marginLeft: -width * 0.5,
     height: hRatio(292),
     width: width * 2,
     // backgroundColor: 'transparent',
@@ -762,6 +762,7 @@ const styles = StyleSheet.create({
   cardImage: {
     width: CARD_WIDTH,
     height: CARD_HEIGHT,
+    resizeMode: 'cover',
   },
   handle: {
     position: 'absolute',
